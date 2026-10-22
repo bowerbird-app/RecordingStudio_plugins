@@ -1,173 +1,140 @@
-# GemTemplate
+# Recording Studio Plugins
 
-Internal template for building Rails engine addons on top of Recording Studio 4.x.
+A directory of integrations for Recording Studio.
 
-## What's Included
+Gems and host apps register plugins in Ruby. People browse them, read how to connect and use each one, and see a status the owning gem reports. This gem does not connect, authorize, import, monitor, or store anything about an integration.
 
-- **Recording Studio** 4.x gem pinned and configured
-- **Devise** authentication with a pre-seeded admin user
-- **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
-- **FlatPack** UI component library for all views
-- **Dummy app** (`test/dummy/`) with a FlatPack sign-in screen, a home page on Recording Studio's default layout, mounted Recording Studio routes, and FlatPack's built-in rounded theme
+## Install and mount
 
-Authenticated dummy pages use Recording Studio's shared default layout (`RecordingStudio::UsesDefaultLayout`) plus FlatPack CSS and JS. Devise keeps its own sign-in layout. Dummy `/docs/*` pages stay in the dummy app as a host-app sandbox; they are not the product README.
-
-## Quick Start
-
-### Cursor Cloud Agent (Recommended)
-
-A Cloud Agent boots this repo into a ready-to-use dev environment with no manual steps. The setup lives in `.cursor/`:
-
-- `install.sh` provisions Ruby (pinned by `.ruby-version`), PostgreSQL 16, all gems, the seeded dummy database, and compiled CSS at build time, then fetches Recording Studio skills.
-- `start.sh` starts PostgreSQL on every boot.
-- `environment.json` runs the `rails-server` and `tailwind-watch` terminals and exposes port 3000.
-
-Open port 3000 and sign in at `/users/sign_in`. No environment variables are required — the dummy app's `database.yml` defaults match the provisioned PostgreSQL cluster.
-
-### GitHub Codespaces
-
-1. Click **Code** → **Codespaces** → **Create codespace**
-2. Wait for setup to complete
-3. Run:
-   ```bash
-   cd test/dummy
-   bin/rails db:setup
-   bin/dev
-   ```
-4. Open port 3000 — you'll land on the dummy app home page and can sign in at `/users/sign_in`
-
-The dummy app is intended as a host-app validation surface for authentication, FlatPack rendering, Tailwind source scanning, and Recording Studio route wiring.
-
-Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
-
-### Login Credentials
-
-| Field    | Value             |
-|----------|-------------------|
-| Email    | admin@admin.com   |
-| Password | Password          |
-
-The login form is prefilled with these credentials for fast access.
-
-### Useful Routes
-
-- `/` — dummy app home page
-- `/users/sign_in` — Devise sign-in page
-- `/recording_studio` — redirect to `/` while the mounted Recording Studio engine remains data/API-focused
-- `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` — dummy-only starter pages
-
-The home page in `test/dummy/app/views/home/index.html.erb` is a starting point for a minimal demo of the gem's primary behavior. Keep deeper explanations on the dummy docs pages, not in this README.
-
-## Architecture
-
-### Root Recording Pattern
-
-This template follows Recording Studio's root recording pattern:
-
-- **Workspace** is the top-level recordable
-- **Folder** and **Page** demonstrate nested recordables under the workspace root
-- Each configured recordable declares `recording_studio_recordable(...)`; strict declaration validation stays enabled
-- A root `RecordingStudio::Recording` wraps the Workspace
-- `Current.actor` is set from `current_user` (Devise) in `ApplicationController`
-
-### Extending Recording Studio
-
-To add new recordable types:
-
-1. Create your model (e.g., `Page`, `Comment`)
-2. Register it in `config/initializers/recording_studio.rb`:
-   ```ruby
-   RecordingStudio.configure do |config|
-     config.recordable_types = ["Workspace", "YourNewType"]
-   end
-   ```
-3. Declare whether the model can be a root and which parents may contain it:
-   ```ruby
-   class YourNewType < ApplicationRecord
-     recording_studio_recordable label: "Your new type",
-                                 root: false,
-                                 allowed_parent_types: ["Workspace", "Folder"]
-   end
-   ```
-4. Validate declarations and create recordings under the root:
-   ```ruby
-   RecordingStudio.validate_recordable_declarations!
-   root_recording = RecordingStudio.root_recording_for(workspace)
-   root_recording.record(YourNewType) do |record|
-     record.title = "Example"
-   end
-   ```
-
-### Recordable Declarations
-
-Every configured ActiveRecord recordable type must declare its hierarchy rules. Declarations are required; they are not version-specific.
-
-- `Workspace` declares `root: true`
-- `Folder` and `Page` declare `root: false, allowed_parent_types: ["Workspace", "Folder"]`
-- `config.require_recordable_declarations = true` remains enabled in the dummy app initializer
-
-Useful console checks:
+Add the gem and its runtime dependencies: Rails, `recording_studio`, `recording_studio_accessible`, and `flat_pack`.
 
 ```ruby
-RecordingStudio.validate_recordable_declarations!
-RecordingStudio.root_recordable_types
-RecordingStudio.allowed_parent_types_for("Page")
+gem "recording_studio_plugins"
 ```
 
-### Capabilities
+```bash
+bin/rails generate recording_studio_plugins:install
+```
 
-Capability mixins are opt-in. Installing this gem does not enable mixins on host types.
+The generator mounts the engine at `/recording_studio_plugins`. Change the path with `--mount_path` or `config.mount_path`. The pages use Recording Studio's default layout.
 
-The dummy Workspace enables Accessible because that addon is bundled:
+People need access to the current workspace. Both pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links render only when the same check passes for `:edit`. This gem has no mutating endpoint. The destination gem authorizes its own requests.
+
+## Register
 
 ```ruby
-RecordingStudio.enable_capability(:accessible, on: Workspace)
+RecordingStudioPlugins.register(
+  :google_drive,
+  name: "Google Drive",
+  description: "Import images and files from Google Drive.",
+  category: :storage,
+  icon: "cloud",
+  provider: MyApp::Plugins::GoogleDrive,
+  position: 10,
+  owner: "my_app"
+)
+
+RecordingStudioPlugins.find(:google_drive)        # Definition or nil
+RecordingStudioPlugins.all                        # ordered Definitions, overrides applied
+RecordingStudioPlugins.available(context:)        # all, minus hidden and unavailable
 ```
 
-The template also ships one example mixin that uses core 4.2.0's `include_for` factory:
+Metadata is `key`, `name`, `description`, `category`, `icon`, `provider`, `position`, and `owner`. `icon` is a Heroicon name. `category` must be a known category or registration raises `RecordingStudioPlugins::UnknownCategory`. Order is `position`, then `name`.
+
+Registering the same key with the same `owner` replaces the definition, so reloads are safe. The same key with a different `owner` raises `RecordingStudioPlugins::RegistryConflict`.
+
+Definitions hold no credentials and create no records. There are no tables.
+
+Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation`, and `other`. `config.extra_categories` adds more. Labels come from `recording_studio.plugins.categories.*`.
+
+## Provider
+
+A provider is any object that responds to some of these methods. Every method is optional. The controller passes a `RecordingStudioPlugins::Context` and the provider does not read `Current`.
+
+| Method | Returns | When missing |
+|---|---|---|
+| `available?(context)` | `true` or `false` | listed |
+| `status(context)` | `nil` or `RecordingStudioPlugins::Status` | no status, one Set up button with no URL |
+| `about(context)` | plain text or `nil` | section hidden |
+| `setup_instructions(context)` | plain text or `nil` | section hidden |
+| `usage_instructions(context)` | plain text or `nil` | section hidden |
+| `documentation_url(context)` | URL string or `nil` | no link |
 
 ```ruby
-include RecordingStudio::Capabilities::Example.to(label: "dummy workspace")
+RecordingStudioPlugins::Context.new(actor:, root_recording:, request:)
+
+RecordingStudioPlugins::Status.new(
+  state: :connected,          # :connected, :attention, or nil
+  message: nil,               # shown with Attention
+  action_label: nil,          # for example "Connect", "Install", "Reconnect"
+  action_url: nil
+)
 ```
 
-`.to` wraps `RecordingStudio::Capabilities.include_for`. It does not add a fourth verb and it does not call `enable_capability` / `set_capability_options` itself. Folder and Page stay without the example mixin.
+`request` is there so a future provider can read its own session key. This gem never reads or stores that session.
 
-Use core `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService`. Do not copy those classes into a new addon.
+Each provider call is rescued and logged. If `available?` raises, the plugin is still listed. If `status` raises, that card shows no badge and no action. Other cards are unaffected. Each provider method is called at most once per plugin per request.
 
-### FlatPack UI Components
+## Display
 
-All views use FlatPack ViewComponents. Available components include:
+- `state: :connected` shows a green badge reading "Connected".
+- `state: :attention` shows an amber badge reading "Attention", plus `message`. An action renders when the provider supplies one.
+- Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
+- There is no "Not connected" badge.
 
-- `FlatPack::Button::Component` — Buttons (`:primary`, `:secondary`, `:ghost`)
-- `FlatPack::Card::Component` — Cards (`:default`, `:elevated`, `:outlined`)
-- `FlatPack::Alert::Component` — Alerts (`:success`, `:error`, `:warning`, `:info`)
-- `FlatPack::Badge::Component` — Status badges
-- `FlatPack::Table::Component` — Data tables
-- `FlatPack::TextInput::Component`, `EmailInput`, `PasswordInput` — Form inputs
-- `FlatPack::PageNav::Component` — Default-layout page navigation
-- `FlatPack::PageTitle::Component` — Page titles
+This gem does not decide health, heartbeats, or staleness. The provider decides.
 
-Use the live FlatPack demo app at [flatpack.bowerbird.io](https://flatpack.bowerbird.io/) as the approved UI reference for current shared patterns. Its component table is the fastest way to discover available FlatPack components before introducing new custom UI.
+## URLs
 
-See the [FlatPack README](https://github.com/bowerbird-app/flatpack) for full documentation.
+Action and documentation URLs render as links. `https://` URLs and paths that start with a single `/` are allowed. `http:`, protocol-relative URLs, `javascript:`, `data:`, and URLs with userinfo are dropped. An invalid URL omits that control and the card still renders. External links open with `rel="noopener noreferrer"`.
 
-## Tech Stack
+Provider text is plain text. Rails escapes it.
 
-| Component       | Version |
-|-----------------|---------|
-| Ruby            | 3.3+    |
-| Rails           | 8.1+    |
-| PostgreSQL      | 16      |
-| TailwindCSS     | 4       |
-| RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.7.0`) |
-| Accessible      | dummy GitHub tag `v0.18.0` |
-| Trashable       | dummy GitHub tag `v0.11.0` (`require: false`; query-only via Accessible) |
-| Root Switchable | dummy GitHub tag `v0.9.0` |
-| FlatPack        | dummy GitHub tag `v0.1.196` |
-| Devise          | latest  |
+## Configuration
 
-The dummy Gemfile keeps `github:` sources so Bundler can fetch those gems. The gemspec still pins `recording_studio` to `~> 4.2` so copied addons declare the core dependency even when GitHub is the fetch source.
+`hidden_keys` and `overrides` apply when the directory reads, so a reload cannot wipe them. Overrides may set `name`, `description`, `category`, and `position`.
 
-## Documentation
+```ruby
+RecordingStudioPlugins.configure do |config|
+  config.mount_path = "/recording_studio_plugins"
+  config.hidden_keys = [:dropbox]
+  config.overrides = { google_drive: { name: "Drive", position: 1 } }
+  config.extra_categories = [:press]
+end
+```
 
-The original gem template documentation is preserved in `docs/gem_template/` as architectural reference material. Use it as background on the engine conventions; this README and the dummy app are the source of truth for the Recording Studio addon workflow.
+Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translation.register_shipped_english`, so a host can override it.
+
+## Who owns what
+
+| Gem | Owns |
+|---|---|
+| Recording Studio Plugins | Registry, directory page, detail page, status display |
+| Recording Studio Attachable | Google Drive and Dropbox picking, import, and their OAuth. Tokens live in the Rails session, not on the workspace. |
+| Recording Studio OAuth | Inbound authorization server for third-party apps connecting to the host. No outbound Google or Dropbox OAuth. |
+| Recording Studio MCP | Remote MCP HTTP adapter over the OAuth grant. No installation or usage signal. |
+| Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
+| Flatpack | UI components |
+
+This gem depends on Rails, `recording_studio`, `recording_studio_accessible`, and `flat_pack` only.
+
+## Another gem registering
+
+This is a pattern, not shipped code. The other gem registers from its own engine. Use `to_prepare` for autoloaded provider classes and `after_initialize` for boot constants.
+
+```ruby
+config.to_prepare do
+  next unless defined?(RecordingStudioPlugins)
+
+  RecordingStudioPlugins.register(
+    :dropbox,
+    name: "Dropbox",
+    description: "Import images and files from Dropbox.",
+    category: :storage,
+    icon: "archive-box",
+    provider: RecordingStudioAttachable::Plugins::Dropbox,
+    position: 20,
+    owner: "recording_studio_attachable"
+  )
+end
+```

@@ -1,0 +1,39 @@
+en:
+  recording_studio:
+    plugins:
+      directory:
+        title: Plugins
+        description: See what you can connect, and what's already set up.
+        search_placeholder: Search
+        search: Search
+        all_categories: All
+        details: Details
+      empty:
+        none:
+          title: Nothing here yet
+          description: Plugins show up here once they're added.
+        category:
+          title: Nothing in this category
+          description: Try another category.
+        search:
+          title: No matches
+          description: Try a different word.
+      detail:
+        about: About
+        setup: How to connect
+        usage: How to use
+        documentation: Documentation
+      status:
+        connected: Connected
+        attention: Attention
+        setup: Set up
+      categories:
+        ai_agents: AI agents
+        storage: Storage
+        social: Social
+        websites: Websites
+        automation: Automation
+        other: Other
+      forbidden:
+        title: You don't have access
+        description: Ask someone to invite you to this workspace.

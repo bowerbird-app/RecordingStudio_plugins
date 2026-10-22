@@ -1,0 +1,51 @@
+<% recording_studio_page_nav(
+  title: @listing.name,
+  page_nav_back_url: root_path,
+  page_nav_back_label: plugin_copy("directory.title")
+) %>
+
+<%= render FlatPack::Shared::IconComponent.new(name: @listing.icon, size: :xl) %>
+
+<%= render FlatPack::PageTitle::Component.new(
+  title: @listing.name,
+  subtitle: @listing.description
+) do |page_title| %>
+  <% page_title.slot do %>
+    <%= plugin_badge(@listing) %>
+    <%= plugin_action(@listing, can_edit: can_edit_plugins?) %>
+  <% end %>
+<% end %>
+
+<% if @listing.message.present? %>
+  <p><%= @listing.message %></p>
+<% end %>
+
+<% if @listing.about.present? %>
+  <%= render FlatPack::SectionTitle::Component.new(title: plugin_copy("detail.about")) %>
+  <% plugin_paragraphs(@listing.about).each do |paragraph| %>
+    <p><%= paragraph %></p>
+  <% end %>
+<% end %>
+
+<% if @listing.setup_instructions.present? %>
+  <%= render FlatPack::SectionTitle::Component.new(title: plugin_copy("detail.setup")) %>
+  <% plugin_paragraphs(@listing.setup_instructions).each do |paragraph| %>
+    <p><%= paragraph %></p>
+  <% end %>
+<% end %>
+
+<% if @listing.usage_instructions.present? %>
+  <%= render FlatPack::SectionTitle::Component.new(title: plugin_copy("detail.usage")) %>
+  <% plugin_paragraphs(@listing.usage_instructions).each do |paragraph| %>
+    <p><%= paragraph %></p>
+  <% end %>
+<% end %>
+
+<% if @listing.documentation_url %>
+  <%= render FlatPack::Link::Component.new(
+    href: @listing.documentation_url,
+    target: (@listing.documentation_external? ? "_blank" : nil)
+  ) do %>
+    <%= plugin_copy("detail.documentation") %>
+  <% end %>
+<% end %>

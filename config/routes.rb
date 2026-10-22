@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
-GemTemplate::Engine.routes.draw do
-  root "home#index"
+RecordingStudioPlugins::Engine.routes.draw do
+  root "plugins#index"
+  get ":key", to: "plugins#show", as: :plugin, constraints: { key: /[a-z][a-z0-9_]*/ }
 end
