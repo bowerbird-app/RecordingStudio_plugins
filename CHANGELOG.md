@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-10-22
+
+### Added
+- Plugin registry, directory, and detail page. Gems and hosts register plugins in Ruby. People browse them, read how to connect and use each one, and see a status the owning gem reports.
+- Accessible `:view` gates the pages. Action links render for `:edit`.
+
+### Upgrade notes
+- This is the first plugins release. Add the gem, mount `RecordingStudioPlugins::Engine`, and register plugins.
+- There are no tables to migrate.
+- The directory does not connect, authorize, or store integration credentials. Owning gems report status through a provider.
+
 ## [Unreleased]
 
 ### Changed
@@ -71,7 +82,7 @@ New addons copied from this template are born on Recording Studio 4.x.
 ### Added
 - Gemspec dependency `recording_studio`, `~> 4.1`
 - Dummy host wiring for Accessible (`enable_capability(:accessible, on: Workspace)`) and an opt-in `RecordingStudio::Capabilities::Example.to` mixin. `.to` wraps core 4.2.0 `include_for` (not a fourth verb, and not a raw `enable_capability` / `set_capability_options` path). Installing the gem does not enable the mixin globally; only dummy Workspace opts in.
-- `bin/rename_gem` leftover-identity rewrite/verification for README, homepage, and changelog URLs that still say `GemTemplate` or point at `bowerbird-app/gem_template`
+- `bin/rename_gem` leftover-identity rewrite/verification for README, homepage, and changelog URLs that still say `RecordingStudioPlugins` or point at `bowerbird-app/recording_studio_plugins`
 
 ### Changed
 - Dummy GitHub tags: Recording Studio `v4.2.0`, Accessible `v0.6.0`, Root Switchable `v0.5.0`, FlatPack `v0.1.133`
@@ -80,7 +91,7 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Require `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService` from core instead of shipping copies
 
 ### Removed
-- Copied `lib/gem_template/hooks.rb` and `lib/gem_template/services/base_service.rb`
+- Copied `lib/recording_studio_plugins/hooks.rb` and `lib/recording_studio_plugins/services/base_service.rb`
 - Product-shipped `ExampleService`
 - Custom `flat_pack_sidebar` authenticated shell
 
@@ -115,11 +126,11 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_gem_template/compare/v0.2.3...HEAD
-[0.2.3]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.3
-[0.2.2]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.2
-[0.2.1]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.1
-[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.0
-[0.1.2]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.2
-[0.1.1]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.1
-[0.1.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.3
+[0.2.2]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.2
+[0.2.1]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.1
+[0.2.0]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.0
+[0.1.2]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.1.2
+[0.1.1]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.1.1
+[0.1.0]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.1.0

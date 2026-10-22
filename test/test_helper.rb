@@ -13,4 +13,8 @@ end
 require "rails"
 require "active_support/time"
 Time.zone ||= "UTC"
-require "gem_template"
+require "recording_studio_plugins"
+
+RecordingStudio::Translation.register_shipped_english(
+  File.expand_path("../config/locales/en.yml", __dir__)
+)

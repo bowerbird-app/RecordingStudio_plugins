@@ -1,0 +1,54 @@
+<% recording_studio_page_nav(title: plugin_copy("directory.title")) %>
+
+<%= render FlatPack::PageTitle::Component.new(
+  title: plugin_copy("directory.title"),
+  subtitle: plugin_copy("directory.description")
+) %>
+
+<%= form_with url: root_path, method: :get do %>
+  <% if @category.present? %>
+    <%= hidden_field_tag :category, @category %>
+  <% end %>
+  <%= render FlatPack::Search::Component.new(
+    placeholder: plugin_copy("directory.search_placeholder"),
+    name: "q",
+    value: @query,
+    max_width: :lg
+  ) %>
+  <%= render FlatPack::Button::Component.new(
+    text: plugin_copy("directory.search"),
+    type: "submit",
+    style: :secondary
+  ) %>
+<% end %>
+
+<%= render FlatPack::Grid::Component.new(cols: :auto, gap: :sm) do %>
+  <%= render FlatPack::Button::Component.new(
+    text: plugin_copy("directory.all_categories"),
+    style: (@category.blank? ? :primary : :secondary),
+    size: :sm,
+    href: root_path(q: @query.presence)
+  ) %>
+  <% RecordingStudioPlugins.configuration.categories.each do |category| %>
+    <%= render FlatPack::Button::Component.new(
+      text: plugin_copy("categories.#{category}", default: category.to_s.humanize),
+      style: (@category == category.to_s ? :primary : :secondary),
+      size: :sm,
+      href: root_path(category: category, q: @query.presence)
+    ) %>
+  <% end %>
+<% end %>
+
+<% if @result.empty %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: plugin_copy("empty.#{@result.empty}.title"),
+    description: plugin_copy("empty.#{@result.empty}.description"),
+    icon: :squares_2x2
+  ) %>
+<% else %>
+  <%= render FlatPack::Grid::Component.new(cols: 2, gap: :lg) do %>
+    <% @result.listings.each do |listing| %>
+      <%= render "listing", listing: listing %>
+    <% end %>
+  <% end %>
+<% end %>

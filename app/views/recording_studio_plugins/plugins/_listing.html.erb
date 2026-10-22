@@ -1,0 +1,23 @@
+<%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+  <% card.header do %>
+    <%= render FlatPack::Shared::IconComponent.new(name: listing.icon, size: :lg) %>
+    <%= render FlatPack::PageTitle::Component.new(title: listing.name, variant: :h3, class: "mb-0") %>
+    <%= plugin_badge(listing) %>
+  <% end %>
+
+  <% card.body do %>
+    <p><%= listing.description %></p>
+    <% if listing.message.present? %>
+      <p><%= listing.message %></p>
+    <% end %>
+  <% end %>
+
+  <% card.footer do %>
+    <%= plugin_action(listing, can_edit: can_edit_plugins?) %>
+    <%= render FlatPack::Button::Component.new(
+      text: plugin_copy("directory.details"),
+      style: :secondary,
+      href: plugin_path(listing.key)
+    ) %>
+  <% end %>
+<% end %>
