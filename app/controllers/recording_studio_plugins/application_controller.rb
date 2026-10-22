@@ -1,7 +1,14 @@
 # frozen_string_literal: true
 
 module RecordingStudioPlugins
-  class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
+  # `defined?` does not autoload. Eager load opens this file before the host controller.
+  host_application_controller = ActionController::Base
+  if defined?(Rails) && Rails.application
+    controller_file = Rails.application.root.join("app/controllers/application_controller.rb")
+    host_application_controller = ::ApplicationController if controller_file.file?
+  end
+
+  class ApplicationController < host_application_controller
     include RecordingStudio::UsesDefaultLayout if defined?(RecordingStudio::UsesDefaultLayout)
     helper RecordingStudioPlugins::ApplicationHelper
     helper RecordingStudio::LayoutHelper if defined?(RecordingStudio::LayoutHelper)
