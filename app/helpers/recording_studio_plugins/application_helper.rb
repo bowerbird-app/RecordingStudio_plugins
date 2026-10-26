@@ -35,7 +35,7 @@ module RecordingStudioPlugins
     end
 
     def plugin_oauth_button_style(connected_row, directory:)
-      return :secondary if directory && connected_row
+      return :secondary if directory
       return :danger if connected_row
 
       :primary
