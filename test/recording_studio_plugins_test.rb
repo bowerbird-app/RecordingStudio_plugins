@@ -198,6 +198,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes initializer_source, '"Page"'
     assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
     assert_includes initializer_source, "RecordingStudioSiteSettings::SiteSetting"
+    assert_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"

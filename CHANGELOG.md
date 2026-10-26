@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Point host and dummy Gemfiles at Oauth `v0.17.0`, Flatpack `v0.1.213`, Trashable `v0.11.3`, and Metrics `v0.6.1`. Add the GitHub-only Oauth runtime gems Bundler cannot find on RubyGems.
 - Set `config.enabled_plugins` for the Oauth providers this host should list. Register those providers with Oauth from the provider gem.
 - Run Oauth's install and migrations on the host. This gem still has no tables of its own.
+- Dummy registers `RecordingStudioApi::AdminApi` so CI eager-load can bootstrap Accessible grants. Hosts that already run Oauth's install already have this.
 - There are no tables to migrate in this gem.
 
 ## [0.3.0] - 2026-10-22
