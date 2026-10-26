@@ -21,13 +21,6 @@ en:
         disconnect: Disconnect
         reconnect_action: Reconnect
         reconnect: This connection needs another look.
-      categories:
-        ai_agents: AI agents
-        storage: Storage
-        social: Social
-        websites: Websites
-        automation: Automation
-        other: Other
       forbidden:
         title: You don't have access
         description: Ask someone to invite you to this workspace.

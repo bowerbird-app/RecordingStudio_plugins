@@ -50,6 +50,18 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "a[href*='category=']", count: 0
   end
 
+  test "non-root connected plugin still shows the Connected badge" do
+    register_plugin(:linked, name: "Linked plugin", provider: connected_provider)
+
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_includes response.body, "Linked plugin"
+    assert_select "li[role='listitem']", text: /Linked plugin/ do
+      assert_select "*", text: "Connected"
+    end
+  end
+
   test "search and category params do not hide plugins" do
     get recording_studio_plugins.root_path(q: "DRIVE", category: "storage")
 
@@ -265,6 +277,14 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       position: 90,
       owner: "test"
     )
+  end
+
+  def connected_provider
+    Class.new do
+      def self.status(_context)
+        RecordingStudioPlugins::Status.new(state: :connected)
+      end
+    end
   end
 
   def html_provider

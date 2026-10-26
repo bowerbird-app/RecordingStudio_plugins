@@ -9,7 +9,7 @@ module RecordingStudioPlugins
     end
 
     def plugin_directory_status(listing)
-      return if listing.badge_style == :success
+      return if listing.root? && listing.badge_style == :success
 
       plugin_badge(listing)
     end

@@ -45,7 +45,7 @@ Registering the same key with the same `owner` replaces the definition, so reloa
 
 Definitions hold no credentials and create no records. There are no tables.
 
-Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation`, and `other`. `config.extra_categories` adds more. Labels come from `recording_studio.plugins.categories.*`.
+Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation`, and `other`. `config.extra_categories` adds more.
 
 ## Provider
 
