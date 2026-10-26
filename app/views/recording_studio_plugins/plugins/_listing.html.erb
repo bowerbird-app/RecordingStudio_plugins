@@ -13,7 +13,7 @@
   <% end %>
 
   <% card.footer do %>
-    <%= plugin_action(listing, can_edit: can_edit_plugins?) %>
+    <%= plugin_action(listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?) %>
     <%= render FlatPack::Button::Component.new(
       text: plugin_copy("directory.details"),
       style: :secondary,

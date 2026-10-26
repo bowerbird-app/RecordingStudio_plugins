@@ -12,7 +12,7 @@
 ) do |page_title| %>
   <% page_title.slot do %>
     <%= plugin_badge(@listing) %>
-    <%= plugin_action(@listing, can_edit: can_edit_plugins?) %>
+    <%= plugin_action(@listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?) %>
   <% end %>
 <% end %>
 

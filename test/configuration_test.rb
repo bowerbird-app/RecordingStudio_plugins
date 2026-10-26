@@ -12,16 +12,23 @@ class ConfigurationTest < Minitest::Test
     assert_empty @configuration.hidden_keys
     assert_empty @configuration.overrides
     assert_empty @configuration.extra_categories
+    assert_empty @configuration.enabled_plugins
     assert_equal %i[ai_agents storage social websites automation other], @configuration.categories
     assert_instance_of RecordingStudio::Hooks, @configuration.hooks
   end
 
   def test_merge_updates_known_attributes
-    @configuration.merge!(mount_path: "/plugins", hidden_keys: [:dropbox], extra_categories: [:press])
+    @configuration.merge!(
+      mount_path: "/plugins",
+      hidden_keys: [:dropbox],
+      extra_categories: [:press],
+      enabled_plugins: %i[google_drive dropbox]
+    )
 
     assert_equal "/plugins", @configuration.mount_path
     assert_equal ["dropbox"], @configuration.hidden_keys
     assert_equal [:press], @configuration.extra_categories
+    assert_equal %i[google_drive dropbox], @configuration.enabled_plugins
     assert_includes @configuration.categories, :press
   end
 

@@ -2,7 +2,7 @@
 
 module RecordingStudioPlugins
   class Listing
-    delegate :key, :name, :description, :icon, :category, :position, to: :definition
+    delegate :key, :name, :description, :icon, :category, :position, :kind, :root?, to: :definition
 
     attr_reader :definition
 
@@ -38,10 +38,18 @@ module RecordingStudioPlugins
 
     def action?(can_edit:)
       return false unless can_edit
-      return false if status_failed? || connected?
+      return false if status_failed?
+      return false if connected? && action_href.blank?
       return false if rejected_action_url?
 
       true
+    end
+
+    def action_method
+      return unless root?
+      return :delete if connected?
+
+      :post
     end
 
     def action_label

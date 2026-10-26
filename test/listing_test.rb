@@ -32,6 +32,21 @@ class ListingTest < Minitest::Test
     refute listing.action?(can_edit: true)
   end
 
+  def test_connected_status_with_a_url_keeps_the_action
+    provider = status_provider(
+      RecordingStudioPlugins::Status.new(
+        state: :connected,
+        action_label: "Disconnect",
+        action_url: "/recording_studio_oauth/outbound/connections/1"
+      )
+    )
+    listing = listing_for(provider: provider)
+
+    assert listing.action?(can_edit: true)
+    assert_equal "/recording_studio_oauth/outbound/connections/1", listing.action_href
+    refute listing.action?(can_edit: false)
+  end
+
   def test_attention_status_shows_a_badge_message_and_action
     provider = status_provider(
       RecordingStudioPlugins::Status.new(

@@ -5,25 +5,40 @@ RecordingStudioPlugins.configure do |config|
   # config.hidden_keys = []
   # config.overrides = {}
   # config.extra_categories = []
+  config.enabled_plugins = %i[google_drive dropbox]
 end
 
-google_drive = Class.new do
-  def self.status(_context)
-    RecordingStudioPlugins::Status.new(state: :connected)
-  end
+RecordingStudioGoogleDrive.register_oauth_provider if defined?(RecordingStudioGoogleDrive)
+RecordingStudioDropbox.register_oauth_provider if defined?(RecordingStudioDropbox)
 
-  def self.about(_context)
-    "Files stay in Drive until you choose which ones to import."
-  end
+unless defined?(RecordingStudioGoogleDrive)
+  RecordingStudioOauth.register_outbound_provider(
+    key: :google_drive,
+    kind: :root,
+    authorize_url: "/fake_oauth/authorize",
+    token_url: "/fake_oauth/token",
+    revoke_url: "/fake_oauth/revoke",
+    scopes: ["files.read"],
+    client_id: "dummy-google-drive",
+    client_secret: "dummy-google-drive-secret",
+    pkce: true,
+    refresh: true
+  )
 end
 
-dropbox = Class.new do
-  def self.status(_context)
-    RecordingStudioPlugins::Status.new(
-      action_label: "Connect",
-      action_url: "/recording_studio_plugins/dropbox"
-    )
-  end
+unless defined?(RecordingStudioDropbox)
+  RecordingStudioOauth.register_outbound_provider(
+    key: :dropbox,
+    kind: :root,
+    authorize_url: "/fake_oauth/authorize",
+    token_url: "/fake_oauth/token",
+    revoke_url: "/fake_oauth/revoke",
+    scopes: ["files.read"],
+    client_id: "dummy-dropbox",
+    client_secret: "dummy-dropbox-secret",
+    pkce: true,
+    refresh: true
+  )
 end
 
 wordpress = Class.new do
@@ -75,28 +90,6 @@ website_embed = Class.new do
     "Visitors see the kit on the page. You keep editing it here."
   end
 end
-
-RecordingStudioPlugins.register(
-  :google_drive,
-  name: "Google Drive",
-  description: "Import images and files from Google Drive.",
-  category: :storage,
-  icon: "cloud",
-  provider: google_drive,
-  position: 10,
-  owner: "dummy"
-)
-
-RecordingStudioPlugins.register(
-  :dropbox,
-  name: "Dropbox",
-  description: "Import images and files from Dropbox.",
-  category: :storage,
-  icon: "archive-box",
-  provider: dropbox,
-  position: 20,
-  owner: "dummy"
-)
 
 RecordingStudioPlugins.register(
   :wordpress,

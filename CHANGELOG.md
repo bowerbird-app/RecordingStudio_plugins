@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Dummy and root GitHub tags: Recording Studio `v4.2.1` → `v4.2.2`.
+
+### Upgrade notes
+- Point host and dummy Gemfiles at Recording Studio `v4.2.2`.
+
+## [0.4.0] - 2026-10-26
+
+### Added
+- Oauth root plugins in the directory. Hosts set `enabled_plugins` (default empty). The directory lists the intersection of that list and `RecordingStudioOauth.outbound_providers`.
+- Built-in display names, descriptions, storage category, and icons for Google Drive and Dropbox. Host `overrides` still apply. Oauth is not asked for names or icons.
+- Workspace admins see root plugins (`kind: :root`). Other workspace members do not, and the detail page 404s.
+- Workspace connection status from `combined_connection_status`: connected, needs reconnect, or Connect. Connect and Disconnect use Oauth's outbound routes with `owner=root`.
+
+### Changed
+- Depends on `recording_studio_oauth >= 0.17.0`.
+- Dummy and root GitHub tags: Flatpack `v0.1.196` → `v0.1.213`, Trashable `v0.11.0` → `v0.11.3`, Metrics `v0.2.0` → `v0.6.1`. Oauth `v0.17.0` is pinned. Extra GitHub pins required to resolve Oauth: Admin `v2.2.0`, API `v0.16.0`, Attachable `v0.21.1`, Logs `v0.4.1`, Site Settings `v0.2.0`, and Cache `v0.5.0` on the root Gemfile.
+
+### Upgrade notes
+- Point host and dummy Gemfiles at Oauth `v0.17.0`, Flatpack `v0.1.213`, Trashable `v0.11.3`, and Metrics `v0.6.1`. Add the GitHub-only Oauth runtime gems Bundler cannot find on RubyGems.
+- Set `config.enabled_plugins` for the Oauth providers this host should list. Register those providers with Oauth from the provider gem.
+- Run Oauth's install and migrations on the host. This gem still has no tables of its own.
+- There are no tables to migrate in this gem.
+
 ## [0.3.0] - 2026-10-22
 
 ### Added
@@ -15,14 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the first plugins release. Add the gem, mount `RecordingStudioPlugins::Engine`, and register plugins.
 - There are no tables to migrate.
 - The directory does not connect, authorize, or store integration credentials. Owning gems report status through a provider.
-
-## [Unreleased]
-
-### Changed
-- Dummy and root GitHub tags: Recording Studio `v4.2.1` → `v4.2.2`.
-
-### Upgrade notes
-- Point host and dummy Gemfiles at Recording Studio `v4.2.2`.
 
 ## [0.2.3] - 2026-10-01
 
@@ -126,7 +144,9 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.0
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.3.0
 [0.2.3]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.3
 [0.2.2]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.1

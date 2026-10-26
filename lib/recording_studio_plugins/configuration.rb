@@ -3,7 +3,6 @@
 module RecordingStudioPlugins
   class Configuration
     DEFAULT_CATEGORIES = %i[ai_agents storage social websites automation other].freeze
-    OVERRIDE_KEYS = %i[name description category position].freeze
 
     attr_reader :hooks
     attr_accessor :mount_path
@@ -13,6 +12,7 @@ module RecordingStudioPlugins
       @hidden_keys = []
       @overrides = {}
       @extra_categories = []
+      @enabled_plugins = []
       @hooks = RecordingStudio::Hooks.new
     end
 
@@ -53,6 +53,14 @@ module RecordingStudioPlugins
       @extra_categories = Array(categories).map(&:to_sym)
     end
 
+    def enabled_plugins
+      @enabled_plugins.dup
+    end
+
+    def enabled_plugins=(keys)
+      @enabled_plugins = Array(keys).map(&:to_sym)
+    end
+
     def categories
       (DEFAULT_CATEGORIES + @extra_categories).uniq
     end
@@ -69,6 +77,7 @@ module RecordingStudioPlugins
         hidden_keys: hidden_keys,
         overrides: overrides,
         extra_categories: extra_categories,
+        enabled_plugins: enabled_plugins,
         hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
       }
     end

@@ -5,4 +5,5 @@ RecordingStudioPlugins.configure do |config|
   # config.hidden_keys = []
   # config.overrides = {}
   # config.extra_categories = []
+  # config.enabled_plugins = %i[google_drive dropbox]
 end

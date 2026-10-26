@@ -27,6 +27,10 @@ en:
         connected: Connected
         attention: Attention
         setup: Set up
+        connect: Connect
+        disconnect: Disconnect
+        reconnect_action: Reconnect
+        reconnect: This connection needs another look.
       categories:
         ai_agents: AI agents
         storage: Storage
