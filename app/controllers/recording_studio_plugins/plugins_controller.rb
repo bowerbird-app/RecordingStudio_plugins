@@ -4,7 +4,7 @@ module RecordingStudioPlugins
   class PluginsController < ApplicationController
     before_action :require_directory_access
 
-    helper_method :can_edit_plugins?
+    helper_method :can_edit_plugins?, :can_admin_plugins?
 
     def index
       @query = params[:q].to_s
@@ -63,6 +63,7 @@ module RecordingStudioPlugins
     def directory_listing
       definition = RecordingStudioPlugins.find(params[:key])
       return if definition.nil? || RecordingStudioPlugins.configuration.hidden?(definition.key)
+      return unless OauthDirectory.visible?(definition, plugin_context)
 
       listing = Listing.new(definition, plugin_context)
       listing if listing.listed?
@@ -70,6 +71,10 @@ module RecordingStudioPlugins
 
     def can_edit_plugins?
       directory_allowed?(:edit)
+    end
+
+    def can_admin_plugins?
+      directory_allowed?(:admin)
     end
   end
 end

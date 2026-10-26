@@ -8,15 +8,24 @@ module RecordingStudioPlugins
       render FlatPack::Badge::Component.new(text: listing.badge_text, style: listing.badge_style, size: :sm)
     end
 
-    def plugin_action(listing, can_edit:)
-      return unless listing.action?(can_edit: can_edit)
+    def plugin_action(listing, can_edit:, can_admin: false)
+      allowed = listing.root? ? can_admin : can_edit
+      return unless listing.action?(can_edit: allowed)
 
-      render FlatPack::Button::Component.new(
+      if listing.root?
+        render "recording_studio_plugins/plugins/oauth_action", listing: listing
+      else
+        render FlatPack::Button::Component.new(**plugin_action_attributes(listing))
+      end
+    end
+
+    def plugin_action_attributes(listing)
+      {
         text: listing.action_label,
         style: :primary,
         href: listing.action_href,
         target: (listing.action_external? ? "_blank" : nil)
-      )
+      }
     end
 
     def plugin_paragraphs(text)

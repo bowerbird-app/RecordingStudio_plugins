@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-26
+
+### Added
+- Oauth root plugins in the directory. Hosts set `enabled_plugins` (default empty). The directory lists the intersection of that list and Oauth outbound providers with `kind: :root`.
+- Built-in display names, descriptions, storage category, and icons for Google Drive and Dropbox. Host `overrides` still apply. Oauth is not asked for names or icons.
+- Workspace admins see root plugins (`kind: :root`). Other workspace members do not, and the detail page 404s.
+- Workspace connection status from `combined_connection_status`: connected, needs reconnect, or Connect. Connect and Disconnect are POST forms to Oauth (Disconnect uses `_method=delete`) with `owner=root`, `root_recording_id`, `return_to`, and a CSRF token.
+
+### Changed
+- **BREAKING:** `recording_studio_oauth >= 0.17.0` is a hard dependency. Hosts installing Plugins now also pull Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable) plus the pin bumps below.
+- Dummy and root GitHub tags: Flatpack `v0.1.196` → `v0.1.213`, Trashable `v0.11.0` → `v0.11.3`, Metrics `v0.2.0` → `v0.6.1`. Oauth `v0.17.0` is pinned. Extra GitHub pins required to resolve Oauth: Admin `v2.2.0`, API `v0.16.0`, Attachable `v0.21.1`, Logs `v0.4.1`, Site Settings `v0.2.0`, and Cache `v0.5.0` on the root Gemfile. Attachable and Logs stay because they are GitHub-only transitives of Site Settings and API; Bundler cannot find them on RubyGems.
+
+### Upgrade notes
+- **BREAKING:** installing this gem now requires Oauth. Point host and dummy Gemfiles at Oauth `v0.17.0`, Flatpack `v0.1.213`, Trashable `v0.11.3`, and Metrics `v0.6.1`. Add the GitHub-only Oauth runtime gems Bundler cannot find on RubyGems (Admin, API, Cache, Metrics, Site Settings, Trashable).
+- Set `config.enabled_plugins` for the Oauth providers this host should list. Register those providers with Oauth from the provider gem.
+- Run Oauth's install and migrations on the host. This gem still has no tables of its own.
+- Dummy registers `RecordingStudioApi::AdminApi` so CI eager-load can bootstrap Accessible grants. Hosts that already run Oauth's install already have this.
+- There are no tables to migrate in this gem.
+
 ## [0.3.0] - 2026-10-22
 
 ### Added
@@ -126,7 +145,9 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.0
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.3.0
 [0.2.3]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.3
 [0.2.2]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.1

@@ -37,7 +37,6 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "WordPress"
     assert_includes response.body, "Grokbot"
     assert_includes response.body, "Website embed"
-    assert_includes response.body, "Connected"
     assert_includes response.body, "Attention"
     assert_includes response.body, "Connect"
     assert_includes response.body, "Check connection"
@@ -73,6 +72,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "No matches"
 
     RecordingStudioPlugins.clear!
+    RecordingStudioPlugins.configuration.enabled_plugins = []
     get recording_studio_plugins.root_path
 
     assert_includes response.body, "Nothing here yet"
@@ -136,11 +136,70 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_includes response.body, "Connected"
     assert_includes response.body, "needs another look"
+    refute_includes response.body, "Google Drive"
+    refute_includes response.body, "Dropbox"
     refute_includes response.body, ">Connect<"
     refute_includes response.body, ">Check connection<"
     refute_includes response.body, ">Set up<"
+  end
+
+  test "root plugin detail is not found without admin access" do
+    viewer = User.create!(
+      email: "viewer-show-#{SecureRandom.hex(4)}@example.com",
+      password: "Password123!",
+      password_confirmation: "Password123!"
+    )
+    RecordingStudioAccessible.grant_access(recording: @root, actor: viewer, role: "view", manager_actor: @user)
+    sign_in viewer
+
+    get recording_studio_plugins.plugin_path(:google_drive)
+
+    assert_response :not_found
+  end
+
+  test "admin sees a connect action that posts to oauth with the workspace" do
+    with_csrf_protection do
+      get recording_studio_plugins.root_path
+
+      assert_response :success
+      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
+      assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] input[name='authenticity_token']"
+      assert_select "input[name='owner'][value='root']"
+      assert_select "input[name='root_recording_id'][value=?]", @root.id.to_s
+      assert_select "input[name='return_to'][value=?]", recording_studio_plugins.root_path
+      refute_includes response.body, 'data-method="post"'
+
+      get recording_studio_plugins.plugin_path(:google_drive)
+
+      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
+    end
+  end
+
+  test "admin sees a disconnect form for a live workspace connection" do
+    connection = RecordingStudioOauth::OutboundConnection.create!(
+      provider_key: "google_drive",
+      root_recording_id: @root.id,
+      connected_by: @user,
+      access_token: "dummy-access-token",
+      refresh_token: "dummy-refresh-token",
+      status: "active",
+      granted_scopes: ["files.read"]
+    )
+
+    with_csrf_protection do
+      get recording_studio_plugins.root_path
+
+      assert_response :success
+      action = "/recording_studio_oauth/outbound/connections/#{connection.id}"
+      assert_select "form[method='post'][action=?]", action
+      assert_select "form[action=?] input[name='authenticity_token']", action
+      assert_select "form[action=?] input[name='_method'][value='delete']", action
+      assert_select "form[action=?] input[name='owner'][value='root']", action
+      assert_select "form[action=?] input[name='root_recording_id'][value=?]", action, @root.id.to_s
+      assert_select "form[action=?] input[name='return_to'][value=?]", action, recording_studio_plugins.root_path
+      assert_includes response.body, "Disconnect"
+    end
   end
 
   test "invalid action url is omitted and the card still renders" do
@@ -162,8 +221,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Broken plugin"
-    assert_includes response.body, "Google Drive"
-    assert_includes response.body, "Connected"
+    assert_includes response.body, "WordPress"
 
     calls.each_key { |key| calls[key] = 0 }
 
@@ -180,12 +238,22 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
   private
 
+  def with_csrf_protection
+    was = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+    yield
+  ensure
+    ActionController::Base.allow_forgery_protection = was
+  end
+
   def restore_plugins!
     configuration = RecordingStudioPlugins.configuration
     configuration.hidden_keys = []
     configuration.overrides = {}
     configuration.extra_categories = []
+    configuration.enabled_plugins = []
     RecordingStudioPlugins.clear!
+    RecordingStudioOauth::Outbound.reset_providers! if defined?(RecordingStudioOauth::Outbound)
     load Rails.root.join("config/initializers/recording_studio_plugins.rb")
   end
 

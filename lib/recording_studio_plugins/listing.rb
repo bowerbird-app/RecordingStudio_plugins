@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "recording_studio_plugins/listing/root_action"
+
 module RecordingStudioPlugins
   class Listing
-    delegate :key, :name, :description, :icon, :category, :position, to: :definition
+    include RootAction
+
+    delegate :key, :name, :description, :icon, :category, :position, :kind, :root?, to: :definition
 
     attr_reader :definition
 
@@ -38,7 +42,7 @@ module RecordingStudioPlugins
 
     def action?(can_edit:)
       return false unless can_edit
-      return false if status_failed? || connected?
+      return false if status_failed? || (connected? && action_href.blank?)
       return false if rejected_action_url?
 
       true

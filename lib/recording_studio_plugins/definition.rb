@@ -2,7 +2,7 @@
 
 module RecordingStudioPlugins
   class Definition
-    FIELDS = %i[key name description category icon provider position owner].freeze
+    FIELDS = %i[key name description category icon provider position owner kind].freeze
 
     attr_reader(*FIELDS)
 
@@ -31,6 +31,10 @@ module RecordingStudioPlugins
     end
 
     def self.coerce(attributes)
+      typed_fields(attributes).merge(kind: attributes[:kind]&.to_sym)
+    end
+
+    def self.typed_fields(attributes)
       {
         key: attributes[:key].to_sym,
         name: attributes[:name].to_s,
@@ -42,11 +46,17 @@ module RecordingStudioPlugins
         owner: attributes[:owner].to_s
       }
     end
+    private_class_method :typed_fields
+
+    def root?
+      kind == :root
+    end
 
     def override(values)
-      return self if values.nil? || values.empty?
+      allowed = Override.normalize(values)
+      return self if allowed.empty?
 
-      self.class.new(**to_h, **values)
+      self.class.new(**to_h, **allowed)
     end
 
     def to_h

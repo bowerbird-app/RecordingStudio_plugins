@@ -141,6 +141,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "config/initializers/recording_studio_plugins.rb"
     assert_includes install_guide, "to_prepare"
     assert_includes install_guide, "authorized?"
+    assert_includes install_guide, "enabled_plugins"
     refute_includes install_guide, "db:migrate"
     refute_includes install_guide, "RecordingStudio v3"
     refute_includes install_guide, "RecordingStudio v3"

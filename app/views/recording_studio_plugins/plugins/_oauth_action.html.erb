@@ -1,0 +1,10 @@
+<%= form_with url: listing.action_href, method: listing.action_method, local: true, authenticity_token: true do %>
+  <%= hidden_field_tag :owner, "root" %>
+  <%= hidden_field_tag :root_recording_id, listing.action_root_recording_id %>
+  <%= hidden_field_tag :return_to, root_path %>
+  <%= render FlatPack::Button::Component.new(
+    text: listing.action_label,
+    style: listing.action_method == :delete ? :danger : :primary,
+    type: "submit"
+  ) %>
+<% end %>

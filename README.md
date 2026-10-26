@@ -6,7 +6,7 @@ Gems and host apps register plugins in Ruby. People browse them, read how to con
 
 ## Install and mount
 
-Add the gem and its runtime dependencies: Rails, `recording_studio`, `recording_studio_accessible`, and `flat_pack`.
+Add the gem and its runtime dependencies: Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`. Oauth is a hard dependency: installing Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
 
 ```ruby
 gem "recording_studio_plugins"
@@ -18,7 +18,7 @@ bin/rails generate recording_studio_plugins:install
 
 The generator mounts the engine at `/recording_studio_plugins`. Change the path with `--mount_path` or `config.mount_path`. The pages use Recording Studio's default layout.
 
-People need access to the current workspace. Both pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links render only when the same check passes for `:edit`. This gem has no mutating endpoint. The destination gem authorizes its own requests.
+People need access to the current workspace. Both pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those cards, and the detail page 404s. This gem has no mutating endpoint. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
 
 ## Register
 
@@ -94,14 +94,38 @@ Provider text is plain text. Rails escapes it.
 
 `hidden_keys` and `overrides` apply when the directory reads, so a reload cannot wipe them. Overrides may set `name`, `description`, `category`, and `position`.
 
+Oauth providers appear only when the host enables them **and** Oauth has them registered. Display name, description, category, and icon for Google Drive and Dropbox live in this gem. Oauth is never asked for names or icons.
+
 ```ruby
 RecordingStudioPlugins.configure do |config|
   config.mount_path = "/recording_studio_plugins"
   config.hidden_keys = [:dropbox]
   config.overrides = { google_drive: { name: "Drive", position: 1 } }
   config.extra_categories = [:press]
+  config.enabled_plugins = %i[google_drive dropbox]
 end
 ```
+
+Default `enabled_plugins` is empty. Nothing from Oauth is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Only providers with `kind: :root` appear in this directory for now.
+
+The host still registers the provider with Oauth:
+
+```ruby
+RecordingStudioGoogleDrive.register_oauth_provider
+RecordingStudioDropbox.register_oauth_provider
+```
+
+## Root plugins and who sees what
+
+Workspace members with `:view` can open the directory. Plugins from `RecordingStudioPlugins.register` stay visible to them.
+
+Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak.
+
+Connect, Reconnect, and Disconnect on those cards render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. Registered plugins that are not Oauth keep a plain link.
+
+Status comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
+
+This gem does not display or log tokens.
 
 Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translation.register_shipped_english`, so a host can override it.
 
@@ -109,14 +133,14 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 
 | Gem | Owns |
 |---|---|
-| Recording Studio Plugins | Registry, directory page, detail page, status display |
+| Recording Studio Plugins | Registry, directory page, detail page, status display, display names for known Oauth providers |
 | Recording Studio Attachable | Google Drive and Dropbox picking, import, and their OAuth. Tokens live in the Rails session, not on the workspace. |
-| Recording Studio OAuth | Inbound authorization server for third-party apps connecting to the host. No outbound Google or Dropbox OAuth. |
+| Recording Studio OAuth | Outbound provider registry, connection status, Connect and Disconnect routes, tokens |
 | Recording Studio MCP | Remote MCP HTTP adapter over the OAuth grant. No installation or usage signal. |
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |
 
-This gem depends on Rails, `recording_studio`, `recording_studio_accessible`, and `flat_pack` only.
+This gem depends on Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
 
 ## Another gem registering
 

@@ -78,6 +78,16 @@ class RegistryTest < Minitest::Test
     assert_equal "Google Drive", RecordingStudioPlugins.find(:google_drive).name
   end
 
+  def test_override_ignores_kind_and_owner
+    register(:google_drive, owner: "my_app", name: "Google Drive")
+    definition = RecordingStudioPlugins.find(:google_drive)
+    overridden = definition.override(kind: :root, owner: "other", name: "Drive")
+
+    assert_equal "Drive", overridden.name
+    assert_nil overridden.kind
+    assert_equal "my_app", overridden.owner
+  end
+
   def test_hidden_keys_and_overrides_survive_re_registration
     @configuration.hidden_keys = [:dropbox]
     @configuration.overrides = { google_drive: { name: "Drive", position: 1 } }

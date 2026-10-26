@@ -2,6 +2,7 @@
 
 require "recording_studio"
 require "recording_studio_accessible"
+require "recording_studio_oauth"
 require "flat_pack"
 require "recording_studio_plugins/version"
 require "recording_studio_plugins/configuration"
@@ -12,6 +13,10 @@ require "recording_studio_plugins/context"
 require "recording_studio_plugins/safe_url"
 require "recording_studio_plugins/listing"
 require "recording_studio_plugins/catalog"
+require "recording_studio_plugins/known_providers"
+require "recording_studio_plugins/oauth_paths"
+require "recording_studio_plugins/oauth_adapter"
+require "recording_studio_plugins/oauth_directory"
 require "recording_studio_plugins/engine"
 
 module RecordingStudioPlugins
@@ -37,14 +42,14 @@ module RecordingStudioPlugins
     end
 
     def find(key)
-      definition = registry.find(key)
+      definition = registry.find(key) || OauthDirectory.find(key)
       definition && apply_overrides(definition)
     end
 
     def all
-      registry.all
-              .map { |definition| apply_overrides(definition) }
-              .sort_by { |definition| [definition.position, definition.name] }
+      (registry.all + OauthDirectory.definitions)
+        .map { |definition| apply_overrides(definition) }
+        .sort_by { |definition| [definition.position, definition.name] }
     end
 
     def available(context:)
@@ -54,6 +59,7 @@ module RecordingStudioPlugins
     def listings_for(context:)
       all.filter_map do |definition|
         next if configuration.hidden?(definition.key)
+        next unless OauthDirectory.visible?(definition, context)
 
         listing = Listing.new(definition, context)
         listing if listing.listed?

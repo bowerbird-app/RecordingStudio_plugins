@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.3.0", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.4.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
@@ -17,6 +17,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.196"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.18"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_oauth", ">= 0.17.0"'
   end
 
   def test_gemspec_excludes_cursor_config
@@ -50,16 +51,26 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes gemfile, 'tag: "v4.6.0"'
     refute_includes gemfile, 'tag: "v4.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0", require: false'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.17.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.16.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.21.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.4.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.3", require: false'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.6.1"'
     refute_includes gemfile, 'tag: "v0.10.0"'
-    refute_includes gemfile, 'tag: "v0.17.0"'
+    refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.17.0"'
     refute_includes gemfile, 'tag: "v0.15.0"'
     refute_includes gemfile, 'tag: "v0.10.1"'
+    refute_includes gemfile, 'tag: "v0.11.0"'
+    refute_includes gemfile, 'RecordingStudio_metrics", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.9.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
     refute_includes gemfile, 'tag: "v0.6.0"'
     refute_includes gemfile, 'tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.196"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.213"'
+    refute_includes gemfile, 'tag: "v0.1.196"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v4.4.0"'
     refute_includes gemfile, 'tag: "v4.3.0"'
@@ -102,6 +113,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert role_migration, "expected role-column migration in dummy db/migrate"
     assert_includes File.read(role_migration), "change_column :recording_studio_accesses, :role, :string"
 
+    assert_includes schema, 'create_table "recording_studio_oauth_outbound_connections"'
     assert_includes schema, 'create_table "recording_studio_access_constraints"'
     assert_includes schema, 'create_table "recording_studio_access_rules"'
     assert_includes schema, "index_recording_studio_access_constraints_on_action"
@@ -181,7 +193,12 @@ class RecordingStudioPluginsTest < Minitest::Test
     initializer_source = File.read(initializer_path)
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
-    assert_includes initializer_source, "config.recordable_types = [ \"Workspace\", \"Folder\", \"Page\" ]"
+    assert_includes initializer_source, '"Workspace"'
+    assert_includes initializer_source, '"Folder"'
+    assert_includes initializer_source, '"Page"'
+    assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
+    assert_includes initializer_source, "RecordingStudioSiteSettings::SiteSetting"
+    assert_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
@@ -205,6 +222,11 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "RecordingStudioPlugins::Status"
     assert_includes readme, "RecordingStudioPlugins::Context"
     assert_includes readme, "hidden_keys"
+    assert_includes readme, "enabled_plugins"
+    assert_includes readme, "kind: :root"
+    assert_includes readme, "Oauth is a hard dependency"
+    assert_includes readme, "Admin, API, Cache, Metrics, Site Settings, Trashable"
+    assert_includes readme, "Recording Studio MCP"
     assert_includes readme, "to_prepare"
     assert_includes readme, "pattern, not shipped code"
     refute_includes readme, %w[Gem Template].join
