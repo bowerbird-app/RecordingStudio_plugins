@@ -18,7 +18,7 @@ bin/rails generate recording_studio_plugins:install
 
 The generator mounts the engine at `/recording_studio_plugins`. Change the path with `--mount_path` or `config.mount_path`. The pages use Recording Studio's default layout.
 
-People need access to the current workspace. Both pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those cards, and the detail page 404s. This gem has no mutating endpoint. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
+People need access to the current workspace. Both pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those rows, and the detail page 404s. This gem has no mutating endpoint. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
 
 ## Register
 
@@ -45,7 +45,7 @@ Registering the same key with the same `owner` replaces the definition, so reloa
 
 Definitions hold no credentials and create no records. There are no tables.
 
-Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation`, and `other`. `config.extra_categories` adds more. Labels come from `recording_studio.plugins.categories.*`.
+Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation`, and `other`. `config.extra_categories` adds more.
 
 ## Provider
 
@@ -73,12 +73,15 @@ RecordingStudioPlugins::Status.new(
 
 `request` is there so a future provider can read its own session key. This gem never reads or stores that session.
 
-Each provider call is rescued and logged. If `available?` raises, the plugin is still listed. If `status` raises, that card shows no badge and no action. Other cards are unaffected. Each provider method is called at most once per plugin per request.
+Each provider call is rescued and logged. If `available?` raises, the plugin is still listed. If `status` raises, that row shows no badge and no action. Other rows are unaffected. Each provider method is called at most once per plugin per request.
 
 ## Display
 
-- `state: :connected` shows a green badge reading "Connected".
-- `state: :attention` shows an amber badge reading "Attention", plus `message`. An action renders when the provider supplies one.
+The directory is a two-column list of items. Each row is the plugin name (linked to the detail page) on the left, and the status plus action on the right. There is no icon, search box, or category filter.
+
+- On the directory, a missing connection is a primary Connect button. An active connection is a secondary Connected button that still posts Disconnect to Oauth. The detail page still shows Disconnect.
+- `state: :connected` shows a green badge reading "Connected" on the detail page.
+- `state: :attention` shows an amber badge reading "Attention". The detail page also shows `message`. An action renders when the provider supplies one.
 - Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
 - There is no "Not connected" badge.
 
@@ -86,7 +89,7 @@ This gem does not decide health, heartbeats, or staleness. The provider decides.
 
 ## URLs
 
-Action and documentation URLs render as links. `https://` URLs and paths that start with a single `/` are allowed. `http:`, protocol-relative URLs, `javascript:`, `data:`, and URLs with userinfo are dropped. An invalid URL omits that control and the card still renders. External links open with `rel="noopener noreferrer"`.
+Action and documentation URLs render as links. `https://` URLs and paths that start with a single `/` are allowed. `http:`, protocol-relative URLs, `javascript:`, `data:`, and URLs with userinfo are dropped. An invalid URL omits that control and the row still renders. External links open with `rel="noopener noreferrer"`.
 
 Provider text is plain text. Rails escapes it.
 
@@ -121,7 +124,7 @@ Workspace members with `:view` can open the directory. Plugins from `RecordingSt
 
 Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak.
 
-Connect, Reconnect, and Disconnect on those cards render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. Registered plugins that are not Oauth keep a plain link.
+Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain link.
 
 Status comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
 

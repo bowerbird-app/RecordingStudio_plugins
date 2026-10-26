@@ -7,9 +7,7 @@ module RecordingStudioPlugins
     helper_method :can_edit_plugins?, :can_admin_plugins?
 
     def index
-      @query = params[:q].to_s
-      @category = params[:category].to_s.presence
-      @result = catalog.filter(query: @query, category: @category)
+      @listings = RecordingStudioPlugins.listings_for(context: plugin_context)
     end
 
     def show
@@ -54,10 +52,6 @@ module RecordingStudioPlugins
         root_recording: directory_root,
         request: request
       )
-    end
-
-    def catalog
-      Catalog.new(RecordingStudioPlugins.listings_for(context: plugin_context))
     end
 
     def directory_listing

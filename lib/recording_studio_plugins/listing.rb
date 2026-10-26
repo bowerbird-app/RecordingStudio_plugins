@@ -80,14 +80,6 @@ module RecordingStudioPlugins
       SafeUrl.external?(documentation_url)
     end
 
-    def category_label
-      copy("categories.#{category}", default: category.to_s.humanize)
-    end
-
-    def search_text
-      [name, description, category_label].join("\n").downcase
-    end
-
     private
 
     attr_reader :plugin_context
