@@ -6,7 +6,7 @@ Gems and host apps register plugins in Ruby. People browse them, read how to con
 
 ## Install and mount
 
-Add the gem and its runtime dependencies: Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`.
+Add the gem and its runtime dependencies: Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`. Oauth is a hard dependency: installing Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
 
 ```ruby
 gem "recording_studio_plugins"
@@ -140,7 +140,7 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |
 
-This gem depends on Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`.
+This gem depends on Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
 
 ## Another gem registering
 

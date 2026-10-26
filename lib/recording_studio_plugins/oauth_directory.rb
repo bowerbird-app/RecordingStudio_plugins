@@ -8,7 +8,7 @@ module RecordingStudioPlugins
 
     def definitions
       enabled = RecordingStudioPlugins.configuration.enabled_plugins
-      return [] if enabled.empty? || !defined?(RecordingStudioOauth)
+      return [] if enabled.empty?
 
       registered_keys = RecordingStudioPlugins.registry.all.map(&:key)
       RecordingStudioOauth.outbound_providers.filter_map do |entry|

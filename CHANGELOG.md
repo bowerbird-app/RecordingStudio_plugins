@@ -14,11 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workspace connection status from `combined_connection_status`: connected, needs reconnect, or Connect. Connect and Disconnect are POST forms to Oauth (Disconnect uses `_method=delete`) with `owner=root`, `root_recording_id`, `return_to`, and a CSRF token.
 
 ### Changed
-- Depends on `recording_studio_oauth >= 0.17.0`.
+- **BREAKING:** `recording_studio_oauth >= 0.17.0` is a hard dependency. Hosts installing Plugins now also pull Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable) plus the pin bumps below.
 - Dummy and root GitHub tags: Flatpack `v0.1.196` → `v0.1.213`, Trashable `v0.11.0` → `v0.11.3`, Metrics `v0.2.0` → `v0.6.1`. Oauth `v0.17.0` is pinned. Extra GitHub pins required to resolve Oauth: Admin `v2.2.0`, API `v0.16.0`, Attachable `v0.21.1`, Logs `v0.4.1`, Site Settings `v0.2.0`, and Cache `v0.5.0` on the root Gemfile. Attachable and Logs stay because they are GitHub-only transitives of Site Settings and API; Bundler cannot find them on RubyGems.
 
 ### Upgrade notes
-- Point host and dummy Gemfiles at Oauth `v0.17.0`, Flatpack `v0.1.213`, Trashable `v0.11.3`, and Metrics `v0.6.1`. Add the GitHub-only Oauth runtime gems Bundler cannot find on RubyGems.
+- **BREAKING:** installing this gem now requires Oauth. Point host and dummy Gemfiles at Oauth `v0.17.0`, Flatpack `v0.1.213`, Trashable `v0.11.3`, and Metrics `v0.6.1`. Add the GitHub-only Oauth runtime gems Bundler cannot find on RubyGems (Admin, API, Cache, Metrics, Site Settings, Trashable).
 - Set `config.enabled_plugins` for the Oauth providers this host should list. Register those providers with Oauth from the provider gem.
 - Run Oauth's install and migrations on the host. This gem still has no tables of its own.
 - Dummy registers `RecordingStudioApi::AdminApi` so CI eager-load can bootstrap Accessible grants. Hosts that already run Oauth's install already have this.

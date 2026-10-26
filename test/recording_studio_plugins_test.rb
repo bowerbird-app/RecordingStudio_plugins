@@ -224,6 +224,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "hidden_keys"
     assert_includes readme, "enabled_plugins"
     assert_includes readme, "kind: :root"
+    assert_includes readme, "Oauth is a hard dependency"
+    assert_includes readme, "Admin, API, Cache, Metrics, Site Settings, Trashable"
     assert_includes readme, "Recording Studio MCP"
     assert_includes readme, "to_prepare"
     assert_includes readme, "pattern, not shipped code"
