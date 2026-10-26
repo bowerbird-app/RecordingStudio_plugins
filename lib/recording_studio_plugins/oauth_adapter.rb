@@ -28,8 +28,8 @@ module RecordingStudioPlugins
     def map_workspace_status(workspace, root, actor)
       case workspace
       when :active then active_status(root, actor)
-      when :needs_reconnect then reconnect_status(root)
-      when :missing then missing_status(root)
+      when :needs_reconnect then reconnect_status
+      when :missing then missing_status
       end
     end
 
@@ -41,21 +41,21 @@ module RecordingStudioPlugins
       )
     end
 
-    def reconnect_status(root)
+    def reconnect_status
       Status.new(
         state: :attention,
         message: copy("status.reconnect"),
         action_label: copy("status.reconnect_action"),
-        action_url: connect_url(root)
+        action_url: connect_url
       )
     end
 
-    def missing_status(root)
-      Status.new(action_label: copy("status.connect"), action_url: connect_url(root))
+    def missing_status
+      Status.new(action_label: copy("status.connect"), action_url: connect_url)
     end
 
-    def connect_url(root)
-      OauthPaths.connect(provider: @key, root_recording_id: root.id)
+    def connect_url
+      OauthPaths.connect(provider: @key)
     end
 
     def disconnect_url(root, actor)

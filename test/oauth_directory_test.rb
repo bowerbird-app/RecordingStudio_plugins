@@ -70,9 +70,8 @@ class OauthDirectoryTest < Minitest::Test
 
       assert listing.action?(can_edit: true)
       assert_equal "Connect", listing.action_label
-      assert_includes listing.action_href, "/recording_studio_oauth/outbound/google_drive/connect"
-      assert_includes listing.action_href, "owner=root"
-      assert_includes listing.action_href, "root_recording_id=root-1"
+      assert_equal "/recording_studio_oauth/outbound/google_drive/connect", listing.action_href
+      assert_equal "root-1", listing.action_root_recording_id
       assert_equal :post, listing.action_method
       refute listing.action?(can_edit: false)
     end
@@ -119,6 +118,23 @@ class OauthDirectoryTest < Minitest::Test
 
     with_oauth_providers([{ key: :google_drive, kind: :root }], workspace: :missing) do
       assert_equal "Drive", RecordingStudioPlugins.find(:google_drive).name
+    end
+  end
+
+  def test_enabled_user_kind_provider_is_not_listed
+    @configuration.enabled_plugins = %i[google_drive personal_drive]
+
+    with_oauth_providers(
+      [
+        { key: :google_drive, kind: :root },
+        { key: :personal_drive, kind: :user }
+      ],
+      workspace: :missing
+    ) do
+      keys = RecordingStudioPlugins.listings_for(context: admin_context).map(&:key)
+
+      assert_equal [:google_drive], keys
+      assert_nil RecordingStudioPlugins.find(:personal_drive)
     end
   end
 

@@ -12,20 +12,20 @@ module RecordingStudioPlugins
       allowed = listing.root? ? can_admin : can_edit
       return unless listing.action?(can_edit: allowed)
 
-      render FlatPack::Button::Component.new(
-        **plugin_action_attributes(listing)
-      )
+      if listing.root?
+        render "recording_studio_plugins/plugins/oauth_action", listing: listing
+      else
+        render FlatPack::Button::Component.new(**plugin_action_attributes(listing))
+      end
     end
 
     def plugin_action_attributes(listing)
-      attributes = {
+      {
         text: listing.action_label,
-        style: listing.action_method == :delete ? :danger : :primary,
+        style: :primary,
         href: listing.action_href,
         target: (listing.action_external? ? "_blank" : nil)
       }
-      attributes[:method] = listing.action_method if listing.action_method
-      attributes
     end
 
     def plugin_paragraphs(text)

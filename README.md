@@ -106,7 +106,7 @@ RecordingStudioPlugins.configure do |config|
 end
 ```
 
-Default `enabled_plugins` is empty. Nothing from Oauth is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped.
+Default `enabled_plugins` is empty. Nothing from Oauth is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Only providers with `kind: :root` appear in this directory for now.
 
 The host still registers the provider with Oauth:
 
@@ -121,10 +121,7 @@ Workspace members with `:view` can open the directory. Plugins from `RecordingSt
 
 Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak.
 
-Connect, Reconnect, and Disconnect on those cards render only for workspace admins. They point at Oauth:
-
-- Connect and Reconnect: `POST /recording_studio_oauth/outbound/:provider/connect?owner=root&root_recording_id=`
-- Disconnect: `DELETE /recording_studio_oauth/outbound/connections/:id`
+Connect, Reconnect, and Disconnect on those cards render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. Registered plugins that are not Oauth keep a plain link.
 
 Status comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
 
@@ -137,7 +134,9 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 | Gem | Owns |
 |---|---|
 | Recording Studio Plugins | Registry, directory page, detail page, status display, display names for known Oauth providers |
+| Recording Studio Attachable | Google Drive and Dropbox picking, import, and their OAuth. Tokens live in the Rails session, not on the workspace. |
 | Recording Studio OAuth | Outbound provider registry, connection status, Connect and Disconnect routes, tokens |
+| Recording Studio MCP | Remote MCP HTTP adapter over the OAuth grant. No installation or usage signal. |
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |
 

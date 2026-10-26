@@ -159,12 +159,43 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   end
 
   test "admin sees a connect action that posts to oauth with the workspace" do
-    get recording_studio_plugins.root_path
+    with_csrf_protection do
+      get recording_studio_plugins.root_path
 
-    assert_response :success
-    assert_includes response.body, "/recording_studio_oauth/outbound/google_drive/connect"
-    assert_includes response.body, "owner=root"
-    assert_includes response.body, "root_recording_id=#{@root.id}"
+      assert_response :success
+      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
+      assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] input[name='authenticity_token']"
+      assert_select "input[name='owner'][value='root']"
+      assert_select "input[name='root_recording_id'][value=?]", @root.id.to_s
+      assert_select "input[name='return_to'][value=?]", recording_studio_plugins.root_path
+      refute_includes response.body, 'data-method="post"'
+    end
+  end
+
+  test "admin sees a disconnect form for a live workspace connection" do
+    connection = RecordingStudioOauth::OutboundConnection.create!(
+      provider_key: "google_drive",
+      root_recording_id: @root.id,
+      connected_by: @user,
+      access_token: "dummy-access-token",
+      refresh_token: "dummy-refresh-token",
+      status: "active",
+      granted_scopes: ["files.read"]
+    )
+
+    with_csrf_protection do
+      get recording_studio_plugins.root_path
+
+      assert_response :success
+      action = "/recording_studio_oauth/outbound/connections/#{connection.id}"
+      assert_select "form[method='post'][action=?]", action
+      assert_select "form[action=?] input[name='authenticity_token']", action
+      assert_select "form[action=?] input[name='_method'][value='delete']", action
+      assert_select "form[action=?] input[name='owner'][value='root']", action
+      assert_select "form[action=?] input[name='root_recording_id'][value=?]", action, @root.id.to_s
+      assert_select "form[action=?] input[name='return_to'][value=?]", action, recording_studio_plugins.root_path
+      assert_includes response.body, "Disconnect"
+    end
   end
 
   test "invalid action url is omitted and the card still renders" do
@@ -202,6 +233,14 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def with_csrf_protection
+    was = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+    yield
+  ensure
+    ActionController::Base.allow_forgery_protection = was
+  end
 
   def restore_plugins!
     configuration = RecordingStudioPlugins.configuration

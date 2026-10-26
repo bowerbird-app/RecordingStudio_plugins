@@ -53,9 +53,10 @@ module RecordingStudioPlugins
     end
 
     def override(values)
-      return self if values.nil? || values.empty?
+      allowed = Override.normalize(values)
+      return self if allowed.empty?
 
-      self.class.new(**to_h, **values)
+      self.class.new(**to_h, **allowed)
     end
 
     def to_h

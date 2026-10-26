@@ -37,9 +37,14 @@ module RecordingStudioPlugins
 
     def definition_for(entry, enabled:, registered_keys:)
       key = normalize_key(entry[:key] || entry["key"])
-      return if key.nil? || enabled.exclude?(key) || registered_keys.include?(key)
+      kind = (entry[:kind] || entry["kind"])&.to_sym
+      return unless listable_root?(key, kind, enabled, registered_keys)
 
-      build_definition(key, (entry[:kind] || entry["kind"])&.to_sym)
+      build_definition(key, kind)
+    end
+
+    def listable_root?(key, kind, enabled, registered_keys)
+      key && kind == :root && enabled.include?(key) && registered_keys.exclude?(key)
     end
 
     def normalize_key(value)
@@ -69,6 +74,7 @@ module RecordingStudioPlugins
         position: meta[:position] || 100
       }
     end
-    private_class_method :definition_for, :normalize_key, :build_definition, :definition_attributes, :display_for
+    private_class_method :definition_for, :listable_root?, :normalize_key, :build_definition,
+                         :definition_attributes, :display_for
   end
 end

@@ -6,9 +6,8 @@ module RecordingStudioPlugins
   module OauthPaths
     module_function
 
-    def connect(provider:, root_recording_id:)
-      query = "owner=root&root_recording_id=#{ERB::Util.url_encode(root_recording_id.to_s)}"
-      "#{mount}/outbound/#{ERB::Util.url_encode(provider.to_s)}/connect?#{query}"
+    def connect(provider:)
+      "#{mount}/outbound/#{ERB::Util.url_encode(provider.to_s)}/connect"
     end
 
     def disconnect(connection_id)

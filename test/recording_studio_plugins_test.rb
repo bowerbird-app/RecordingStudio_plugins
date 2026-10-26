@@ -223,6 +223,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "RecordingStudioPlugins::Context"
     assert_includes readme, "hidden_keys"
     assert_includes readme, "enabled_plugins"
+    assert_includes readme, "kind: :root"
+    assert_includes readme, "Recording Studio MCP"
     assert_includes readme, "to_prepare"
     assert_includes readme, "pattern, not shipped code"
     refute_includes readme, %w[Gem Template].join
