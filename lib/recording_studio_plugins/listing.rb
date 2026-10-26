@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "recording_studio_plugins/listing/action"
+require "recording_studio_plugins/listing/root_action"
 
 module RecordingStudioPlugins
   class Listing
-    include Action
+    include RootAction
 
     delegate :key, :name, :description, :icon, :category, :position, :kind, :root?, to: :definition
 
@@ -38,6 +38,26 @@ module RecordingStudioPlugins
       return unless attention?
 
       status_record.message
+    end
+
+    def action?(can_edit:)
+      return false unless can_edit
+      return false if status_failed? || (connected? && action_href.blank?)
+      return false if rejected_action_url?
+
+      true
+    end
+
+    def action_label
+      status_record&.action_label.presence || copy("status.setup")
+    end
+
+    def action_href
+      SafeUrl.allowed(status_record&.action_url)
+    end
+
+    def action_external?
+      SafeUrl.external?(action_href)
     end
 
     def about
@@ -92,6 +112,11 @@ module RecordingStudioPlugins
       return false if status_result.nil? || status_result == :missing || status_result.is_a?(Status)
 
       true
+    end
+
+    def rejected_action_url?
+      raw = status_record&.action_url
+      raw.present? && action_href.nil?
     end
 
     def status_result

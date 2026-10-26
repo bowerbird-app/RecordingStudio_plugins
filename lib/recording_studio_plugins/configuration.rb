@@ -134,6 +134,8 @@ module RecordingStudioPlugins
   end
 
   module Override
+    OVERRIDE_KEYS = %i[name description category position].freeze
+
     module_function
 
     def normalize(override)
@@ -145,7 +147,7 @@ module RecordingStudioPlugins
         description: text(raw, :description),
         category: symbol(raw, :category),
         position: number(raw, :position)
-      }.compact
+      }.slice(*OVERRIDE_KEYS).compact
     end
 
     def text(raw, key)

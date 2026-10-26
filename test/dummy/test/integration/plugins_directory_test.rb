@@ -169,6 +169,10 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       assert_select "input[name='root_recording_id'][value=?]", @root.id.to_s
       assert_select "input[name='return_to'][value=?]", recording_studio_plugins.root_path
       refute_includes response.body, 'data-method="post"'
+
+      get recording_studio_plugins.plugin_path(:google_drive)
+
+      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
     end
   end
 
