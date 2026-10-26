@@ -44,6 +44,8 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Check connection"
     assert_includes response.body, "Install"
     assert_includes response.body, "Set up"
+    assert_select "li[role='listitem'] .flat-pack-list-item-icon", count: 0
+    assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='primary']", text: "Connect"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
   end
@@ -158,6 +160,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       assert_select "input[name='root_recording_id'][value=?]", @root.id.to_s
       assert_select "input[name='return_to'][value=?]", recording_studio_plugins.root_path
       refute_includes response.body, 'data-method="post"'
+      assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='primary']", text: "Connect"
 
       get recording_studio_plugins.plugin_path(:google_drive)
 
@@ -187,8 +190,12 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       assert_select "form[action=?] input[name='owner'][value='root']", action
       assert_select "form[action=?] input[name='root_recording_id'][value=?]", action, @root.id.to_s
       assert_select "form[action=?] input[name='return_to'][value=?]", action, recording_studio_plugins.root_path
-      assert_includes response.body, "Disconnect"
-      assert_includes response.body, "Connected"
+      assert_select "form[action=?] button[data-fp-style='secondary']", action, text: "Connected"
+      refute_select "form[action=?] button", action, text: "Disconnect"
+
+      get recording_studio_plugins.plugin_path(:google_drive)
+
+      assert_select "form[action=?] button", action, text: "Disconnect"
     end
   end
 

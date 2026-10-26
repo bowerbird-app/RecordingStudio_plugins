@@ -8,11 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.1] - 2026-10-26
 
 ### Changed
-- The plugins directory is a two-column list of items. Each row shows the plugin name (with its icon) on the left, and the existing status plus Connect, Disconnect, or the registered-plugin action on the right. The name still opens the detail page.
-- Search, category filters, and cards are gone from the directory. Query params no longer change the list.
+- The plugins directory is a two-column list of items. Each row shows the plugin name on the left (no icon), and status plus action on the right. Not connected is a primary Connect button. Connected is a secondary Connected button that still disconnects. Attention and Reconnect are unchanged. The name still opens the detail page, where Disconnect remains.
+- Search, category filters, cards, and the unused `Catalog` search/filter class are gone. Query params no longer change the list.
 
 ### Upgrade notes
 - If you overrode `plugins/index` or `plugins/_listing`, match the list-item layout. Search and category filters are not on the directory anymore.
+- `RecordingStudioPlugins::Catalog` is removed. Call `listings_for` if you were filtering through it.
 - There are no tables to migrate.
 
 ## [0.4.0] - 2026-10-26

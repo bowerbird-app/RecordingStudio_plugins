@@ -77,9 +77,10 @@ Each provider call is rescued and logged. If `available?` raises, the plugin is 
 
 ## Display
 
-The directory is a two-column list of items. Each row is the plugin name (linked to the detail page) on the left, and the status plus Connect, Disconnect, or the registered-plugin action on the right. There is no search box or category filter.
+The directory is a two-column list of items. Each row is the plugin name (linked to the detail page) on the left, and the status plus action on the right. There is no icon, search box, or category filter.
 
-- `state: :connected` shows a green badge reading "Connected".
+- On the directory, a missing connection is a primary Connect button. An active connection is a secondary Connected button that still posts Disconnect to Oauth. The detail page still shows Disconnect.
+- `state: :connected` shows a green badge reading "Connected" on the detail page.
 - `state: :attention` shows an amber badge reading "Attention". The detail page also shows `message`. An action renders when the provider supplies one.
 - Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
 - There is no "Not connected" badge.
@@ -123,7 +124,7 @@ Workspace members with `:view` can open the directory. Plugins from `RecordingSt
 
 Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak.
 
-Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. Registered plugins that are not Oauth keep a plain link.
+Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain link.
 
 Status comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
 

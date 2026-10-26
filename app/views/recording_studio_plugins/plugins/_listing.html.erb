@@ -1,11 +1,11 @@
 <% trailing = capture do %>
   <span class="inline-flex items-center gap-2">
-    <%= plugin_badge(listing) %>
-    <%= plugin_action(listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?) %>
+    <%= plugin_directory_status(listing) %>
+    <%= plugin_action(listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?, directory: true) %>
   </span>
 <% end %>
 
-<%= render FlatPack::List::Item.new(icon: listing.icon, trailing: trailing) do %>
+<%= render FlatPack::List::Item.new(trailing: trailing) do %>
   <%= render FlatPack::Link::Component.new(href: plugin_path(listing.key)) do %>
     <%= listing.name %>
   <% end %>
