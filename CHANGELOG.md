@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-10-26
+
+### Changed
+- The plugins directory is a two-column list of items. Each row shows the plugin name (with its icon) on the left, and the existing status plus Connect, Disconnect, or the registered-plugin action on the right. The name still opens the detail page.
+- Search, category filters, and cards are gone from the directory. Query params no longer change the list.
+
+### Upgrade notes
+- If you overrode `plugins/index` or `plugins/_listing`, match the list-item layout. Search and category filters are not on the directory anymore.
+- There are no tables to migrate.
+
 ## [0.4.0] - 2026-10-26
 
 ### Added
@@ -145,7 +155,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.1
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.3.0
 [0.2.3]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.3

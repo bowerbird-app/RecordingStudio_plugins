@@ -1,23 +1,12 @@
-<%= render FlatPack::Card::Component.new(style: :default) do |card| %>
-  <% card.header do %>
-    <%= render FlatPack::Shared::IconComponent.new(name: listing.icon, size: :lg) %>
-    <%= render FlatPack::PageTitle::Component.new(title: listing.name, variant: :h3, class: "mb-0") %>
+<% trailing = capture do %>
+  <span class="inline-flex items-center gap-2">
     <%= plugin_badge(listing) %>
-  <% end %>
-
-  <% card.body do %>
-    <p><%= listing.description %></p>
-    <% if listing.message.present? %>
-      <p><%= listing.message %></p>
-    <% end %>
-  <% end %>
-
-  <% card.footer do %>
     <%= plugin_action(listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?) %>
-    <%= render FlatPack::Button::Component.new(
-      text: plugin_copy("directory.details"),
-      style: :secondary,
-      href: plugin_path(listing.key)
-    ) %>
+  </span>
+<% end %>
+
+<%= render FlatPack::List::Item.new(icon: listing.icon, trailing: trailing) do %>
+  <%= render FlatPack::Link::Component.new(href: plugin_path(listing.key)) do %>
+    <%= listing.name %>
   <% end %>
 <% end %>

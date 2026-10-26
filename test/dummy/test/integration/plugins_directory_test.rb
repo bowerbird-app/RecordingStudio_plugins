@@ -27,55 +27,43 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     restore_plugins!
   end
 
-  test "directory renders the fixture plugins" do
+  test "directory renders plugins as two-column list items" do
     get recording_studio_plugins.root_path
 
     assert_response :success
     assert_includes response.body, "Plugins"
-    assert_includes response.body, "Google Drive"
-    assert_includes response.body, "Dropbox"
-    assert_includes response.body, "WordPress"
-    assert_includes response.body, "Grokbot"
-    assert_includes response.body, "Website embed"
+    assert_select "ul[role='list'][class*='grid'][class*='grid-cols-1'][class*='md:grid-cols-2']"
+    assert_select "li[role='listitem']"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:google_drive), text: "Google Drive"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:dropbox), text: "Dropbox"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:wordpress), text: "WordPress"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:grokbot), text: "Grokbot"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:website_embed), text: "Website embed"
     assert_includes response.body, "Attention"
     assert_includes response.body, "Connect"
     assert_includes response.body, "Check connection"
     assert_includes response.body, "Install"
     assert_includes response.body, "Set up"
+    assert_select "input[name='q']", count: 0
+    assert_select "a[href*='category=']", count: 0
   end
 
-  test "search is case insensitive across name description and category" do
-    get recording_studio_plugins.root_path(q: "DRIVE")
+  test "search and category params do not hide plugins" do
+    get recording_studio_plugins.root_path(q: "DRIVE", category: "storage")
 
     assert_response :success
     assert_includes response.body, "Google Drive"
-    refute_includes response.body, "WordPress"
-
-    get recording_studio_plugins.root_path(q: "storage")
-
-    assert_includes response.body, "Dropbox"
-    refute_includes response.body, "Grokbot"
+    assert_includes response.body, "WordPress"
+    assert_includes response.body, "Grokbot"
   end
 
-  test "category filter and the three empty states" do
-    get recording_studio_plugins.root_path(category: "storage")
-
-    assert_includes response.body, "Google Drive"
-    refute_includes response.body, "WordPress"
-
-    get recording_studio_plugins.root_path(category: "social")
-
-    assert_includes response.body, "Nothing in this category"
-
-    get recording_studio_plugins.root_path(q: "zzzz-no-plugin")
-
-    assert_includes response.body, "No matches"
-
+  test "empty directory shows the empty state" do
     RecordingStudioPlugins.clear!
     RecordingStudioPlugins.configuration.enabled_plugins = []
     get recording_studio_plugins.root_path
 
     assert_includes response.body, "Nothing here yet"
+    assert_select "li[role='listitem']", count: 0
   end
 
   test "detail page shows provider text and escapes html" do
@@ -136,7 +124,8 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_includes response.body, "needs another look"
+    assert_includes response.body, "WordPress"
+    assert_includes response.body, "Attention"
     refute_includes response.body, "Google Drive"
     refute_includes response.body, "Dropbox"
     refute_includes response.body, ">Connect<"
@@ -199,10 +188,11 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       assert_select "form[action=?] input[name='root_recording_id'][value=?]", action, @root.id.to_s
       assert_select "form[action=?] input[name='return_to'][value=?]", action, recording_studio_plugins.root_path
       assert_includes response.body, "Disconnect"
+      assert_includes response.body, "Connected"
     end
   end
 
-  test "invalid action url is omitted and the card still renders" do
+  test "invalid action url is omitted and the row still renders" do
     register_plugin(:unsafe, provider: unsafe_provider)
 
     get recording_studio_plugins.root_path
@@ -212,7 +202,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "javascript:alert"
   end
 
-  test "a raising status leaves the other cards rendered and each method runs once" do
+  test "a raising status leaves the other rows rendered and each method runs once" do
     calls = Hash.new(0)
     register_plugin(:counted, provider: counting_provider(calls))
     register_plugin(:broken, name: "Broken plugin", provider: raising_provider)

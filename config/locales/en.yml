@@ -4,20 +4,10 @@ en:
       directory:
         title: Plugins
         description: See what you can connect, and what's already set up.
-        search_placeholder: Search
-        search: Search
-        all_categories: All
-        details: Details
       empty:
         none:
           title: Nothing here yet
           description: Plugins show up here once they're added.
-        category:
-          title: Nothing in this category
-          description: Try another category.
-        search:
-          title: No matches
-          description: Try a different word.
       detail:
         about: About
         setup: How to connect
