@@ -35,7 +35,7 @@ module RecordingStudioPlugins
     end
 
     def people_connected_text(count)
-      return if count.nil?
+      return if count.nil? || count.to_i <= 0
 
       copy("status.people_connected", count: count, default: fallback_people_connected(count))
     end

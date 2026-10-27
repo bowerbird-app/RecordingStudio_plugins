@@ -3,6 +3,7 @@
 module RecordingStudioPlugins
   module Admin
     class AppearancesController < ApplicationController
+      include Copy
       include StaffAccess
 
       helper RecordingStudioAttachable::ApplicationHelper
@@ -96,10 +97,6 @@ module RecordingStudioPlugins
 
         values = attrs.respond_to?(:to_h) ? attrs.to_h : {}
         values.stringify_keys["name"]
-      end
-
-      def plugin_copy(key, default: nil)
-        RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
       end
 
       def recording_direct_uploads_path(recording, **)

@@ -31,4 +31,13 @@
       <% end %>
     </nav>
   <% end %>
+
+  <% sidebar_switcher = dummy_root_switch_dropdown(size: :sm) %>
+  <% if sidebar_switcher.present? %>
+    <% sidebar.footer do %>
+      <%= render FlatPack::Sidebar::Footer::Component.new do %>
+        <%= sidebar_switcher %>
+      <% end %>
+    <% end %>
+  <% end %>
 <% end %>

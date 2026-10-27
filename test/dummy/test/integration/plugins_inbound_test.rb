@@ -33,8 +33,8 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", "https://example.com/how-to-connect-chatgpt", text: "Connect"
     refute_includes response.body, "How to connect"
     refute_includes response.body, "More about this"
-    assert_includes response.body, "Not connected"
-    assert_includes response.body, "0 people connected"
+    refute_includes response.body, "Not connected"
+    refute_includes response.body, "0 people connected"
     refute_select "form[action*='chatgpt']"
   end
 
@@ -57,7 +57,9 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who&#39;s connected"
+    assert_includes response.body, "Who's connected"
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
     assert_includes response.body, @user.email
     assert_includes response.body, member.email
     refute_includes response.body, "dummy-access-token"
@@ -78,7 +80,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Who's connected"
     refute_includes response.body, @user.email
     refute_includes response.body, member.email
-    assert_includes response.body, "Not connected"
+    refute_includes response.body, "Not connected"
   end
 
   test "a person connected in one workspace is not connected in another" do
@@ -95,8 +97,9 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     switch_to_root!(other_root)
 
     get recording_studio_plugins.root_path
-    assert_includes chatgpt_row_text, "Not connected"
+    refute_includes chatgpt_row_text, "Connected"
     refute_includes chatgpt_row_text, "1 person connected"
+    refute_includes chatgpt_row_text, "Not connected"
   end
 
   test "admin directory shows the count and a lazy people frame without names" do
@@ -107,7 +110,6 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes chatgpt_row_text, "1 person connected"
     refute_includes response.body, @user.email
-    refute_includes response.body, "Who&#39;s connected"
     refute_includes response.body, "Who's connected"
     assert_select "turbo-frame#plugin-chatgpt-people-frame[loading='lazy'][src=?]",
                   recording_studio_plugins.plugin_people_path(:chatgpt)
@@ -115,8 +117,20 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who&#39;s connected"
+    assert_includes response.body, "Who's connected"
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
     assert_includes response.body, @user.email
+  end
+
+  test "empty people list uses a real apostrophe" do
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
+
+    assert_response :success
+    assert_includes response.body, "Who's connected"
+    assert_includes response.body, "Nobody's connected through here yet."
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
   end
 
   test "member directory has no count, people frame, or people list" do
@@ -133,7 +147,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_includes chatgpt_row_text, "Not connected"
+    refute_includes chatgpt_row_text, "Not connected"
     refute_includes chatgpt_row_text, "people connected"
     refute_includes chatgpt_row_text, "person connected"
     refute_select "turbo-frame[src=?]", recording_studio_plugins.plugin_people_path(:chatgpt)

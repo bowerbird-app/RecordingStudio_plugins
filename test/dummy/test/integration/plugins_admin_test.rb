@@ -69,6 +69,8 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Plugin names and pictures"
+    assert_select "form[action*='root_switch']"
+    assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     RecordingStudioPlugins.all.each do |definition|
       assert_includes response.body, RecordingStudioPlugins::Appearance.display_name(definition)
       assert_select "a[href=?]", recording_studio_plugins.admin_plugin_edit_path(definition.key), text: "Edit", count: 1
@@ -124,6 +126,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
+    assert_select "form[action*='root_switch']"
 
     get recording_studio_plugins.admin_plugins_path
 
@@ -278,6 +281,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "img[alt='Chat helper']", count: 0
     assert_includes response.body, "Chat helper"
+    assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
   end
 
   private

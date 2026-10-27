@@ -35,6 +35,12 @@ class McpClientStatusTest < Minitest::Test
     assert_nil status.message
   end
 
+  def test_admin_count_is_omitted_when_zero
+    status = status_for(connected: false, connected_count: 0)
+
+    assert_nil status.message
+  end
+
   def test_one_person_connected_uses_singular_copy
     status = status_for(connected: true, connected_count: 1)
 

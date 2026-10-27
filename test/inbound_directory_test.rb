@@ -81,8 +81,8 @@ class InboundDirectoryTest < Minitest::Test
     with_inbound_status(connected: false, connected_count: 0) do
       listing = RecordingStudioPlugins.listings_for(context: admin_context).first
 
-      assert_equal "Not connected", listing.directory_status_text
-      assert_equal "0 people connected", listing.people_connected_text
+      assert_nil listing.directory_status_text
+      assert_nil listing.people_connected_text
     end
   end
 
@@ -122,7 +122,7 @@ class InboundDirectoryTest < Minitest::Test
       )
 
       assert_equal "Connected", listing_a.directory_status_text
-      assert_equal "Not connected", listing_b.directory_status_text
+      assert_nil listing_b.directory_status_text
     end
   end
 

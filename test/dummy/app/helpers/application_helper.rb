@@ -23,20 +23,42 @@ module ApplicationHelper
         back_tooltip: back_label
       )
     end
+  end
 
-    recording_studio_page_nav_right do
-      concat dummy_language_selector
-      concat recording_studio_root_switch_dropdown(size: :md)
-      concat render(
-        FlatPack::Button::Component.new(
-          text: "Sign out",
-          style: :ghost,
-          size: :md,
-          href: main_app.destroy_user_session_path,
-          data: { turbo_method: :delete }
+  def dummy_layout_copy(content)
+    return if content.blank?
+
+    stripped = content.to_s.strip
+    return if stripped.blank?
+    return stripped.html_safe if content.html_safe?
+
+    stripped
+  end
+
+  def dummy_signed_in_chrome
+    return unless respond_to?(:user_signed_in?) && user_signed_in?
+
+    safe_join(
+      [
+        dummy_language_selector,
+        dummy_root_switch_dropdown,
+        render(
+          FlatPack::Button::Component.new(
+            text: "Sign out",
+            style: :ghost,
+            size: :md,
+            href: main_app.destroy_user_session_path,
+            data: { turbo_method: :delete }
+          )
         )
-      )
-    end
+      ].compact
+    )
+  end
+
+  def dummy_root_switch_dropdown(size: :md)
+    return unless respond_to?(:recording_studio_root_switch_dropdown)
+
+    recording_studio_root_switch_dropdown(size: size)
   end
 
   def dummy_language_selector

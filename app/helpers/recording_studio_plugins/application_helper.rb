@@ -2,6 +2,7 @@
 
 module RecordingStudioPlugins
   module ApplicationHelper
+    include Copy
     def plugin_badge(listing)
       return if listing.badge_style.nil?
 
@@ -94,19 +95,8 @@ module RecordingStudioPlugins
       text.to_s.split(/\n\n+/).map(&:strip).reject(&:empty?)
     end
 
-    def plugin_copy(key, default: nil)
-      RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
-    end
-
     def plugin_admin_picture_cell(row)
-      return if row[:image_url].blank?
-
-      render FlatPack::Avatar::Component.new(
-        src: row[:image_url],
-        size: :sm,
-        shape: :square,
-        alt: row[:name]
-      )
+      plugin_icon(image_url: row[:image_url], alt: row[:name], size: :sm)
     end
 
     def plugin_admin_edit_cell(row)
@@ -116,13 +106,26 @@ module RecordingStudioPlugins
     end
 
     def plugin_image(listing, size: :sm)
-      return if listing.image_url.blank?
+      plugin_icon(image_url: listing.image_url, alt: listing.name, size: size)
+    end
+
+    def plugin_icon(image_url:, alt:, size: :sm)
+      if image_url.present?
+        return render FlatPack::Avatar::Component.new(
+          src: image_url,
+          size: size,
+          shape: :square,
+          alt: alt
+        )
+      end
 
       render FlatPack::Avatar::Component.new(
-        src: listing.image_url,
         size: size,
         shape: :square,
-        alt: listing.name
+        icon: "puzzle-piece",
+        alt: "",
+        show_tooltip: false,
+        aria: { hidden: true }
       )
     end
   end

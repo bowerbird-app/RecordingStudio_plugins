@@ -52,6 +52,19 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='secondary']", text: "Connect"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
+    assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
+    assert_includes response.body, @root.recordable.name
+    assert_select "form[action*='root_switch']"
+    assert_directory_apostrophes
+    refute_includes response.body, "Not connected"
+    refute_includes response.body, "0 people connected"
+  end
+
+  test "directory subtitle uses a real apostrophe" do
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_directory_apostrophes
   end
 
   test "non-root connected plugin still shows the Connected badge" do
@@ -98,6 +111,9 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_includes response.body, "Nothing here yet"
+    assert_includes response.body, "Plugins show up here once they're added."
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
     assert_select "li[role='listitem']", count: 0
   end
 
@@ -129,6 +145,9 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
     assert_select "h3", "You don't have access"
+    assert_includes response.body, "You don't have access"
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
   end
 
   test "missing root is forbidden" do
@@ -155,7 +174,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "ChatGPT"
     assert_includes response.body, "Grok Bot"
-    assert_includes response.body, "Not connected"
+    refute_includes response.body, "Not connected"
     refute_includes response.body, "people connected"
     refute_includes response.body, "Google Drive"
     refute_includes response.body, "Dropbox"
@@ -247,6 +266,12 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def assert_directory_apostrophes
+    assert_includes response.body, "See what you can connect, and what's already set up."
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
+  end
 
   def directory_rows
     css_select("li[role='listitem']").map { |node| node.text.gsub(/\s+/, " ").strip }
