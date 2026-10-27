@@ -15,6 +15,20 @@ class CredentialsTest < ActiveSupport::TestCase
     assert_equal "dev_placeholder", credentials.dig(:aws, :secret_access_key)
   end
 
+  test "dummy google drive and dropbox fall back to fake oauth clients in test" do
+    google = RecordingStudioOauth::Outbound.provider(:google_drive)
+    dropbox = RecordingStudioOauth::Outbound.provider(:dropbox)
+
+    assert_equal FakeOauth::CLIENT_ID, google.client_id
+    assert_equal FakeOauth, google.http
+    assert_equal "/fake_oauth/authorize", google.authorize_url
+    assert_equal FakeDropboxOauth::CLIENT_ID, dropbox.client_id
+    assert_equal FakeDropboxOauth, dropbox.http
+    assert_equal "/fake_oauth/authorize", dropbox.authorize_url
+    refute_includes google.inspect, google.client_secret
+    refute_includes dropbox.inspect, dropbox.client_secret
+  end
+
   private
 
   def master_key_available?

@@ -29,10 +29,18 @@ Rails.application.routes.draw do
   get "docs/gem_views", to: "docs#gem_views", as: :docs_gem_views
   get "docs/methods", to: "docs#methods", as: :docs_methods
 
-  get "fake_oauth/authorize", to: "fake_oauth#authorize"
-  post "fake_oauth/continue", to: "fake_oauth#continue", as: :fake_oauth_continue
-  post "fake_oauth/token", to: "fake_oauth#token"
-  post "fake_oauth/revoke", to: "fake_oauth#revoke"
+  get "fake_oauth/authorize",
+      to: "fake_oauth#authorize",
+      constraints: ->(req) { req.params[:client_id].to_s == FakeOauth::CLIENT_ID }
+  post "fake_oauth/token",
+       to: "fake_oauth#token",
+       constraints: ->(req) { req.params[:client_id].to_s == FakeOauth::CLIENT_ID }
+  post "fake_oauth/revoke",
+       to: "fake_oauth#revoke",
+       constraints: ->(req) { req.params[:client_id].to_s == FakeOauth::CLIENT_ID }
+  get "fake_oauth/authorize", to: "fake_dropbox_oauth#authorize"
+  post "fake_oauth/token", to: "fake_dropbox_oauth#token"
+  post "fake_oauth/revoke", to: "fake_dropbox_oauth#revoke"
 
   # Defines the root path route ("/")
   root "home#index"

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class FakeOauth
-  CLIENTS = {
-    "dummy-google-drive" => "dummy-google-drive-secret",
-    "dummy-dropbox" => "dummy-dropbox-secret"
-  }.freeze
+  CLIENT_ID = "dummy-fake-drive"
+  CLIENT_SECRET = "dummy-fake-drive-secret"
+  FAIL_REFRESH = "fail-refresh"
+  SCOPE = "files.read"
 
   class << self
     def call(url, params)
@@ -17,7 +17,7 @@ class FakeOauth
       end
     end
 
-    def issue_code(access_token:, refresh_token:, user_id:, email:, expires_in: 3600, scope: "files.read",
+    def issue_code(access_token:, refresh_token:, user_id:, email:, expires_in: 3600, scope: SCOPE,
                    code_challenge: nil)
       code = SecureRandom.urlsafe_base64(32)
       store_code(
@@ -36,7 +36,7 @@ class FakeOauth
     end
 
     def valid_client?(client_id)
-      CLIENTS.key?(client_id.to_s)
+      client_id.to_s == CLIENT_ID
     end
 
     def reset!
@@ -57,6 +57,7 @@ class FakeOauth
 
     def refresh(params)
       return [ 401, { "error" => "invalid_client" } ] unless credentials_match?(params)
+      return [ 400, { "error" => "invalid_grant" } ] if params["refresh_token"].to_s == FAIL_REFRESH
 
       [
         200,
@@ -64,13 +65,13 @@ class FakeOauth
           "access_token" => "refreshed-access-#{SecureRandom.hex(8)}",
           "refresh_token" => params["refresh_token"].to_s,
           "expires_in" => 3600,
-          "scope" => "files.read"
+          "scope" => SCOPE
         }
       ]
     end
 
     def credentials_match?(params)
-      CLIENTS[params["client_id"].to_s] == params["client_secret"].to_s
+      params["client_id"].to_s == CLIENT_ID && params["client_secret"].to_s == CLIENT_SECRET
     end
 
     def verifier_matches?(verifier, challenge)

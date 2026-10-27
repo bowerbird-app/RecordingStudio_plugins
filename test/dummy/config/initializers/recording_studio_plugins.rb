@@ -26,36 +26,3 @@ RecordingStudioPlugins.register_mcp_client(
   setup_url: "https://grok.com",
   owner: "dummy"
 )
-
-RecordingStudioGoogleDrive.register_oauth_provider if defined?(RecordingStudioGoogleDrive)
-RecordingStudioDropbox.register_oauth_provider if defined?(RecordingStudioDropbox)
-
-unless defined?(RecordingStudioGoogleDrive)
-  RecordingStudioOauth.register_outbound_provider(
-    key: :google_drive,
-    kind: :root,
-    authorize_url: "/fake_oauth/authorize",
-    token_url: "/fake_oauth/token",
-    revoke_url: "/fake_oauth/revoke",
-    scopes: ["files.read"],
-    client_id: "dummy-google-drive",
-    client_secret: "dummy-google-drive-secret",
-    pkce: true,
-    refresh: true
-  )
-end
-
-unless defined?(RecordingStudioDropbox)
-  RecordingStudioOauth.register_outbound_provider(
-    key: :dropbox,
-    kind: :root,
-    authorize_url: "/fake_oauth/authorize",
-    token_url: "/fake_oauth/token",
-    revoke_url: "/fake_oauth/revoke",
-    scopes: ["files.read"],
-    client_id: "dummy-dropbox",
-    client_secret: "dummy-dropbox-secret",
-    pkce: true,
-    refresh: true
-  )
-end

@@ -19,23 +19,6 @@ class FakeOauthController < ApplicationController
       return
     end
 
-    @client_id = params[:client_id]
-    @state = params[:state]
-    @redirect_uri = params[:redirect_uri]
-    @code_challenge = params[:code_challenge]
-  end
-
-  def continue
-    unless FakeOauth.valid_client?(params[:client_id])
-      render plain: "unknown client", status: :bad_request
-      return
-    end
-
-    unless callback_path_allowed?
-      render plain: "unknown redirect", status: :bad_request
-      return
-    end
-
     code = FakeOauth.issue_code(
       access_token: "fake-access-#{SecureRandom.hex(8)}",
       refresh_token: "fake-refresh-#{SecureRandom.hex(8)}",

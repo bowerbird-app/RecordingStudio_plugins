@@ -32,7 +32,7 @@ Then open the app and sign in with the seeded site staff user `admin@admin.com`.
 - `/` - dummy app home page and template guidance
 - `/admin` - staff plugin names and pictures after switching to the "Admin" root (site staff only)
 - `/recording_studio_plugins/admin/plugins` - the same editor on the Plugins engine after switching to the Admin root
-- `/fake_oauth/authorize` - dummy-only fake Oauth provider page used by Google Drive and Dropbox Connect
+- `/fake_oauth/authorize` - dummy-only Google Drive and Dropbox authorize endpoint. Connect posts to Oauth, this issues a code, Oauth exchanges it, and the directory shows Connected. Token and revoke live at `/fake_oauth/token` and `/fake_oauth/revoke`. Tests and CI use the fake clients. Local real apps can set `google_drive` / `dropbox` (or `attachable.google_drive` / `attachable.dropbox`) in credentials, or the matching `GOOGLE_DRIVE_*` / `DROPBOX_*` env names.
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` - dummy-only starter pages

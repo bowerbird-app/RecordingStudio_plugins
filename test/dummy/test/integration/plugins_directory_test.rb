@@ -22,10 +22,14 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @root, actor: @user)
     sign_in @user
     switch_to_root!(@root)
+    FakeOauth.reset!
+    FakeDropboxOauth.reset!
   end
 
   teardown do
     Current.actor = nil
+    FakeOauth.reset!
+    FakeDropboxOauth.reset!
     restore_plugins!
   end
 
@@ -237,25 +241,88 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     refute_select "a[href='#']", text: "Connect"
   end
 
-  test "connect posts to oauth then lands on the dummy fake provider page" do
-    post "/recording_studio_oauth/outbound/google_drive/connect", params: {
+  test "google drive connect follows fake authorize then shows connected on the directory" do
+    follow_dummy_connect!(provider: "google_drive")
+
+    assert_equal recording_studio_plugins.root_path, request.path
+    assert_select "li[role='listitem']", text: /Google Drive/ do
+      assert_select "*", text: "Connected"
+      assert_select "form[method='post'] button", text: "Connected"
+      refute_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
+    end
+    connection = RecordingStudioOauth::OutboundConnection.find_by!(
+      provider_key: "google_drive",
+      root_recording_id: @root.id
+    )
+    assert_equal "active", connection.status
+    assert_equal "acct-demo", connection.external_account_id
+    assert connection.access_token.present?
+  end
+
+  test "dropbox connect follows fake authorize then shows connected on the directory" do
+    follow_dummy_connect!(provider: "dropbox")
+
+    assert_equal recording_studio_plugins.root_path, request.path
+    assert_select "li[role='listitem']", text: /Dropbox/ do
+      assert_select "*", text: "Connected"
+      assert_select "form[method='post'] button", text: "Connected"
+      refute_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
+    end
+    connection = RecordingStudioOauth::OutboundConnection.find_by!(
+      provider_key: "dropbox",
+      root_recording_id: @root.id
+    )
+    assert_equal "active", connection.status
+    assert_equal "acct-demo", connection.external_account_id
+    assert connection.access_token.present?
+  end
+
+  test "google drive disconnect after a live fake connect returns the row to connect" do
+    follow_dummy_connect!(provider: "google_drive")
+    connection = RecordingStudioOauth::OutboundConnection.find_by!(
+      provider_key: "google_drive",
+      root_recording_id: @root.id
+    )
+
+    delete "/recording_studio_oauth/outbound/connections/#{connection.id}", params: {
       owner: "root",
       root_recording_id: @root.id,
       return_to: recording_studio_plugins.root_path
     }
 
     assert_response :redirect
-    location = response.redirect_url
-    refute_nil location
-    assert_includes location, "/fake_oauth/authorize"
-    refute_equal recording_studio_plugins.root_path, URI.parse(location).path
-
     follow_redirect!
 
-    assert_response :success
-    assert_equal "/fake_oauth/authorize", request.path
-    assert_includes response.body, "Fake provider"
-    assert_select "form[action='/fake_oauth/continue']"
+    assert_equal recording_studio_plugins.root_path, request.path
+    assert_equal "revoked", connection.reload.status
+    assert_nil connection.access_token
+    assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
+    assert_select "li[role='listitem']", text: /Google Drive/ do
+      assert_select "button", text: "Connect"
+      refute_select "*", text: "Connected"
+    end
+  end
+
+  test "fake google authorize rejects a redirect that is not the outbound callback" do
+    get "/fake_oauth/authorize", params: {
+      client_id: FakeOauth::CLIENT_ID,
+      redirect_uri: "https://evil.test/steal",
+      state: "nope"
+    }
+
+    assert_response :bad_request
+    assert_equal 0, RecordingStudioOauth::OutboundConnection.where(root_recording_id: @root.id).count
+  end
+
+  test "fake dropbox authorize rejects a redirect that is not the outbound callback" do
+    get "/fake_oauth/authorize", params: {
+      client_id: FakeDropboxOauth::CLIENT_ID,
+      redirect_uri: "https://evil.test/steal",
+      state: "nope"
+    }
+
+    assert_response :bad_request
+    assert_equal 0, RecordingStudioOauth::OutboundConnection.where(root_recording_id: @root.id).count
   end
 
   test "admin sees a connect action that posts to oauth when authorize url is https" do
@@ -385,7 +452,44 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     configuration.enabled_plugins = []
     RecordingStudioPlugins.clear!
     RecordingStudioOauth::Outbound.reset_providers! if defined?(RecordingStudioOauth::Outbound)
+    load Rails.root.join("config/initializers/recording_studio_google_drive.rb")
+    load Rails.root.join("config/initializers/recording_studio_dropbox.rb")
     load Rails.root.join("config/initializers/recording_studio_plugins.rb")
+  end
+
+  def follow_dummy_connect!(provider:)
+    post "/recording_studio_oauth/outbound/#{provider}/connect", params: {
+      owner: "root",
+      root_recording_id: @root.id,
+      return_to: recording_studio_plugins.root_path
+    }
+
+    assert_response :redirect
+    authorize = URI.parse(response.redirect_url)
+    assert_equal "/fake_oauth/authorize", authorize.path
+    query = URI.decode_www_form(authorize.query.to_s).to_h
+    expected_client = provider == "dropbox" ? FakeDropboxOauth::CLIENT_ID : FakeOauth::CLIENT_ID
+    assert_equal expected_client, query["client_id"]
+    assert query["state"].present?
+    assert query["code_challenge"].present?
+    assert_equal "S256", query["code_challenge_method"]
+    refute_equal recording_studio_plugins.root_path, authorize.path
+
+    follow_redirect!
+
+    assert_response :redirect
+    callback = URI.parse(response.redirect_url)
+    assert_equal "/recording_studio_oauth/outbound/callback", callback.path
+    callback_query = URI.decode_www_form(callback.query.to_s).to_h
+    assert_equal query["state"], callback_query["state"]
+    assert callback_query["code"].present?
+
+    follow_redirect!
+
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
   end
 
   def register_plugin(key, provider:, name: key.to_s.capitalize)
