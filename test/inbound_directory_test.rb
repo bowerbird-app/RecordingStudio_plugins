@@ -185,7 +185,11 @@ class InboundDirectoryTest < Minitest::Test
     register_clients
     called = 0
 
-    RecordingStudioPlugins::InboundPeople.stub(:labeled, ->(**_) { called += 1; [] }) do
+    labeled = lambda do |**_|
+      called += 1
+      []
+    end
+    RecordingStudioPlugins::InboundPeople.stub(:labeled, labeled) do
       with_inbound_status(connected: true, connected_count: 2) do
         listings = RecordingStudioPlugins.listings_for(context: admin_context)
         listings.each do |listing|

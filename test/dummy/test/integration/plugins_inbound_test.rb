@@ -101,21 +101,9 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
   test "admin directory shows the count and a lazy people frame without names" do
     connect_chatgpt!(user: @user, access_recording: @access)
 
-    status_calls = 0
-    connection_calls = 0
-    status = RecordingStudioOauth.method(:inbound_connection_status)
-    connections = RecordingStudioOauth.method(:inbound_connections)
-
-    RecordingStudioOauth.stub(:inbound_connection_status, lambda { |**kwargs|
-      status_calls += 1
-      status.call(**kwargs)
-    }) do
-      RecordingStudioOauth.stub(:inbound_connections, lambda { |**kwargs|
-        connection_calls += 1
-        connections.call(**kwargs)
-      }) do
-        get recording_studio_plugins.root_path
-      end
+    calls = { status: 0, connections: 0 }
+    spy_inbound_oauth_calls(calls) do
+      get recording_studio_plugins.root_path
     end
 
     assert_response :success
@@ -125,8 +113,8 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Who's connected"
     assert_select "turbo-frame#plugin-chatgpt-people-frame[loading='lazy'][src=?]",
                   recording_studio_plugins.plugin_people_path(:chatgpt)
-    assert_equal 2, status_calls
-    assert_equal 0, connection_calls
+    assert_equal 2, calls[:status]
+    assert_equal 0, calls[:connections]
 
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
@@ -175,6 +163,26 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def spy_inbound_oauth_calls(calls)
+    klass = RecordingStudioOauth.singleton_class
+    klass.alias_method :_orig_inbound_connection_status, :inbound_connection_status
+    klass.alias_method :_orig_inbound_connections, :inbound_connections
+    klass.define_method(:inbound_connection_status) do |**kwargs|
+      calls[:status] += 1
+      _orig_inbound_connection_status(**kwargs)
+    end
+    klass.define_method(:inbound_connections) do |**kwargs|
+      calls[:connections] += 1
+      _orig_inbound_connections(**kwargs)
+    end
+    yield
+  ensure
+    klass.alias_method :inbound_connection_status, :_orig_inbound_connection_status
+    klass.alias_method :inbound_connections, :_orig_inbound_connections
+    klass.remove_method :_orig_inbound_connection_status
+    klass.remove_method :_orig_inbound_connections
+  end
 
   def connect_chatgpt!(user:, access_recording:)
     client, = chatgpt_client
