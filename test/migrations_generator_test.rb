@@ -29,9 +29,12 @@ class MigrationsGeneratorTest < Minitest::Test
 
       generator.stub(:say, nil) { generator.copy_migrations }
       second = Dir.glob(File.join(dir, "db/migrate", "*_create_recording_studio_plugin_appearances.rb"))
+      second_follow_up = Dir.glob(
+        File.join(dir, "db/migrate", "*_nonunique_recording_studio_plugin_appearance_plugin_key.rb")
+      )
 
       assert_equal 1, second.size
-      assert_equal 1, Dir.glob(File.join(dir, "db/migrate", "*_nonunique_recording_studio_plugin_appearance_plugin_key.rb")).size
+      assert_equal 1, second_follow_up.size
     end
   end
 end
