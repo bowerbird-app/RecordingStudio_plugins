@@ -60,7 +60,7 @@ module RecordingStudioPlugins
     end
 
     def unwrap_recording(value)
-      return value if value.is_a?(RecordingStudio::Recording)
+      return value if value.respond_to?(:recordable_type)
       return value.recording if value.respond_to?(:recording)
 
       nil
