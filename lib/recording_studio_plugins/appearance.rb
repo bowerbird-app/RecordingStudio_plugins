@@ -19,11 +19,11 @@ module RecordingStudioPlugins
     end
 
     def image_recording(key)
-      index.image_recording(key)
+      request_index.image_recording(key)
     end
 
     def recording_for(key)
-      index.recording_for(key)
+      request_index.recording_for(key)
     end
 
     def current_recordable(key) = recording_for(key)&.recordable
@@ -34,16 +34,21 @@ module RecordingStudioPlugins
 
     def ensure_recording!(key, actor:)
       existing = recording_for(key)
-      return existing if existing.present? || admin_recording.blank? || actor.blank?
+      return existing if existing.present?
 
-      created = create_appearance!(key, actor:)
+      created = create_recording!(key, actor: actor)
+      return if created.blank?
+
       reset_index!
       unwrap_recording(created) || recording_for(key)
     end
 
-    def create_appearance!(key, actor:)
+    def create_recording!(key, actor:)
+      admin = admin_recording
+      return if admin.blank? || actor.blank?
+
       with_actor(actor) do
-        admin_recording.record(PluginAppearance, actor: actor) do |appearance|
+        admin.record(PluginAppearance, actor: actor) do |appearance|
           appearance.plugin_key = key.to_s
         end
       end
@@ -118,18 +123,12 @@ module RecordingStudioPlugins
       Current.actor = previous_actor if defined?(Current)
     end
 
-    def index
-      if defined?(ActiveSupport::IsolatedExecutionState)
-        ActiveSupport::IsolatedExecutionState[INDEX_STATE_KEY] ||= Index.new
-      else
-        Index.new
-      end
+    def request_index
+      Thread.current[INDEX_STATE_KEY] ||= Index.new
     end
 
     def reset_index!
-      return unless defined?(ActiveSupport::IsolatedExecutionState)
-
-      ActiveSupport::IsolatedExecutionState.delete(INDEX_STATE_KEY)
+      Thread.current[INDEX_STATE_KEY] = nil
     end
 
     class Index
@@ -167,30 +166,24 @@ module RecordingStudioPlugins
         admin = Appearance.admin_recording
         return if admin.blank?
 
-        recordings_of_appearances(admin)
-      end
-
-      def recordings_of_appearances(admin)
-        return admin.recordings_of(PluginAppearance) if admin.respond_to?(:recordings_of)
-
-        RecordingStudio::Recording.where(
-          recordable_type: RECORDABLE_TYPE,
-          parent_recording_id: admin.id
-        )
+        if admin.respond_to?(:recordings_of)
+          admin.recordings_of(PluginAppearance)
+        else
+          RecordingStudio::Recording.where(recordable_type: RECORDABLE_TYPE, parent_recording_id: admin.id)
+        end
       end
 
       def load_image_recordings_by_key
         recordings = recordings_by_key
-        parent_ids = recordings.values.map(&:id)
-        return {} if parent_ids.empty? || !defined?(RecordingStudioAttachable::Attachment)
-
-        attachments_by_parent = kept_attachments(parent_ids)
+        attachments_by_parent = attachment_recordings_by_parent(recordings.values.map(&:id))
         recordings.each_with_object({}) do |(plugin_key, recording), map|
           map[plugin_key] = attachments_by_parent[recording.id]&.first
         end
       end
 
-      def kept_attachments(parent_ids)
+      def attachment_recordings_by_parent(parent_ids)
+        return {} if parent_ids.empty? || !defined?(RecordingStudioAttachable::Attachment)
+
         relation = RecordingStudio::Recording.where(
           parent_recording_id: parent_ids,
           recordable_type: RecordingStudioAttachable::Attachment.name

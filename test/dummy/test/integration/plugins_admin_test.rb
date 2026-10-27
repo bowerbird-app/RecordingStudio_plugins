@@ -144,7 +144,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
-    assert_includes response.body, "Plugin names aren't wired up"
+    assert_select "h3", text: /Plugin names aren't wired up/
     refute_includes response.body, "WordPress"
     refute_includes response.body, "ChatGPT"
     assert_select "input[name='appearances[wordpress][name]']", count: 0
@@ -225,10 +225,20 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
   def grant_staff!(user, role: "admin")
     recording = admin_root_recording
-    manager = User.find_by(email: "admin@admin.com")
+    manager = @staff || User.find_by(email: "admin@admin.com")
     Current.actor = manager || user
-    if role.to_s == "admin" && !(manager && RecordingStudioAccessible.authorized?(actor: manager, recording: recording, role: :admin))
-      RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
+    if role.to_s == "admin"
+      if manager && manager != user && RecordingStudioAccessible.authorized?(actor: manager, recording: recording, role: :admin)
+        result = RecordingStudioAccessible.grant_access(
+          recording: recording,
+          actor: user,
+          role: "admin",
+          manager_actor: manager
+        )
+        raise result.error if result.respond_to?(:failure?) && result.failure?
+      else
+        RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
+      end
       return
     end
 
@@ -236,7 +246,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       recording: recording,
       actor: user,
       role: role,
-      manager_actor: manager || user
+      manager_actor: manager
     )
     raise result.error if result.respond_to?(:failure?) && result.failure?
   end

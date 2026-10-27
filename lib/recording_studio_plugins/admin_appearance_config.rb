@@ -30,14 +30,16 @@ module RecordingStudioPlugins
 
     def default_admin_recording_resolver
       lambda do
-        root = admin_root_recordable
+        root = find_configured_admin_root
         next unless root
 
-        kept_admin_recording(root)
+        RecordingStudio::Recording.where(
+          RecordingStudio::Recording.recording_studio_trashable_kept_sql
+        ).find_by(recordable: root)
       end
     end
 
-    def admin_root_recordable
+    def find_configured_admin_root
       type_name = admin_root_types.first
       return if type_name.blank? || admin_root_name.blank?
 
@@ -45,12 +47,6 @@ module RecordingStudioPlugins
       return unless klass.respond_to?(:find_by)
 
       klass.find_by(name: admin_root_name)
-    end
-
-    def kept_admin_recording(root)
-      RecordingStudio::Recording.where(
-        RecordingStudio::Recording.recording_studio_trashable_kept_sql
-      ).find_by(recordable: root)
     end
   end
 end
