@@ -14,4 +14,6 @@ module WidenRecordingStudioRequirement
   end
 end
 
-Gem::Specification.prepend(WidenRecordingStudioRequirement) unless Gem::Specification.ancestors.include?(WidenRecordingStudioRequirement)
+unless Gem::Specification.ancestors.include?(WidenRecordingStudioRequirement)
+  Gem::Specification.prepend(WidenRecordingStudioRequirement)
+end

@@ -14,7 +14,7 @@ module ApplicationHelper
 
     recording_studio_page_nav_right do
       concat dummy_language_selector
-      concat recording_studio_root_switch_dropdown(style: :ghost, size: :md)
+      concat recording_studio_root_switch_dropdown(size: :md)
       concat render(
         FlatPack::Button::Component.new(
           text: "Sign out",

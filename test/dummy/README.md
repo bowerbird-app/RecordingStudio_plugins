@@ -8,6 +8,7 @@ This Rails app exists to validate the Recording Studio addon template in a real 
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded folder and page recordables
 - Recording Studio default layout, FlatPack assets, and Tailwind source scanning
+- Attachable Library and Placement in `recordable_types`; dummy override of Root Switchable's switch page for Flatpack 0.1.320
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 - Dummy registers ChatGPT and Grok Bot with `RecordingStudioPlugins.register_mcp_client`
 - Dummy-only `/docs/*` pages for gem-specific onboarding

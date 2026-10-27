@@ -131,7 +131,9 @@ class RecordingStudioPluginsTest < Minitest::Test
   end
 
   def test_engine_controllers_delegate_layout_and_do_not_hardcode_it
-    controller = File.read(File.expand_path("../app/controllers/recording_studio_plugins/application_controller.rb", __dir__))
+    controller = File.read(
+      File.expand_path("../app/controllers/recording_studio_plugins/application_controller.rb", __dir__)
+    )
     gem_root = File.expand_path("..", __dir__)
     index = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/index.html.erb", __dir__))
     show = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/show.html.erb", __dir__))
@@ -204,11 +206,21 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes initializer_source, '"Folder"'
     assert_includes initializer_source, '"Page"'
     assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
+    assert_includes initializer_source, "RecordingStudioAttachable::Library"
+    assert_includes initializer_source, "RecordingStudioAttachable::Placement"
     assert_includes initializer_source, "RecordingStudioSiteSettings::SiteSetting"
     assert_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
+
+    switch_page = File.read(
+      File.expand_path("dummy/app/views/recording_studio_root_switchable/root_switches/show.html.erb", __dir__)
+    )
+    assert_includes switch_page, "anchor_href:"
+    assert_includes switch_page, "anchor_tooltip:"
+    refute_includes switch_page, "anchor_label:"
+    refute_includes switch_page, "Card::Component.new(style:"
   end
 
   def test_dummy_readme_explains_dummy_app_purpose
@@ -219,6 +231,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme_source, "/recording_studio"
     assert_includes readme_source, "redirects to `/`"
     refute_includes readme_source, "flat_pack_sidebar"
+    assert_includes readme_source, "Attachable Library and Placement"
   end
 
   def test_readme_covers_the_plugins_directory
