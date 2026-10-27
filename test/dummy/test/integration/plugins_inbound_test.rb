@@ -165,23 +165,21 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
   private
 
   def spy_inbound_oauth_calls(calls)
-    klass = RecordingStudioOauth.singleton_class
-    klass.alias_method :_orig_inbound_connection_status, :inbound_connection_status
-    klass.alias_method :_orig_inbound_connections, :inbound_connections
-    klass.define_method(:inbound_connection_status) do |**kwargs|
+    real_status = RecordingStudioOauth.method(:inbound_connection_status)
+    real_connections = RecordingStudioOauth.method(:inbound_connections)
+    status_probe = lambda do |**kw|
       calls[:status] += 1
-      _orig_inbound_connection_status(**kwargs)
+      real_status.call(**kw)
     end
-    klass.define_method(:inbound_connections) do |**kwargs|
+    connections_probe = lambda do |**kw|
       calls[:connections] += 1
-      _orig_inbound_connections(**kwargs)
+      real_connections.call(**kw)
     end
-    yield
-  ensure
-    klass.alias_method :inbound_connection_status, :_orig_inbound_connection_status
-    klass.alias_method :inbound_connections, :_orig_inbound_connections
-    klass.remove_method :_orig_inbound_connection_status
-    klass.remove_method :_orig_inbound_connections
+    RecordingStudioOauth.stub(:inbound_connection_status, status_probe) do
+      RecordingStudioOauth.stub(:inbound_connections, connections_probe) do
+        yield
+      end
+    end
   end
 
   def connect_chatgpt!(user:, access_recording:)

@@ -82,7 +82,8 @@ module RecordingStudioPlugins
     end
 
     def can_admin_plugins?
-      directory_allowed?(:admin)
+      @can_admin_plugins = directory_allowed?(:admin) if @can_admin_plugins.nil?
+      @can_admin_plugins
     end
 
     def inbound_people_allowed?

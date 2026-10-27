@@ -83,7 +83,7 @@ The directory is a two-column list of items. Each row is the plugin name on the 
 - `state: :connected` shows a green badge reading "Connected" on the detail page.
 - `state: :attention` shows an amber badge reading "Attention". The detail page also shows `message`. An action renders when the provider supplies one.
 - Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
-- Inbound MCP clients (ChatGPT, Grok Bot) have no Connect or Disconnect button. The row shows "Connected" or "Not connected", a people count under the name for workspace admins, and a "How to connect" link when `setup_url` is set. Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section.
+- Inbound MCP clients (ChatGPT, Grok Bot) have no Connect or Disconnect button. The row shows "Connected" or "Not connected", a people count under the name for workspace admins, and a "How to connect" link when `setup_url` is set. Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section. The modal people list is a lazy Turbo Frame and needs Turbo in the host; the "More about this" footer link is the fallback.
 - There is no "Not connected" badge on other plugins.
 
 This gem does not decide health, heartbeats, or staleness. The provider decides.

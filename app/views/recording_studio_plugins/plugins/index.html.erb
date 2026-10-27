@@ -17,4 +17,7 @@
       <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
     <% end %>
   </ul>
+  <% @listings.select(&:user?).each do |listing| %>
+    <%= render "inbound_modal", listing: listing %>
+  <% end %>
 <% end %>
