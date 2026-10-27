@@ -216,8 +216,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes initializer_source, '"AdminRoot"'
     assert_includes initializer_source, "RecordingStudioPlugins::PluginAppearance"
     assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
-    assert_includes initializer_source, "RecordingStudioAttachable::Library"
-    assert_includes initializer_source, "RecordingStudioAttachable::Placement"
+    refute_includes initializer_source, "RecordingStudioAttachable::Library"
+    refute_includes initializer_source, "RecordingStudioAttachable::Placement"
     assert_includes initializer_source, "RecordingStudioSiteSettings::SiteSetting"
     assert_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
@@ -240,7 +240,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme_source, "/recording_studio"
     assert_includes readme_source, "redirects to `/`"
     refute_includes readme_source, "flat_pack_sidebar"
-    assert_includes readme_source, "Attachable Library and Placement"
+    assert_includes readme_source, "Admin root at `/admin`"
   end
 
   def test_readme_covers_the_plugins_directory

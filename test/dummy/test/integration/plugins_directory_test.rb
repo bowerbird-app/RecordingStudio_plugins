@@ -20,6 +20,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     Current.actor = @user
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @root, actor: @user)
     sign_in @user
+    switch_to_root!(@root)
   end
 
   teardown do
@@ -138,6 +139,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     )
     RecordingStudioAccessible.grant_access(recording: @root, actor: viewer, role: "view", manager_actor: @user)
     sign_in viewer
+    switch_to_root!(@root)
 
     get recording_studio_plugins.root_path
 
@@ -163,6 +165,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     )
     RecordingStudioAccessible.grant_access(recording: @root, actor: viewer, role: "view", manager_actor: @user)
     sign_in viewer
+    switch_to_root!(@root)
 
     get recording_studio_plugins.plugin_path(:google_drive)
 
@@ -317,6 +320,16 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
         raise "status failed"
       end
     end
+  end
+
+  def switch_to_root!(root_recording)
+    patch recording_studio_root_switchable.root_switch_path(scope: "all_workspaces"), params: {
+      root_switch: {
+        root_recording_id: root_recording.id,
+        return_to: recording_studio_plugins.root_path
+      }
+    }
+    follow_redirect! if response.redirect?
   end
 
   def counting_provider(calls)

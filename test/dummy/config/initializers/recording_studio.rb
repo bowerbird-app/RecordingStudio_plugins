@@ -25,8 +25,6 @@ RecordingStudio.configure do |config|
     "RecordingStudioPlugins::PluginAppearance",
     "RecordingStudioSiteSettings::SiteSetting",
     "RecordingStudioAttachable::Attachment",
-    "RecordingStudioAttachable::Library",
-    "RecordingStudioAttachable::Placement",
     "RecordingStudioApi::AdminApi"
   ]
 

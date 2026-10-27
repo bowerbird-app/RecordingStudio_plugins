@@ -5,6 +5,7 @@ module RecordingStudioPlugins
     class AppearancesController < ApplicationController
       helper RecordingStudioAttachable::ApplicationHelper
       helper Rails.application.routes.mounted_helpers
+      helper_method :recording_direct_uploads_path
 
       before_action :authorize_plugin_staff!
       rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
@@ -112,6 +113,10 @@ module RecordingStudioPlugins
 
       def render_staff_forbidden
         render "recording_studio_plugins/plugins/forbidden", status: :forbidden
+      end
+
+      def recording_direct_uploads_path(recording, **)
+        recording_studio_attachable.recording_direct_uploads_path(recording, **)
       end
     end
   end

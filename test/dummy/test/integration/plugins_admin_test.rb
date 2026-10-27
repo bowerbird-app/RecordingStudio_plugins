@@ -17,7 +17,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     @workspace_admin = create_user("workspace-admin")
     @member = create_user("member")
     grant_staff!(@staff)
-    workspace = Workspace.create!(name: "A Admin Plugins #{SecureRandom.hex(3)}")
+    workspace = Workspace.create!(name: "Z Admin Plugins #{SecureRandom.hex(3)}")
     @workspace_root = RecordingStudio.root_recording_for(workspace)
     Current.actor = @workspace_admin
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @workspace_root, actor: @workspace_admin)
@@ -55,6 +55,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     sign_in @workspace_admin
     Current.actor = @workspace_admin
+    switch_to_root!(@workspace_root)
     get recording_studio_plugins.root_path
 
     assert_response :success
@@ -75,6 +76,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     follow_redirect!
     sign_in @workspace_admin
     Current.actor = @workspace_admin
+    switch_to_root!(@workspace_root)
     get recording_studio_plugins.root_path
 
     assert_includes response.body, "WordPress"
@@ -116,7 +118,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       filename: "chatgpt.png",
       content_type: "image/png",
       actor: @staff,
-      identify: false
+      source: "direct_upload"
     )
     raise result.error if result.respond_to?(:failure?) && result.failure?
 
@@ -126,6 +128,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     sign_in @workspace_admin
     Current.actor = @workspace_admin
+    switch_to_root!(@workspace_root)
     get recording_studio_plugins.root_path
 
     assert_response :success
@@ -149,6 +152,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_redirected_to recording_studio_plugins.admin_plugins_path
     sign_in @workspace_admin
     Current.actor = @workspace_admin
+    switch_to_root!(@workspace_root)
     get recording_studio_plugins.root_path
 
     assert_response :success
@@ -186,5 +190,15 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   def admin_root_recording
     admin_root = AdminRoot.find_or_create_by!(name: "Admin")
     RecordingStudio.root_recording_for(admin_root)
+  end
+
+  def switch_to_root!(root_recording)
+    patch recording_studio_root_switchable.root_switch_path(scope: "all_workspaces"), params: {
+      root_switch: {
+        root_recording_id: root_recording.id,
+        return_to: recording_studio_plugins.root_path
+      }
+    }
+    follow_redirect! if response.redirect?
   end
 end

@@ -105,7 +105,11 @@ module RecordingStudioPlugins
         next unless klass.respond_to?(:find_by)
 
         root = klass.find_by(name: admin_root_name)
-        RecordingStudio.root_recording_for(root) if root
+        next unless root
+
+        RecordingStudio::Recording.where(
+          RecordingStudio::Recording.recording_studio_trashable_kept_sql
+        ).find_by(recordable: root)
       end
     end
   end
