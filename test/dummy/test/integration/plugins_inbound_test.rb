@@ -30,7 +30,8 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
-    assert_select "a[href=?]", "https://example.com/how-to-connect-chatgpt", text: "Connect"
+    assert_select "a[href=?]", "https://chatgpt.com", text: "Connect"
+    assert_select "a[href=?]", "https://grok.com", text: "Connect"
     refute_includes response.body, "How to connect"
     refute_includes response.body, "More about this"
     refute_includes response.body, "Not connected"

@@ -6,10 +6,9 @@
   </span>
 <% end %>
 
-<%= render FlatPack::List::Item.new(trailing: trailing) do %>
+<%= plugin_directory_row(trailing: trailing) do %>
   <span class="inline-flex items-center gap-2">
     <%= plugin_image(listing) %>
     <%= tag.span listing.name %>
   </span>
 <% end %>
-

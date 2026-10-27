@@ -1,5 +1,4 @@
 <% content_for :title, plugin_copy("admin.title") %>
-<% content_for :subtitle, plugin_copy("admin.subtitle") %>
 <% flat_pack_page_nav(
      round: true,
      style: :default,
@@ -23,7 +22,6 @@
   <%= render FlatPack::Table::Component.new(data: @rows) do |table| %>
     <% table.column(title: plugin_copy("admin.picture")) { |row| plugin_admin_picture_cell(row) } %>
     <% table.column(title: plugin_copy("admin.display_name")) { |row| row[:name] } %>
-    <% table.column(title: plugin_copy("admin.default_name")) { |row| row[:registered_name] } %>
     <% table.column(title: plugin_copy("admin.edit")) { |row| plugin_admin_edit_cell(row) } %>
   <% end %>
 <% end %>

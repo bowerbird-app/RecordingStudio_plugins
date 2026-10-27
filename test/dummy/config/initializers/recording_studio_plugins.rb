@@ -8,17 +8,22 @@ RecordingStudioPlugins.configure do |config|
   config.enabled_plugins = %i[google_drive dropbox]
   config.admin_root_types = ["AdminRoot"]
   config.admin_root_name = "Admin"
-  config.layout = ->(controller:) { "application" if controller.devise_controller? }
+  config.layout = lambda do |controller:|
+    next "application" if controller.devise_controller?
+    next "recording_studio/blank" if controller.is_a?(RecordingStudioPlugins::Admin::AppearancesController)
+
+    nil
+  end
 end
 
 RecordingStudioPlugins.register_mcp_client(
   :chatgpt,
-  setup_url: "https://example.com/how-to-connect-chatgpt",
+  setup_url: "https://chatgpt.com",
   owner: "dummy"
 )
 RecordingStudioPlugins.register_mcp_client(
   :grok_bot,
-  setup_url: "https://example.com/how-to-connect-grok-bot",
+  setup_url: "https://grok.com",
   owner: "dummy"
 )
 

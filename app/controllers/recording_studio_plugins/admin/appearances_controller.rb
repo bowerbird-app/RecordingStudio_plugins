@@ -26,6 +26,7 @@ module RecordingStudioPlugins
           return
         end
 
+        ensure_appearance_recording!(definition) if plugin_staff_admin?
         @row = appearance_row(definition)
       end
 
@@ -61,6 +62,10 @@ module RecordingStudioPlugins
           name: Appearance.display_name(definition), custom_name: recording&.recordable&.name,
           image_url: Appearance.image_url(definition), attachment_recording: Appearance.image_recording(key)
         }
+      end
+
+      def ensure_appearance_recording!(definition)
+        Appearance.ensure_recording!(definition.key, actor: staff_actor)
       end
 
       def plugin_definition

@@ -38,14 +38,11 @@ en:
         description: Ask someone to invite you to this workspace.
       admin:
         title: Plugin names and pictures
-        subtitle: What people see in the directory. The wiring name stays put.
         back: Plugins
         save: Save
         display_name: Display name
-        default_name: Default name
         picture: Picture
         edit: Edit
-        key_stays: The plugin key never changes.
         remove_picture: Remove picture
         empty:
           title: Nothing to name yet

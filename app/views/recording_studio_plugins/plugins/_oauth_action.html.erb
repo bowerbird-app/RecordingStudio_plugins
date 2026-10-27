@@ -1,12 +1,14 @@
-<% connected_row = listing.action_method == :delete %>
-<% directory_row = local_assigns[:directory] %>
-<%= form_with url: listing.action_href, method: listing.action_method, local: true, authenticity_token: true do %>
-  <%= hidden_field_tag :owner, "root" %>
-  <%= hidden_field_tag :root_recording_id, listing.action_root_recording_id %>
-  <%= hidden_field_tag :return_to, root_path %>
-  <%= render FlatPack::Button::Component.new(
-    text: directory_row && connected_row ? plugin_copy("status.connected") : listing.action_label,
-    style: plugin_oauth_button_style(connected_row, directory: directory_row),
-    type: "submit"
-  ) %>
+<% if listing.action_href.present? %>
+  <% connected_row = listing.action_method == :delete %>
+  <% directory_row = local_assigns[:directory] %>
+  <%= form_with url: listing.action_href, method: listing.action_method, local: true, authenticity_token: true do %>
+    <%= hidden_field_tag :owner, "root" %>
+    <%= hidden_field_tag :root_recording_id, listing.action_root_recording_id %>
+    <%= hidden_field_tag :return_to, root_path %>
+    <%= render FlatPack::Button::Component.new(
+      text: directory_row && connected_row ? plugin_copy("status.connected") : listing.action_label,
+      style: plugin_oauth_button_style(connected_row, directory: directory_row),
+      type: "submit"
+    ) %>
+  <% end %>
 <% end %>

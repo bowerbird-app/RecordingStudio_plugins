@@ -49,7 +49,12 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       assert_equal 1, directory_rows.count { |row| row.include?(name) }, "#{name} should appear once"
     end
     assert_select "li[role='listitem'] .flat-pack-list-item-icon", count: 0
-    assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='secondary']", text: "Connect"
+    assert_select "li[role='listitem'][class*='items-center']"
+    assert_select "li[role='listitem'] [class*='h-10'][class*='w-10']"
+    assert_select "a[href='https://chatgpt.com'][target='_blank']", text: "Connect"
+    assert_select "a[href='https://grok.com'][target='_blank']", text: "Connect"
+    refute_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
+    refute_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
@@ -216,20 +221,46 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Google Drive"
   end
 
-  test "admin sees a connect action that posts to oauth with the workspace" do
+  test "dummy google drive and dropbox have no connect control" do
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    refute_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
+    refute_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
+    refute_select "a[href='/recording_studio_oauth/outbound/google_drive/connect']"
+    refute_select "a[href='/recording_studio_oauth/outbound/dropbox/connect']"
+    refute_select "a[href='#']", text: "Connect"
+  end
+
+  test "admin sees a connect action that posts to oauth when authorize url is https" do
+    RecordingStudioOauth.register_outbound_provider(
+      key: :https_drive,
+      kind: :root,
+      authorize_url: "https://accounts.google.com/o/oauth2/auth",
+      token_url: "https://oauth2.googleapis.com/token",
+      revoke_url: "https://oauth2.googleapis.com/revoke",
+      scopes: ["files.read"],
+      client_id: "dummy-https-drive",
+      client_secret: "dummy-https-drive-secret",
+      pkce: true,
+      refresh: true
+    )
+    RecordingStudioPlugins.configuration.enabled_plugins = %i[google_drive dropbox https_drive]
+
     with_csrf_protection do
       get recording_studio_plugins.root_path
 
       assert_response :success
-      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
-      assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] input[name='authenticity_token']"
+      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/https_drive/connect']"
+      assert_select "form[action='/recording_studio_oauth/outbound/https_drive/connect'] input[name='authenticity_token']"
       assert_select "input[name='owner'][value='root']"
       assert_select "input[name='root_recording_id'][value=?]", @root.id.to_s
       assert_select "input[name='return_to'][value=?]", recording_studio_plugins.root_path
       refute_includes response.body, 'data-method="post"'
-      assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='secondary']", text: "Connect"
-
+      assert_select "form[action='/recording_studio_oauth/outbound/https_drive/connect'] button[data-fp-style='secondary']", text: "Connect"
     end
+  ensure
+    restore_plugins!
   end
 
   test "admin sees a disconnect form for a live workspace connection" do

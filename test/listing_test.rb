@@ -20,15 +20,14 @@ class ListingTest < Minitest::Test
     assert_nil listing.image_url
   end
 
-  def test_metadata_only_plugin_is_listed_with_a_setup_action_and_no_badge
+  def test_metadata_only_plugin_is_listed_with_no_badge_and_no_dead_action
     listing = listing_for(provider: Object.new)
 
     assert listing.listed?
     assert_nil listing.badge_style
-    assert listing.action?(can_edit: true)
+    refute listing.action?(can_edit: true)
     assert_equal "Set up", listing.action_label
     assert_nil listing.action_href
-    refute listing.action?(can_edit: false)
   end
 
   def test_connected_status_shows_a_badge_and_no_action

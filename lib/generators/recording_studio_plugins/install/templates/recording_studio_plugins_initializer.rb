@@ -12,5 +12,5 @@ RecordingStudioPlugins.configure do |config|
   # config.layout = ->(controller:) { "application" if controller.devise_controller? }
 end
 
-# RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://help.example.com/chatgpt")
-# RecordingStudioPlugins.register_mcp_client(:grok_bot, setup_url: "https://help.example.com/grok")
+# RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://chatgpt.com")
+# RecordingStudioPlugins.register_mcp_client(:grok_bot, setup_url: "https://grok.com")

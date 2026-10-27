@@ -54,6 +54,8 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal appearance_count, RecordingStudioPlugins::PluginAppearance.count
     assert_equal recording_count, appearance_recording_count
+    refute_includes response.body, "plugin-chatgpt-picture"
+    refute_includes response.body, "recording-studio-attachable--attachment-revision-upload"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Should not save" } }
@@ -75,6 +77,10 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Plugin names and pictures"
+    refute_includes response.body, "What people see in the directory. The wiring name stays put."
+    refute_includes response.body, "Default name"
+    refute_includes response.body, "flat-pack-sidebar-layout"
+    refute_includes response.body, "dummy_sidebar"
     assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     RecordingStudioPlugins.all.each do |definition|
@@ -86,8 +92,14 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
-    assert_select "input[name='appearances[chatgpt][name]']"
-    refute_includes response.body, "plugin-chatgpt-picture"
+    assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
+    assert_includes response.body, "plugin-chatgpt-picture"
+    assert_includes response.body, "recording-studio-attachable--attachment-revision-upload"
+    refute_includes response.body, "The plugin key never changes."
+    refute_includes response.body, "What people see in the directory. The wiring name stays put."
+    refute_includes response.body, "flat-pack-sidebar-layout"
+    assert_select ".gap-6"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Press machine" } }
@@ -293,8 +305,10 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
-    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
-    assert_select "input[name='appearances[chatgpt][name]']"
+    assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
+    assert_includes response.body, "plugin-chatgpt-picture"
+    assert_includes response.body, "recording-studio-attachable--attachment-revision-upload"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Chat helper" } }

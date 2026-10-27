@@ -93,10 +93,23 @@ class InboundDirectoryTest < Minitest::Test
 
     assert_includes error.message, "https"
 
+    javascript = assert_raises(ArgumentError) do
+      RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "javascript:alert(1)")
+    end
+
+    assert_includes javascript.message, "https"
+
     RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://example.com/chatgpt")
     listing = listing_for(:chatgpt, connected: false, connected_count: nil)
 
     assert_equal "https://example.com/chatgpt", listing.setup_href
+  end
+
+  def test_missing_setup_url_has_no_connect_href
+    RecordingStudioPlugins.register_mcp_client(:chatgpt, owner: "test")
+    listing = listing_for(:chatgpt, connected: false, connected_count: nil)
+
+    assert_nil listing.setup_href
   end
 
   def test_status_does_not_carry_across_roots

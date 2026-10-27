@@ -9,7 +9,7 @@ module RecordingStudioPlugins
         before_action :authorize_plugin_staff!
         rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
         rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden
-        helper_method :recording_studio_admin_context, :plugin_admin_back_href
+        helper_method :recording_studio_admin_context, :plugin_admin_back_href, :plugin_staff_admin?
       end
 
       private
@@ -40,6 +40,16 @@ module RecordingStudioPlugins
           routes: main_app,
           view_context: view_context
         )
+      end
+
+      def plugin_staff_admin?
+        return @plugin_staff_admin unless @plugin_staff_admin.nil?
+
+        context = recording_studio_admin_context
+        actor = context.current_actor
+        recording = context.access_recording
+        @plugin_staff_admin = actor.present? && recording.present? &&
+                              RecordingStudioAccessible.authorized?(actor:, recording:, role: :admin)
       end
 
       def staff_actor

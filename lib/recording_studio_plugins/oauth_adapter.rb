@@ -45,13 +45,20 @@ module RecordingStudioPlugins
       Status.new(
         state: :attention,
         message: copy("status.reconnect"),
-        action_label: copy("status.reconnect_action"),
-        action_url: connect_url
+        action_label: (copy("status.reconnect_action") if https_authorize?),
+        action_url: (connect_url if https_authorize?)
       )
     end
 
     def missing_status
+      return unless https_authorize?
+
       Status.new(action_label: copy("status.connect"), action_url: connect_url)
+    end
+
+    def https_authorize?
+      provider = RecordingStudioOauth::Outbound.provider(@key) if RecordingStudioOauth::Outbound.respond_to?(:provider)
+      SafeUrl.https_only(provider&.authorize_url).present?
     end
 
     def connect_url

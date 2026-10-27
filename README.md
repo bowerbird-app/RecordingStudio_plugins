@@ -22,7 +22,7 @@ The generator mounts the engine at `/recording_studio_plugins`. Change the path 
 
 People need access to the current workspace. The directory calls `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those rows. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
 
-Site staff set Plugin names and pictures on an Admin section. The index is a table of every registered plugin, with an Edit link per row. Each edit page holds the display name and the Attachable picture. That page is not a workspace setting. Workspace admins and members cannot open it. Access uses Admin's staff gate: Accessible on the admin root, plus the section's site blast radius. Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`, enable `section :plugins` on the admin root, mount Admin with `recording_studio_admin_for` and Attachable, set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to that staff admin root, and grant Accessible access on that admin root to staff only. There is no baked-in admin root name. Until the host sets that, the staff page is empty and the directory uses each plugin's registered name with no picture.
+Site staff set Plugin names and pictures on an Admin section. The index is a table of every registered plugin (picture, display name, Edit). Each edit page holds the display name (prefilled with the current public name) and, for site admins, the Attachable picture. Opening that edit page as an admin creates the appearance recording if it is missing, so the picture control has a parent. That page is not a workspace setting. Workspace admins and members cannot open it. Access uses Admin's staff gate: Accessible on the admin root, plus the section's site blast radius. Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`, enable `section :plugins` on the admin root, mount Admin with `recording_studio_admin_for` and Attachable, set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to that staff admin root, and grant Accessible access on that admin root to staff only. There is no baked-in admin root name. Until the host sets that, the staff page is empty and the directory uses each plugin's registered name with no picture.
 
 ## Register
 
@@ -58,7 +58,7 @@ A provider is any object that responds to some of these methods. Every method is
 | Method | Returns | When missing |
 |---|---|---|
 | `available?(context)` | `true` or `false` | listed |
-| `status(context)` | `nil` or `RecordingStudioPlugins::Status` | no status, one Set up button with no URL |
+| `status(context)` | `nil` or `RecordingStudioPlugins::Status` | no status and no action button |
 | `about(context)` | plain text or `nil` | unused by the directory |
 | `setup_instructions(context)` | plain text or `nil` | unused by the directory |
 | `usage_instructions(context)` | plain text or `nil` | unused by the directory |
@@ -83,11 +83,11 @@ Each provider call is rescued and logged. If `available?` raises, the plugin is 
 
 The directory is a two-column list of items. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Inbound MCP client names open a modal that uses the same display name.
 
-- On the directory, a missing Oauth connection is a primary Connect button. An active connection is a secondary Connected button that still posts Disconnect to Oauth.
+- On the directory, a missing Oauth connection is a Connect button only when that provider's `authorize_url` is https. An active connection is a secondary Connected button that still posts Disconnect to Oauth.
 - `state: :connected` shows a green badge reading "Connected".
 - `state: :attention` shows an amber badge reading "Attention". An action renders when the provider supplies one.
-- Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
-- Inbound MCP clients (ChatGPT, Grok Bot) have no Oauth Connect or Disconnect. When you are connected, the row shows "Connected". It does not show "Not connected". Workspace admins see a people count under the name only when at least one person is connected. A Connect button appears when `setup_url` is an https URL. That button opens the setup URL. Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section. The modal people list is a lazy Turbo Frame and needs Turbo in the host. When a plugin has no picture, a small puzzle-piece placeholder sits before the name.
+- Otherwise there is no badge. One button uses `action_label` (default "Set up") only when `action_url` is a safe path or https URL. A missing or rejected URL omits the button.
+- Inbound MCP clients (ChatGPT, Grok Bot) have no Oauth Connect or Disconnect. When you are connected, the row shows "Connected". It does not show "Not connected". Workspace admins see a people count under the name only when at least one person is connected. A Connect button appears when `setup_url` is an https URL and opens that URL in a new tab. There is no Connect control when `setup_url` is missing or is not https (`http:` and `javascript:` are rejected). Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section. The modal people list is a lazy Turbo Frame and needs Turbo in the host. When a plugin has no picture, a puzzle-piece placeholder the same height as Connect sits before the name, and the name is vertically centered in the row.
 - There is no "Not connected" badge on other plugins.
 
 This gem does not decide health, heartbeats, or staleness. The provider decides.
@@ -133,8 +133,8 @@ RecordingStudioDropbox.register_oauth_provider
 ChatGPT and Grok Bot connect from the client, not from this directory. The host registers them. This gem never writes Oauth `plugin_key`; staff set that on the registered app in Oauth admin.
 
 ```ruby
-RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://help.example.com/chatgpt")
-RecordingStudioPlugins.register_mcp_client(:grok_bot, setup_url: "https://help.example.com/grok")
+RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://chatgpt.com")
+RecordingStudioPlugins.register_mcp_client(:grok_bot, setup_url: "https://grok.com")
 ```
 
 Display name, description, category, and position come from `KnownProviders`, same as Google Drive and Dropbox. Status comes from `RecordingStudioOauth.inbound_connection_status` and `inbound_connections`, always for the current workspace.
@@ -145,7 +145,7 @@ Workspace members with `:view` can open the directory. Plugins from `RecordingSt
 
 Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. Non-admins never see workspace plugins or connected-people counts. Status does not carry across workspaces.
 
-Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain action link.
+Connect, Reconnect, and Disconnect on those rows render only for workspace admins. Connect and Reconnect also need an https `authorize_url` on the Oauth provider; a relative or `http:` authorize URL omits the button so it cannot post into a dead flow. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain action link only when `action_url` is a safe path or https URL.
 
 Status for root plugins comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
 

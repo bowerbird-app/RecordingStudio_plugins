@@ -41,6 +41,20 @@ module RecordingStudioPlugins
       )
     end
 
+    def plugin_directory_row(trailing:, &block)
+      tag.li(
+        class: "flex items-center rounded-[var(--radius-sm)] py-[var(--list-item-padding-y)] px-[var(--list-item-padding-x)] text-[var(--surface-content-color)]",
+        role: "listitem"
+      ) do
+        safe_join(
+          [
+            tag.div(class: "min-w-0 flex-1 flex items-center", &block),
+            (tag.span(trailing, class: "flex-shrink-0 ml-2") if trailing.present?)
+          ].compact
+        )
+      end
+    end
+
     def plugin_inbound_modal_id(listing)
       "plugin-#{listing.key}-people"
     end
@@ -72,6 +86,7 @@ module RecordingStudioPlugins
 
       allowed = listing.root? ? can_admin : can_edit
       return unless listing.action?(can_edit: allowed)
+      return if listing.action_href.blank?
 
       if listing.root?
         render "recording_studio_plugins/plugins/oauth_action", listing: listing, directory: directory

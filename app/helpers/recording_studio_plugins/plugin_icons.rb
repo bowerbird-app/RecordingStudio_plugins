@@ -6,7 +6,7 @@ module RecordingStudioPlugins
       plugin_icon(image_url: row[:image_url], alt: row[:name], size: :sm)
     end
 
-    def plugin_image(listing, size: :sm)
+    def plugin_image(listing, size: :md)
       plugin_icon(image_url: listing.image_url, alt: listing.name, size: size)
     end
 
