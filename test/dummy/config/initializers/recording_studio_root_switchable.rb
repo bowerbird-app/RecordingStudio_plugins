@@ -25,7 +25,7 @@ RecordingStudioRootSwitchable.configure do |config|
     scope.available_roots = lambda do |**|
       roots = Workspace.order(:name).filter_map { |workspace| RecordingStudio.root_recording_for(workspace) }
       admin_root = AdminRoot.find_by(name: "Admin")
-      admin_root ? roots + [RecordingStudio.root_recording_for(admin_root)] : roots
+      admin_root ? roots + [ RecordingStudio.root_recording_for(admin_root) ] : roots
     end
     scope.access_check = ->(**) { true }
 
