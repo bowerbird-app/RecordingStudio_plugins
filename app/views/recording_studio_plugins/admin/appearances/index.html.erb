@@ -21,22 +21,9 @@
   ) %>
 <% else %>
   <%= render FlatPack::Table::Component.new(data: @rows) do |table| %>
-    <% table.column(title: plugin_copy("admin.picture")) do |row| %>
-      <% if row[:image_url].present? %>
-        <%= render FlatPack::Avatar::Component.new(
-          src: row[:image_url],
-          size: :sm,
-          shape: :square,
-          alt: row[:name]
-        ) %>
-      <% end %>
-    <% end %>
+    <% table.column(title: plugin_copy("admin.picture")) { |row| plugin_admin_picture_cell(row) } %>
     <% table.column(title: plugin_copy("admin.display_name")) { |row| row[:name] } %>
     <% table.column(title: plugin_copy("admin.default_name")) { |row| row[:registered_name] } %>
-    <% table.column(title: plugin_copy("admin.edit")) do |row| %>
-      <%= render FlatPack::Link::Component.new(href: admin_plugin_edit_path(row[:key])) do %>
-        <%= plugin_copy("admin.edit") %>
-      <% end %>
-    <% end %>
+    <% table.column(title: plugin_copy("admin.edit")) { |row| plugin_admin_edit_cell(row) } %>
   <% end %>
 <% end %>

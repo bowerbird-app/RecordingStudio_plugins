@@ -98,6 +98,23 @@ module RecordingStudioPlugins
       RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
     end
 
+    def plugin_admin_picture_cell(row)
+      return if row[:image_url].blank?
+
+      render FlatPack::Avatar::Component.new(
+        src: row[:image_url],
+        size: :sm,
+        shape: :square,
+        alt: row[:name]
+      )
+    end
+
+    def plugin_admin_edit_cell(row)
+      render FlatPack::Link::Component.new(href: admin_plugin_edit_path(row[:key])) do
+        plugin_copy("admin.edit")
+      end
+    end
+
     def plugin_image(listing, size: :sm)
       return if listing.image_url.blank?
 
