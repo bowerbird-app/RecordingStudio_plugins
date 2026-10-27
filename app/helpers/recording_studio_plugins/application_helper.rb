@@ -3,6 +3,7 @@
 module RecordingStudioPlugins
   module ApplicationHelper
     include Copy
+    include PluginIcons
 
     def plugin_badge(listing)
       return if listing.badge_style.nil?
@@ -96,28 +97,10 @@ module RecordingStudioPlugins
       text.to_s.split(/\n\n+/).map(&:strip).reject(&:empty?)
     end
 
-    def plugin_admin_picture_cell(row)
-      plugin_icon(image_url: row[:image_url], alt: row[:name], size: :sm)
-    end
-
     def plugin_admin_edit_cell(row)
       render FlatPack::Link::Component.new(href: admin_plugin_edit_path(row[:key])) do
         plugin_copy("admin.edit")
       end
-    end
-
-    def plugin_image(listing, size: :sm)
-      plugin_icon(image_url: listing.image_url, alt: listing.name, size: size)
-    end
-
-    def plugin_icon(image_url:, alt:, size: :sm)
-      render FlatPack::Avatar::Component.new(**plugin_icon_attributes(image_url:, alt:, size:))
-    end
-
-    def plugin_icon_attributes(image_url:, alt:, size:)
-      return { src: image_url, size:, shape: :square, alt: } if image_url.present?
-
-      { size:, shape: :square, icon: "puzzle-piece", alt: "", show_tooltip: false, aria: { hidden: true } }
     end
   end
 end
