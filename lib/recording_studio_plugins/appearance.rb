@@ -34,18 +34,19 @@ module RecordingStudioPlugins
 
     def ensure_recording!(key, actor:)
       existing = recording_for(key)
-      return existing if existing.present?
+      return existing if existing.present? || admin_recording.blank? || actor.blank?
 
-      admin = admin_recording
-      return if admin.blank? || actor.blank?
+      created = create_appearance!(key, actor:)
+      reset_index!
+      unwrap_recording(created) || recording_for(key)
+    end
 
-      created = with_actor(actor) do
-        admin.record(PluginAppearance, actor: actor) do |appearance|
+    def create_appearance!(key, actor:)
+      with_actor(actor) do
+        admin_recording.record(PluginAppearance, actor: actor) do |appearance|
           appearance.plugin_key = key.to_s
         end
       end
-      reset_index!
-      unwrap_recording(created) || recording_for(key)
     end
 
     def unwrap_recording(value)
@@ -151,23 +152,31 @@ module RecordingStudioPlugins
       private
 
       def load_recordings_by_key
-        return {} unless Appearance.recordings_ready?
+        relation = appearance_relation
+        return {} if relation.nil?
 
-        admin = Appearance.admin_recording
-        return {} if admin.blank?
-
-        relation = if admin.respond_to?(:recordings_of)
-                     admin.recordings_of(PluginAppearance)
-                   else
-                     RecordingStudio::Recording.where(
-                       recordable_type: RECORDABLE_TYPE,
-                       parent_recording_id: admin.id
-                     )
-                   end
         kept(relation).includes(:recordable).each_with_object({}) do |recording, map|
           plugin_key = recording.recordable&.plugin_key
           map[plugin_key] = recording if plugin_key.present?
         end
+      end
+
+      def appearance_relation
+        return unless Appearance.recordings_ready?
+
+        admin = Appearance.admin_recording
+        return if admin.blank?
+
+        recordings_of_appearances(admin)
+      end
+
+      def recordings_of_appearances(admin)
+        return admin.recordings_of(PluginAppearance) if admin.respond_to?(:recordings_of)
+
+        RecordingStudio::Recording.where(
+          recordable_type: RECORDABLE_TYPE,
+          parent_recording_id: admin.id
+        )
       end
 
       def load_image_recordings_by_key
@@ -175,14 +184,18 @@ module RecordingStudioPlugins
         parent_ids = recordings.values.map(&:id)
         return {} if parent_ids.empty? || !defined?(RecordingStudioAttachable::Attachment)
 
+        attachments_by_parent = kept_attachments(parent_ids)
+        recordings.each_with_object({}) do |(plugin_key, recording), map|
+          map[plugin_key] = attachments_by_parent[recording.id]&.first
+        end
+      end
+
+      def kept_attachments(parent_ids)
         relation = RecordingStudio::Recording.where(
           parent_recording_id: parent_ids,
           recordable_type: RecordingStudioAttachable::Attachment.name
         )
-        attachments_by_parent = kept(relation).includes(:recordable).group_by(&:parent_recording_id)
-        recordings.each_with_object({}) do |(plugin_key, recording), map|
-          map[plugin_key] = attachments_by_parent[recording.id]&.first
-        end
+        kept(relation).includes(:recordable).group_by(&:parent_recording_id)
       end
 
       def kept(relation)
