@@ -169,15 +169,21 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_equal "Press Grok", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:grok_bot))
   end
 
-  test "saving a name again revises the same plugin key" do
+  test "revising a plugin name keeps the key and one current recording" do
     sign_in @staff
     Current.actor = @staff
     RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press", actor: @staff)
+    first = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+
     RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press two", actor: @staff)
     RecordingStudioPlugins::Appearance.reset_index!
+    current = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
 
+    assert first
+    assert current
+    assert_equal "chatgpt", current.recordable.plugin_key
     assert_equal "Press two", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
-    assert_equal "chatgpt", RecordingStudioPlugins::Appearance.recording_for(:chatgpt).recordable.plugin_key
+    assert_operator RecordingStudioPlugins::PluginAppearance.where(plugin_key: "chatgpt").count, :>=, 2
   end
 
   test "a later request does not keep the previous request's appearance names" do

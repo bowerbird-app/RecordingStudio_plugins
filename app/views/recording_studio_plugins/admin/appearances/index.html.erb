@@ -10,7 +10,7 @@
 <% if @unconfigured %>
   <%= render FlatPack::EmptyState::Component.new(
     title: plugin_copy("admin.unconfigured.title_html"),
-    description: plugin_copy("admin.unconfigured.description"),
+    description: plugin_copy("admin.unconfigured.description_html"),
     icon: :squares_2x2
   ) %>
 <% elsif @rows.empty? %>

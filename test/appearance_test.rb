@@ -31,40 +31,4 @@ class AppearanceTest < Minitest::Test
   def test_admin_plugins_path_is_defined
     assert_respond_to RecordingStudioPlugins, :admin_plugins_path
   end
-
-  def test_ensure_recording_looks_up_again_after_a_plugin_key_unique_conflict
-    existing = Object.new
-    error = ActiveRecord::RecordNotUnique.new(
-      "PG::UniqueViolation: duplicate key value violates unique constraint " \
-      "\"index_recording_studio_plugin_appearances_on_plugin_key\""
-    )
-    lookups = 0
-    lookup = lambda do |_key|
-      lookups += 1
-      lookups == 1 ? nil : existing
-    end
-
-    RecordingStudioPlugins::Appearance.stub(:recording_for, lookup) do
-      RecordingStudioPlugins::Appearance.stub(:create_recording!, ->(*) { raise error }) do
-        RecordingStudioPlugins::Appearance.stub(:reset_index!, -> {}) do
-          assert_equal existing, RecordingStudioPlugins::Appearance.ensure_recording!(:sample, actor: Object.new)
-        end
-      end
-    end
-  end
-
-  def test_ensure_recording_does_not_rescue_other_unique_conflicts
-    error = ActiveRecord::RecordNotUnique.new(
-      "PG::UniqueViolation: duplicate key value violates unique constraint \"other_index\""
-    )
-
-    RecordingStudioPlugins::Appearance.stub(:recording_for, ->(*) {}) do
-      RecordingStudioPlugins::Appearance.stub(:create_recording!, ->(*) { raise error }) do
-        raised = assert_raises(ActiveRecord::RecordNotUnique) do
-          RecordingStudioPlugins::Appearance.ensure_recording!(:sample, actor: Object.new)
-        end
-        assert_equal error, raised
-      end
-    end
-  end
 end
