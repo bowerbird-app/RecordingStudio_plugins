@@ -51,7 +51,7 @@
   </head>
 
   <body class="m-0 min-h-screen bg-(--surface-page-background-color) text-(--surface-content-color)">
-    <%= render FlatPack::PageLayout::Component.new(width: :full) do |page| %>
+    <%= render FlatPack::PageLayout::Component.new(width: :default) do |page| %>
       <% if show_top_nav %>
         <% page.top_nav do %>
           <%= render FlatPack::TopNav::Component.new(padding: :none, size: :lg) do |nav| %>
