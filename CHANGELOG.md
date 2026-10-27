@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **BREAKING:** this gem now depends on `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`. Dummy and development GitHub tags stay on Admin `v2.5.1` (newest Admin without Logs) and Attachable `v0.22.0`. Logs `v0.4.1` stays because API `v0.14.0` still needs it.
 - Dummy root switching lists workspace roots first, then the Admin root, so a workspace stays the default and staff can switch to Admin before opening `/admin`.
+- Plugin appearance names and pictures are cached in `ActiveSupport::CurrentAttributes` for the current request or job. They are not stored on `Thread.current`.
 
 ### Upgrade notes
 - Pin Admin `v2.5.1` and Attachable `v0.22.0` on this stack. Do not move Admin to `2.6`/`2.7` here (those tags add Logs).

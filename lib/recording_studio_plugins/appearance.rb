@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
+require "active_support/current_attributes"
+
 module RecordingStudioPlugins
   module Appearance
     RECORDABLE_TYPE = "RecordingStudioPlugins::PluginAppearance"
-    INDEX_STATE_KEY = :recording_studio_plugins_appearance_index
+
+    class IndexState < ActiveSupport::CurrentAttributes
+      attribute :index
+    end
 
     module_function
 
@@ -124,11 +129,11 @@ module RecordingStudioPlugins
     end
 
     def request_index
-      Thread.current[INDEX_STATE_KEY] ||= Index.new
+      IndexState.index ||= Index.new
     end
 
     def reset_index!
-      Thread.current[INDEX_STATE_KEY] = nil
+      IndexState.index = nil
     end
 
     class Index

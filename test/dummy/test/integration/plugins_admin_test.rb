@@ -129,6 +129,41 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "a later request does not keep the previous request's appearance names" do
+    sign_in @staff
+    Current.actor = @staff
+    RecordingStudioPlugins::Appearance.update_name!(:wordpress, name: "First press", actor: @staff)
+    wordpress = RecordingStudioPlugins.find(:wordpress)
+
+    assert_equal "First press", RecordingStudioPlugins::Appearance.display_name(wordpress)
+
+    appearance_id = RecordingStudioPlugins::Appearance.current_recordable(:wordpress).id
+    RecordingStudioPlugins::PluginAppearance.where(id: appearance_id).update_all(name: "Later press")
+
+    assert_equal "First press", RecordingStudioPlugins::Appearance.display_name(wordpress)
+
+    RecordingStudioPlugins::Appearance::IndexState.reset
+
+    assert_equal "Later press", RecordingStudioPlugins::Appearance.display_name(wordpress)
+
+    sign_in @workspace_admin
+    Current.actor = @workspace_admin
+    switch_to_root!(@workspace_root)
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_includes response.body, "Later press"
+    refute_includes response.body, "First press"
+
+    RecordingStudioPlugins::PluginAppearance.where(id: appearance_id).update_all(name: "Third press")
+
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_includes response.body, "Third press"
+    refute_includes response.body, "Later press"
+  end
+
   test "workspace admin and member cannot open the staff page" do
     sign_in @workspace_admin
     Current.actor = @workspace_admin
