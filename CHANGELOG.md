@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin appearance names and pictures are cached in `ActiveSupport::CurrentAttributes` for the current request or job. They are not stored on `Thread.current`.
 - Directory rows without a custom picture show a puzzle-piece placeholder next to the name.
 - Directory omits "Not connected" (`directory_status_text`) and hides a 0 connected count (`people_connected_text`).
-- `recording_studio_plugin_appearances.plugin_key` is unique. Creating a name or picture under concurrency finds the existing row instead of inserting a second one.
+- `recording_studio_plugin_appearances.plugin_key` is indexed, not unique. `revise` writes a new snapshot row with the same key and keeps the same recording, so attachments stay put. Lookup uses the current appearance recording for that key.
+- Locale keys with apostrophes use `_html` so `RecordingStudio.t` can render them without escaping (`empty.none.description_html`, `detail.people_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`).
 
 ### Removed
 - **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.
@@ -34,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`. Enable `section :plugins` on the admin root. Mount Admin and Attachable. Set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to the host's staff admin root. This gem does not default those. Point Admin `access_recording_resolver` and `site_admin_recording_resolver` at that same recording. Grant Accessible access on that root to site staff only.
 - Remove host routes, links, and overrides that used `plugin_path` or `plugins#show`. Rename `plugin_setup_link` to `plugin_setup_button`. Do not rely on the directory to call `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
 - Hosts that overrode directory or inbound modal markup should show the display name and the optional picture, a Connect button for inbound `setup_url`, no "Not connected" copy, and no 0 connected count.
+- Hosts that overrode apostrophe copy should use the `_html` locale keys listed above.
 - Dummy (and hosts copying its switcher) must list the Admin root in `available_roots` after workspaces. Admin 2.5.1 `/admin` is 403 unless the current root is that Admin root.
 
 ## [0.6.0] - 2026-10-27

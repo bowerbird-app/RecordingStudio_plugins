@@ -1,7 +1,7 @@
-<% content_for :title, plugin_copy("forbidden.title") %>
+<% content_for :title, plugin_copy("forbidden.title_html") %>
 
 <%= render FlatPack::EmptyState::Component.new(
-  title: plugin_copy("forbidden.title"),
+  title: plugin_copy("forbidden.title_html"),
   description: plugin_copy("forbidden.description"),
   icon: :lock
 ) %>

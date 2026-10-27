@@ -5,38 +5,23 @@ require "active_support/current_attributes"
 module RecordingStudioPlugins
   module Appearance
     RECORDABLE_TYPE = "RecordingStudioPlugins::PluginAppearance"
-    UNIQUE_PLUGIN_KEY_INDEX = "index_recording_studio_plugin_appearances_on_plugin_key"
 
     class IndexState < ActiveSupport::CurrentAttributes
       attribute :index
     end
 
-    module Persist
-      module_function
-
-      def ensure_recording!(key, actor:)
-        Appearance.recording_for(key).presence || insert_recording!(key, actor: actor)
-      end
-
-      def insert_recording!(key, actor:)
-        created = Appearance.create_recording!(key, actor: actor)
-        return if created.blank?
-
-        Appearance.reset_index!
-        Appearance.unwrap_recording(created) || Appearance.recording_for(key)
-      rescue ActiveRecord::RecordNotUnique => e
-        names = [e.message, e.cause&.message].compact.join
-        raise unless names.include?(UNIQUE_PLUGIN_KEY_INDEX)
-
-        Appearance.reset_index!
-        Appearance.recording_for(key)
-      end
-    end
-
     module_function
 
     def ensure_recording!(key, actor:)
-      Persist.ensure_recording!(key, actor: actor)
+      recording_for(key).presence || insert_recording!(key, actor:)
+    end
+
+    def insert_recording!(key, actor:)
+      created = create_recording!(key, actor: actor)
+      return if created.blank?
+
+      reset_index!
+      unwrap_recording(created) || recording_for(key)
     end
 
     def display_name(definition)
@@ -175,7 +160,7 @@ module RecordingStudioPlugins
         relation = appearance_relation
         return {} if relation.nil?
 
-        kept(relation).includes(:recordable).each_with_object({}) do |recording, map|
+        kept(relation).includes(:recordable).order(:updated_at).each_with_object({}) do |recording, map|
           plugin_key = recording.recordable&.plugin_key
           next if plugin_key.blank?
 

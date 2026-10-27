@@ -7,14 +7,14 @@ en:
       empty:
         none:
           title: Nothing here yet
-          description: Plugins show up here once they're added.
+          description_html: Plugins show up here once they're added.
       detail:
         about: About
         setup: How to connect
         usage: How to use
         documentation: Documentation
-        people: Who's connected
-        people_empty: Nobody's connected through here yet.
+        people_html: Who's connected
+        people_empty_html: Nobody's connected through here yet.
         person: Name
         role: Role
         app: App
@@ -34,7 +34,7 @@ en:
           one: 1 person connected
           other: "%{count} people connected"
       forbidden:
-        title: You don't have access
+        title_html: You don't have access
         description: Ask someone to invite you to this workspace.
       admin:
         title: Plugin names and pictures
@@ -51,7 +51,7 @@ en:
           title: Nothing to name yet
           description: Register a plugin, then come back and give it a public name.
         unconfigured:
-          title: Plugin names aren't wired up
+          title_html: Plugin names aren't wired up
           description: This host hasn't chosen the staff admin page that holds names and pictures.
         flashes:
           saved: Names updated.

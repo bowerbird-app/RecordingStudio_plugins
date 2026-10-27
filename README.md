@@ -47,7 +47,7 @@ Metadata is `key`, `name`, `description`, `category`, `icon`, `provider`, `posit
 
 Registering the same key with the same `owner` replaces the definition, so reloads are safe. The same key with a different `owner` raises `RecordingStudioPlugins::RegistryConflict`.
 
-Definitions hold no credentials. Display name overrides and pictures live in `recording_studio_plugin_appearances` (one current recording per plugin key under the admin root). The plugin key never changes. A blank display name falls back to the registered name. Removing the picture falls back to no picture.
+Definitions hold no credentials. Display name overrides and pictures live in `recording_studio_plugin_appearances` (one current recording per plugin key under the admin root). `plugin_key` is indexed, not unique, so a name change can write a new snapshot. The plugin key never changes. A blank display name falls back to the registered name. Removing the picture falls back to no picture.
 
 Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation`, and `other`. `config.extra_categories` adds more.
 
