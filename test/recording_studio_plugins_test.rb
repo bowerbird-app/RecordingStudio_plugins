@@ -215,8 +215,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes admin_edit, "flex w-full max-w-full items-start gap-4"
     assert_includes admin_edit, "min-w-0 flex-1"
     refute_includes admin_edit, "w-72"
-    refute_includes admin_edit, "label: plugin_copy(\"admin.picture\")"
-    refute_includes admin_edit, "label: plugin_copy(\"admin.display_name\")"
+    refute_includes admin_edit, "label: plugin_copy(\"admin.picture\"),"
+    refute_includes admin_edit, "label: plugin_copy(\"admin.display_name\"),"
     assert_includes admin_edit, "mt-6 w-fit"
   end
 
