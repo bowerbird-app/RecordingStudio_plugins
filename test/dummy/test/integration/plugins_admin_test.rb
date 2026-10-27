@@ -175,7 +175,9 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press", actor: @staff)
 
     assert_raises(ActiveRecord::RecordNotUnique) do
-      RecordingStudioPlugins::PluginAppearance.create!(plugin_key: "chatgpt")
+      RecordingStudioPlugins::PluginAppearance.connection.transaction(requires_new: true) do
+        RecordingStudioPlugins::PluginAppearance.create!(plugin_key: "chatgpt")
+      end
     end
     assert_equal 1, RecordingStudioPlugins::PluginAppearance.where(plugin_key: "chatgpt").count
   end

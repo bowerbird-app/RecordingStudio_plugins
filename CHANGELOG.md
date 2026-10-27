@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin appearance names and pictures are cached in `ActiveSupport::CurrentAttributes` for the current request or job. They are not stored on `Thread.current`.
 - Directory rows without a custom picture show a puzzle-piece placeholder next to the name.
 - Directory omits "Not connected" (`directory_status_text`) and hides a 0 connected count (`people_connected_text`).
-- `recording_studio_plugin_appearances.plugin_key` is unique. Creating a name or picture under concurrency finds the existing row instead of inserting a second one.
+- `recording_studio_plugin_appearances.plugin_key` is unique. Creating a name or picture under concurrency finds the existing row instead of inserting a second one. A name revise clears `plugin_key` on the previous snapshot so the unique index and Recording Studio snapshots can coexist.
 
 ### Removed
 - **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.

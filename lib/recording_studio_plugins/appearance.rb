@@ -11,33 +11,7 @@ module RecordingStudioPlugins
       attribute :index
     end
 
-    module Persist
-      module_function
-
-      def ensure_recording!(key, actor:)
-        Appearance.recording_for(key).presence || insert_recording!(key, actor: actor)
-      end
-
-      def insert_recording!(key, actor:)
-        created = Appearance.create_recording!(key, actor: actor)
-        return if created.blank?
-
-        Appearance.reset_index!
-        Appearance.unwrap_recording(created) || Appearance.recording_for(key)
-      rescue ActiveRecord::RecordNotUnique => e
-        names = [e.message, e.cause&.message].compact.join
-        raise unless names.include?(UNIQUE_PLUGIN_KEY_INDEX)
-
-        Appearance.reset_index!
-        Appearance.recording_for(key)
-      end
-    end
-
     module_function
-
-    def ensure_recording!(key, actor:)
-      Persist.ensure_recording!(key, actor: actor)
-    end
 
     def display_name(definition)
       current_recordable(definition.key)&.name.presence || definition.name
@@ -62,46 +36,6 @@ module RecordingStudioPlugins
 
     def configured?
       admin_recording.present?
-    end
-
-    def create_recording!(key, actor:)
-      admin = admin_recording
-      return if admin.blank? || actor.blank?
-
-      with_actor(actor) do
-        admin.record(PluginAppearance, actor: actor) do |appearance|
-          appearance.plugin_key = key.to_s
-        end
-      end
-    end
-
-    def unwrap_recording(value)
-      return value if value.is_a?(RecordingStudio::Recording)
-      return value.recording if value.respond_to?(:recording)
-
-      nil
-    end
-
-    def update_name!(key, name:, actor:)
-      recording = ensure_recording!(key, actor: actor)
-      return if recording.blank?
-
-      new_name = name.to_s.strip.presence
-      return recording if recording.recordable&.name == new_name
-
-      result = revise_name!(recording, key:, name: new_name, actor:)
-      reset_index!
-      result
-    end
-
-    def revise_name!(recording, key:, name:, actor:)
-      admin = recording.root_recording || recording.parent_recording
-      with_actor(actor) do
-        admin.revise(recording, actor: actor) do |appearance|
-          appearance.plugin_key = key.to_s
-          appearance.name = name
-        end
-      end
     end
 
     def remove_image!(key, actor:)
@@ -186,14 +120,7 @@ module RecordingStudioPlugins
       def appearance_relation
         return unless Appearance.recordings_ready?
 
-        admin = Appearance.admin_recording
-        return if admin.blank?
-
-        if admin.respond_to?(:recordings_of)
-          admin.recordings_of(PluginAppearance)
-        else
-          RecordingStudio::Recording.where(recordable_type: RECORDABLE_TYPE, parent_recording_id: admin.id)
-        end
+        RecordingStudio::Recording.where(recordable_type: RECORDABLE_TYPE)
       end
 
       def load_image_recordings_by_key
@@ -224,3 +151,5 @@ module RecordingStudioPlugins
     end
   end
 end
+
+require "recording_studio_plugins/appearance/writes"

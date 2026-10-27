@@ -290,7 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_120004) do
   end
 
   create_table "recording_studio_plugin_appearances", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "plugin_key", null: false
+    t.string "plugin_key"
     t.string "name"
     t.datetime "created_at", null: false
     t.index ["plugin_key"], name: "index_recording_studio_plugin_appearances_on_plugin_key", unique: true

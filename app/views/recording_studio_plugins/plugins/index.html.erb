@@ -4,7 +4,7 @@
 <% if @listings.empty? %>
   <%= render FlatPack::EmptyState::Component.new(
     title: plugin_copy("empty.none.title"),
-    description: plugin_copy("empty.none.description"),
+    description: plugin_copy("empty.none.description_html"),
     icon: :squares_2x2
   ) %>
 <% else %>
