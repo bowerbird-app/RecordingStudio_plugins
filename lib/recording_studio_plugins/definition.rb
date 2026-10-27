@@ -41,28 +41,25 @@ module RecordingStudioPlugins
     end
 
     def self.coerce(attributes)
-      typed_fields(attributes).merge(kind: attributes[:kind]&.to_sym)
-    end
-
-    def self.typed_fields(attributes)
-      display_fields(attributes).merge(
-        key: attributes[:key].to_sym,
-        provider: attributes[:provider],
-        position: Integer(attributes[:position]),
-        owner: attributes[:owner].to_s,
+      typed_fields(attributes).merge(
+        kind: attributes[:kind]&.to_sym,
         setup_url: attributes[:setup_url].to_s
       )
     end
 
-    def self.display_fields(attributes)
+    def self.typed_fields(attributes)
       {
+        key: attributes[:key].to_sym,
         name: attributes[:name].to_s,
         description: attributes[:description].to_s,
         category: attributes[:category].to_sym,
-        icon: attributes[:icon].to_s
+        icon: attributes[:icon].to_s,
+        provider: attributes[:provider],
+        position: Integer(attributes[:position]),
+        owner: attributes[:owner].to_s
       }
     end
-    private_class_method :typed_fields, :display_fields
+    private_class_method :typed_fields
 
     def root?
       kind == :root

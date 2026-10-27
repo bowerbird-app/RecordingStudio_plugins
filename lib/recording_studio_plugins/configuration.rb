@@ -48,22 +48,30 @@ module RecordingStudioPlugins
       (@overrides[key.to_s] || {}).dup
     end
 
-    def extra_categories = @extra_categories.dup
+    def extra_categories
+      @extra_categories.dup
+    end
 
     def extra_categories=(categories)
       @extra_categories = Array(categories).map(&:to_sym)
     end
 
-    def enabled_plugins = @enabled_plugins.dup
+    def enabled_plugins
+      @enabled_plugins.dup
+    end
 
     def enabled_plugins=(keys)
       @enabled_plugins = Array(keys).map(&:to_sym)
     end
 
-    def categories = (DEFAULT_CATEGORIES + @extra_categories).uniq
+    def categories
+      (DEFAULT_CATEGORIES + @extra_categories).uniq
+    end
 
     def category?(category)
-      category.to_s.strip.present? && categories.include?(category.to_sym)
+      return false if category.nil? || category.to_s.strip.empty?
+
+      categories.include?(category.to_sym)
     end
 
     def to_h
