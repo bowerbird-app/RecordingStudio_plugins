@@ -243,7 +243,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes readme_source, "flat_pack_sidebar"
     assert_includes readme_source, "Admin root at `/admin`"
     assert_includes readme_source, "test/dummy/db/seeds.rb"
-    assert_includes readme_source, 'switch to the "Admin" root'
+    assert_includes readme_source, 'Switch to the "Admin" root'
   end
 
   def test_readme_covers_the_plugins_directory
