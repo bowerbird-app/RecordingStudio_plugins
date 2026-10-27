@@ -6,7 +6,7 @@ Gems and host apps register plugins in Ruby. People browse them, read how to con
 
 ## Install and mount
 
-Add the gem and its runtime dependencies: Rails, `recording_studio` `>= 6.1.0`, `recording_studio_accessible`, `recording_studio_admin` `>= 2.5.1` and `< 2.6`, `recording_studio_attachable` `>= 0.22.0`, `recording_studio_oauth` `>= 0.19.0`, and `flat_pack` `>= 0.1.315`. Oauth is a hard dependency: installing Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Admin `2.5.1` is the newest Admin tag that does not pull Logs. Attachable stores the optional plugin picture.
+Add the gem and its runtime dependencies: Rails, `recording_studio` `>= 6.1.0`, `recording_studio_accessible`, `recording_studio_admin` `>= 2.5.1`, `recording_studio_attachable` `>= 0.22.0`, `recording_studio_oauth` `>= 0.19.0`, and `flat_pack` `>= 0.1.315`. Oauth is a hard dependency: installing Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Dummy and development Gemfiles pin Admin `v2.5.1`, the newest Admin tag that does not pull Logs. Attachable stores the optional plugin picture.
 
 ```ruby
 gem "recording_studio_plugins"
@@ -22,7 +22,7 @@ The generator mounts the engine at `/recording_studio_plugins`. Change the path 
 
 People need access to the current workspace. Both directory pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those rows, and the detail page 404s. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
 
-Site staff set Plugin names and pictures on an Admin section. That page is not a workspace setting. Workspace admins and members cannot open it. Access uses Admin's staff gate: Accessible on the admin root, plus the section's site blast radius. Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`, enable `section :plugins` on the admin root, mount Admin with `recording_studio_admin_for` and Attachable, and grant Accessible access on that admin root to staff only.
+Site staff set Plugin names and pictures on an Admin section. That page is not a workspace setting. Workspace admins and members cannot open it. Access uses Admin's staff gate: Accessible on the admin root, plus the section's site blast radius. Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`, enable `section :plugins` on the admin root, mount Admin with `recording_studio_admin_for` and Attachable, set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to that staff admin root, and grant Accessible access on that admin root to staff only. There is no baked-in admin root name. Until the host sets that, the staff page is empty and the directory uses each plugin's registered name with no picture.
 
 ## Register
 
@@ -111,6 +111,8 @@ RecordingStudioPlugins.configure do |config|
   config.overrides = { google_drive: { name: "Drive", position: 1 } }
   config.extra_categories = [:press]
   config.enabled_plugins = %i[google_drive dropbox]
+  config.admin_root_types = ["AdminRoot"]
+  config.admin_root_name = "Admin"
   config.actor_label = ->(person) { person&.name.presence || person&.email.presence || "User" }
 end
 ```
@@ -166,7 +168,7 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |
 
-This gem depends on Rails, Recording Studio `>= 6.1.0`, `recording_studio_accessible`, Admin `>= 2.5.1` and `< 2.6`, Attachable `>= 0.22.0`, Oauth `>= 0.19.0`, and Flatpack `>= 0.1.315`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Dummy and development Gemfiles pin Recording Studio `v6.1.0`, Oauth `v0.19.0`, Flatpack `v0.1.320`, Accessible `v0.22.0`, Admin `v2.5.1`, API `v0.14.0`, Attachable `v0.22.0`, Cache `v0.5.0`, Logs `v0.4.1` (API still needs it), Metrics `v0.5.0`, Site Settings `v0.2.0`, Trashable `v0.11.3`, and Root Switchable `v0.8.0`. Sibling gems that still declare Recording Studio below 6 need `test/support/widen_recording_studio_requirement.rb` before `bundle install`. Dummy lists Attachable Attachment, an AdminRoot, and PluginAppearance.
+This gem depends on Rails, Recording Studio `>= 6.1.0`, `recording_studio_accessible`, Admin `>= 2.5.1`, Attachable `>= 0.22.0`, Oauth `>= 0.19.0`, and Flatpack `>= 0.1.315`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Dummy and development Gemfiles pin Recording Studio `v6.1.0`, Oauth `v0.19.0`, Flatpack `v0.1.320`, Accessible `v0.22.0`, Admin `v2.5.1`, API `v0.14.0`, Attachable `v0.22.0`, Cache `v0.5.0`, Logs `v0.4.1` (API still needs it), Metrics `v0.5.0`, Site Settings `v0.2.0`, Trashable `v0.11.3`, and Root Switchable `v0.8.0`. Sibling gems that still declare Recording Studio below 6 need `test/support/widen_recording_studio_requirement.rb` before `bundle install`. Dummy lists Attachable Attachment, an AdminRoot, and PluginAppearance, and points plugin appearances at that AdminRoot.
 
 ## Another gem registering
 

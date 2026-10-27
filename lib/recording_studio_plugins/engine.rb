@@ -74,7 +74,7 @@ module RecordingStudioPlugins
 
     initializer "recording_studio_plugins.admin_definitions" do
       config.to_prepare do
-        RecordingStudioPlugins.sync_appearance_parent_types!(load_appearance: true)
+        RecordingStudioPlugins::PluginAppearance.declare_hierarchy!
         RecordingStudioPlugins::Admin.register!
       end
     end

@@ -7,7 +7,13 @@
      back_tooltip: plugin_copy("admin.back")
    ) %>
 
-<% if @rows.empty? %>
+<% if @unconfigured %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: plugin_copy("admin.unconfigured.title"),
+    description: plugin_copy("admin.unconfigured.description"),
+    icon: :squares_2x2
+  ) %>
+<% elsif @rows.empty? %>
   <%= render FlatPack::EmptyState::Component.new(
     title: plugin_copy("admin.empty.title"),
     description: plugin_copy("admin.empty.description"),

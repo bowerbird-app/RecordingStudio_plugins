@@ -13,8 +13,8 @@ class ConfigurationTest < Minitest::Test
     assert_empty @configuration.overrides
     assert_empty @configuration.extra_categories
     assert_empty @configuration.enabled_plugins
-    assert_equal ["AdminRoot"], @configuration.admin_root_types
-    assert_equal "Admin", @configuration.admin_root_name
+    assert_empty @configuration.admin_root_types
+    assert_nil @configuration.admin_root_name
     assert_nil @configuration.layout
     assert_equal %i[ai_agents storage social websites automation other], @configuration.categories
     named = Struct.new(:name, :email).new("Kit", "kit@example.com")
@@ -76,6 +76,15 @@ class ConfigurationTest < Minitest::Test
     assert_equal(
       { "google_drive" => { name: "Drive", description: "Files", category: :storage, position: 1 } },
       @configuration.overrides
+    )
+  end
+
+  def test_to_h_keeps_the_original_keys
+    result = @configuration.to_h
+
+    assert_equal(
+      %i[mount_path hidden_keys overrides extra_categories enabled_plugins layout hooks_registered],
+      result.keys
     )
   end
 

@@ -11,6 +11,7 @@ require "recording_studio_plugins/actor_label"
 require "recording_studio_plugins/actor_label_config"
 require "recording_studio_plugins/layout_config"
 require "recording_studio_plugins/config_sources"
+require "recording_studio_plugins/admin_appearance_config"
 require "recording_studio_plugins/configuration"
 require "recording_studio_plugins/definition"
 require "recording_studio_plugins/registry"
@@ -40,7 +41,6 @@ module RecordingStudioPlugins
 
     def configure
       yield(configuration) if block_given?
-      sync_appearance_parent_types!
     end
 
     def registry
@@ -112,15 +112,6 @@ module RecordingStudioPlugins
       end
 
       definition.override(values)
-    end
-
-    def sync_appearance_parent_types!(load_appearance: false)
-      const_get(:PluginAppearance) if load_appearance
-      return unless const_defined?(:PluginAppearance, false)
-
-      PluginAppearance.declare_hierarchy!
-    rescue NameError
-      nil
     end
 
     def admin_plugins_path(context = nil)

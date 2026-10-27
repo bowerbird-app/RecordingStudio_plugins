@@ -13,5 +13,5 @@ Next steps:
    For ChatGPT and Grok Bot, call `RecordingStudioPlugins.register_mcp_client(:chatgpt)`
    (and `:grok_bot`) in the initializer. Staff set `plugin_key` on the Oauth app.
 6. Give people access to a workspace. The directory checks `authorized?` for `:view`, and action links check `:edit`. Root plugins stay admin-only. Inbound MCP clients are visible to everyone with view access.
-7. Set `config.enabled_plugins` to the Oauth provider keys this host should list (default is none).
+7. Set `config.enabled_plugins` to the Oauth provider keys this host should list (default is none). Register those providers with Oauth from the provider gem, or they will not appear.
 8. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.

@@ -5,7 +5,7 @@ module RecordingStudioPlugins
     DEFAULT_CATEGORIES = %i[ai_agents storage social websites automation other].freeze
 
     attr_reader :hooks
-    attr_accessor :mount_path, :admin_root_name, :admin_recording_resolver
+    attr_accessor :mount_path
 
     def initialize
       @mount_path = "/recording_studio_plugins"
@@ -13,18 +13,7 @@ module RecordingStudioPlugins
       @overrides = {}
       @extra_categories = []
       @enabled_plugins = []
-      @admin_root_types = ["AdminRoot"]
-      @admin_root_name = "Admin"
-      @admin_recording_resolver = default_admin_recording_resolver
       @hooks = RecordingStudio::Hooks.new
-    end
-
-    def admin_root_types
-      @admin_root_types.dup
-    end
-
-    def admin_root_types=(types)
-      @admin_root_types = Array(types).map(&:to_s)
     end
 
     def hidden_keys
@@ -83,40 +72,22 @@ module RecordingStudioPlugins
     end
 
     def to_h
-      config_snapshot.merge(hooks_registered: hook_counts)
-    end
-
-    private
-
-    def config_snapshot
       {
-        mount_path:, hidden_keys:, overrides:, extra_categories:,
-        enabled_plugins:, admin_root_types:, admin_root_name:, layout:
+        mount_path: mount_path,
+        hidden_keys: hidden_keys,
+        overrides: overrides,
+        extra_categories: extra_categories,
+        enabled_plugins: enabled_plugins,
+        layout: layout,
+        hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
       }
-    end
-
-    def hook_counts
-      hooks.instance_variable_get(:@registry).transform_values(&:size)
-    end
-
-    def default_admin_recording_resolver
-      lambda do
-        klass = Array(admin_root_types).first&.safe_constantize
-        next unless klass.respond_to?(:find_by)
-
-        root = klass.find_by(name: admin_root_name)
-        next unless root
-
-        RecordingStudio::Recording.where(
-          RecordingStudio::Recording.recording_studio_trashable_kept_sql
-        ).find_by(recordable: root)
-      end
     end
   end
 
   Configuration.include ActorLabelConfig
   Configuration.include LayoutConfig
   Configuration.include ConfigSources
+  Configuration.include AdminAppearanceConfig
 
   module Override
     OVERRIDE_KEYS = %i[name description category position].freeze

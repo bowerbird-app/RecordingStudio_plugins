@@ -6,7 +6,7 @@
 - Rails 8.1 or newer
 - Recording Studio 6.1 (`>= 6.1.0` in the gemspec; dummy GitHub tag `v6.1.0`)
 - Oauth `>= 0.19.0` (dummy GitHub tag `v0.19.0`)
-- Admin `>= 2.5.1` and `< 2.6` (dummy GitHub tag `v2.5.1`)
+- Admin `>= 2.5.1` (dummy GitHub tag `v2.5.1`)
 - Attachable `>= 0.22.0` (dummy GitHub tag `v0.22.0`)
 - Accessible dummy tag `v0.22.0`, Trashable dummy tag `v0.11.3` (`require: false`), and Root Switchable dummy tag `v0.8.0`
 - FlatPack dummy tag `v0.1.320`

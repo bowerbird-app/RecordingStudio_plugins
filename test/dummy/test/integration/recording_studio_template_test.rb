@@ -54,6 +54,7 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal root_recording, folder_recording.root_recording
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
+    assert_equal 3, Workspace.count
     assert_equal(
       ["Client Workspace", "Private Workspace", "Studio Workspace"],
       Workspace.where(name: ["Client Workspace", "Private Workspace", "Studio Workspace"]).order(:name).pluck(:name)

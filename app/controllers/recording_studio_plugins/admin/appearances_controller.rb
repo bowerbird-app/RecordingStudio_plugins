@@ -14,6 +14,12 @@ module RecordingStudioPlugins
       helper_method :recording_studio_admin_context, :plugin_admin_back_href
 
       def index
+        unless Appearance.configured?
+          @unconfigured = true
+          @rows = []
+          return
+        end
+
         assign_rows
       end
 
@@ -68,13 +74,12 @@ module RecordingStudioPlugins
       end
 
       def assign_rows
-        actor = staff_actor
-        @rows = RecordingStudioPlugins.all.map { |definition| appearance_row(definition, actor) }
+        @rows = RecordingStudioPlugins.all.map { |definition| appearance_row(definition) }
       end
 
-      def appearance_row(definition, actor)
-        recording = Appearance.ensure_recording!(definition.key, actor: actor)
+      def appearance_row(definition)
         key = definition.key
+        recording = Appearance.recording_for(key)
         {
           definition:, key:, registered_name: definition.name, recording:,
           name: Appearance.display_name(definition), custom_name: recording&.recordable&.name,
@@ -107,8 +112,6 @@ module RecordingStudioPlugins
 
       def plugin_admin_back_href
         recording_studio_admin_context.admin_section_path("plugins")
-      rescue StandardError
-        "/admin"
       end
 
       def render_staff_forbidden

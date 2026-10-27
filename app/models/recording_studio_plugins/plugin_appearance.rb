@@ -13,8 +13,6 @@ module RecordingStudioPlugins
                                   allowed_parent_types: RecordingStudioPlugins.configuration.admin_root_types
     end
 
-    declare_hierarchy!
-
     include RecordingStudio::Capabilities::Attachable.to(
       allowed_content_types: ["image/*"],
       enabled_attachment_kinds: %i[image],

@@ -17,7 +17,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.315"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.18"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.5.1", "< 2.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.5.1"'
+    refute_includes gemspec, '"< 2.6"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", ">= 0.22.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_oauth", ">= 0.19.0"'
   end

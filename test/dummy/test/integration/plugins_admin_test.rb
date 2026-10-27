@@ -33,6 +33,33 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     Current.actor = nil
   end
 
+  test "view-only staff GET leaves plugin appearance counts unchanged" do
+    viewer = create_user("staff-view")
+    grant_staff!(viewer, role: "view")
+    sign_in viewer
+    Current.actor = viewer
+    appearance_count = RecordingStudioPlugins::PluginAppearance.count
+    recording_count = appearance_recording_count
+
+    get recording_studio_plugins.admin_plugins_path
+
+    assert_response :success
+    assert_equal appearance_count, RecordingStudioPlugins::PluginAppearance.count
+    assert_equal recording_count, appearance_recording_count
+    assert_includes response.body, "WordPress"
+
+    patch recording_studio_plugins.admin_plugins_path, params: {
+      appearances: { wordpress: { name: "Should not save" } }
+    }
+
+    assert_response :forbidden
+    assert_equal "WordPress", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:wordpress))
+
+    delete recording_studio_plugins.admin_plugin_image_path(:wordpress)
+
+    assert_response :forbidden
+  end
+
   test "staff can open and edit plugin display names" do
     sign_in @staff
     Current.actor = @staff
@@ -103,12 +130,42 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_equal "WordPress", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:wordpress))
   end
 
+  test "unconfigured admin root shows an empty staff page" do
+    sign_in @staff
+    Current.actor = @staff
+    config = RecordingStudioPlugins.configuration
+    original_types = config.admin_root_types
+    original_name = config.admin_root_name
+
+    config.admin_root_types = []
+    config.admin_root_name = nil
+    RecordingStudioPlugins::Appearance.reset_index!
+
+    get recording_studio_plugins.admin_plugins_path
+
+    assert_response :success
+    assert_includes response.body, "Plugin names aren't wired up"
+    refute_includes response.body, "WordPress"
+    refute_includes response.body, "ChatGPT"
+    assert_select "input[name='appearances[wordpress][name]']", count: 0
+    assert_select "img", count: 0
+  ensure
+    config.admin_root_types = original_types
+    config.admin_root_name = original_name
+    RecordingStudioPlugins::Appearance.reset_index!
+  end
+
   test "custom picture shows on directory detail and inbound modal and removing it falls back" do
     sign_in @staff
     Current.actor = @staff
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
+    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+
+    patch recording_studio_plugins.admin_plugins_path, params: {
+      appearances: { chatgpt: { name: "Chat helper" } }
+    }
 
     recording = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert recording
@@ -121,10 +178,6 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       source: "direct_upload"
     )
     raise result.error if result.respond_to?(:failure?) && result.failure?
-
-    patch recording_studio_plugins.admin_plugins_path, params: {
-      appearances: { chatgpt: { name: "Chat helper" } }
-    }
 
     sign_in @workspace_admin
     Current.actor = @workspace_admin
@@ -170,21 +223,26 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     )
   end
 
-  def grant_staff!(user)
+  def grant_staff!(user, role: "admin")
     recording = admin_root_recording
     manager = User.find_by(email: "admin@admin.com")
     Current.actor = manager || user
-    if manager && RecordingStudioAccessible.authorized?(actor: manager, recording: recording, role: :admin)
-      result = RecordingStudioAccessible.grant_access(
-        recording: recording,
-        actor: user,
-        role: "admin",
-        manager_actor: manager
-      )
-      raise result.error if result.respond_to?(:failure?) && result.failure?
-    else
+    if role.to_s == "admin" && !(manager && RecordingStudioAccessible.authorized?(actor: manager, recording: recording, role: :admin))
       RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
+      return
     end
+
+    result = RecordingStudioAccessible.grant_access(
+      recording: recording,
+      actor: user,
+      role: role,
+      manager_actor: manager || user
+    )
+    raise result.error if result.respond_to?(:failure?) && result.failure?
+  end
+
+  def appearance_recording_count
+    RecordingStudio::Recording.where(recordable_type: RecordingStudioPlugins::Appearance::RECORDABLE_TYPE).count
   end
 
   def admin_root_recording

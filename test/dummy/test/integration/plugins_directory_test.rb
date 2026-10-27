@@ -76,6 +76,23 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Grokbot"
   end
 
+  test "directory appearance queries do not grow with plugin count" do
+    5.times do |index|
+      register_plugin(:"batch_a_#{index}", provider: Object.new, name: "Batch A #{index}")
+    end
+    few = count_directory_queries
+
+    assert_response :success
+
+    8.times do |index|
+      register_plugin(:"batch_b_#{index}", provider: Object.new, name: "Batch B #{index}")
+    end
+    many = count_directory_queries
+
+    assert_response :success
+    assert_equal few, many
+  end
+
   test "empty directory shows the empty state" do
     RecordingStudioPlugins.clear!
     RecordingStudioPlugins.configuration.enabled_plugins = []
@@ -257,6 +274,23 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def count_directory_queries
+    count = 0
+    callback = lambda do |_name, _started, _finished, _unique_id, payload|
+      sql = payload[:sql].to_s
+      next if payload[:name] == "SCHEMA"
+      next if sql.match?(/\A(BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)/i)
+
+      count += 1
+    end
+    ActiveRecord::Base.uncached do
+      ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+        get recording_studio_plugins.root_path
+      end
+    end
+    count
+  end
 
   def with_csrf_protection
     was = ActionController::Base.allow_forgery_protection
