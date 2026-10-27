@@ -25,7 +25,7 @@ bin/dev
 
 Run the commands above from the dummy app directory, not the repository root.
 
-Then open the app and sign in with the seeded site staff user `admin@admin.com`. The seeded staff password is in `test/dummy/db/seeds.rb`. Switch to the "Admin" root in the root switcher. Open `/admin` (Plugins section) or `/recording_studio_plugins/admin/plugins`, then Edit a row. Those staff plugin pages use a dummy-only blank full-width layout (no sidebar); the root switcher stays in the top bar.
+Then open the app and sign in with the seeded site staff user `admin@admin.com`. The seeded staff password is in `test/dummy/db/seeds.rb`. Switch to the "Admin" root in the root switcher. Open `/admin` (Plugins section) or `/recording_studio_plugins/admin/plugins`, then Edit a row. Those staff plugin pages use a dummy-only blank layout (no sidebar) with the same padded page width as other gem admin screens; the root switcher stays in the top bar.
 
 ## Useful Routes
 

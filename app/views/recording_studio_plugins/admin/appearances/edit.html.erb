@@ -7,42 +7,42 @@
    ) %>
 
 <%= form_with url: admin_plugin_path(@row[:key]), method: :patch, multipart: true do %>
-  <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
-    <%= render FlatPack::Grid::Component.new(cols: 2, gap: :lg, align: :start) do %>
-      <% if plugin_staff_admin? && @row[:recording].present? %>
-        <%= render FlatPack::ImageInput::Component.new(
-          name: "appearances[#{@row[:key]}][picture]",
-          label: plugin_copy("admin.picture"),
-          src: @row[:image_url],
-          alt: @row[:name],
-          shape: :square,
-          size: :xl,
-          accept: "image/*",
-          clearable: true,
-          remove_name: "appearances[#{@row[:key]}][remove_picture]"
-        ) %>
-      <% elsif @row[:image_url].present? %>
-        <%= render FlatPack::Avatar::Component.new(
-          src: @row[:image_url],
-          size: :lg,
-          shape: :square,
-          alt: @row[:name]
-        ) %>
-      <% end %>
+  <div class="flex w-fit max-w-full items-start gap-4">
+    <% if plugin_staff_admin? && @row[:recording].present? %>
+      <%= render FlatPack::ImageInput::Component.new(
+        name: "appearances[#{@row[:key]}][picture]",
+        label: plugin_copy("admin.picture"),
+        src: @row[:image_url],
+        alt: @row[:name],
+        shape: :square,
+        size: :xl,
+        accept: "image/*",
+        clearable: true,
+        remove_name: "appearances[#{@row[:key]}][remove_picture]"
+      ) %>
+    <% elsif @row[:image_url].present? %>
+      <%= render FlatPack::Avatar::Component.new(
+        src: @row[:image_url],
+        size: :lg,
+        shape: :square,
+        alt: @row[:name]
+      ) %>
+    <% end %>
 
+    <div class="w-72 max-w-full">
       <%= render FlatPack::TextInput::Component.new(
         name: "appearances[#{@row[:key]}][name]",
         label: plugin_copy("admin.display_name"),
         value: @row[:name]
       ) %>
-    <% end %>
-
-    <div class="w-fit">
-      <%= render FlatPack::Button::Component.new(
-        text: plugin_copy("admin.save"),
-        type: "submit",
-        style: :primary
-      ) %>
     </div>
-  <% end %>
+  </div>
+
+  <div class="mt-6 w-fit">
+    <%= render FlatPack::Button::Component.new(
+      text: plugin_copy("admin.save"),
+      type: "submit",
+      style: :primary
+    ) %>
+  </div>
 <% end %>

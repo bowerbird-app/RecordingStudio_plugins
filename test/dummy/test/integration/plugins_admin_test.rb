@@ -84,6 +84,8 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Default name"
     refute_includes response.body, "flat-pack-sidebar-layout"
     refute_includes response.body, "dummy_sidebar"
+    assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
+    refute_select "[data-fp-page-layout-width='full']"
     assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     RecordingStudioPlugins.all.each do |definition|
@@ -105,9 +107,14 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "The plugin key never changes."
     refute_includes response.body, "What people see in the directory. The wiring name stays put."
     refute_includes response.body, "flat-pack-sidebar-layout"
-    assert_select ".gap-6"
-    assert_select "[class*='md:grid-cols-2']"
-    assert_select ".w-fit"
+    assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
+    refute_select "[data-fp-page-layout-width='full']"
+    refute_select "[class*='md:grid-cols-2']"
+    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4"
+    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4 div.w-72.max-w-full"
+    assert_select "div.mt-6.w-fit"
+    assert_select "[data-controller='flat-pack--image-input']"
+    assert_select "label input[type='file'][name='appearances[chatgpt][picture]'][class*='sr-only']"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Press machine" } }
@@ -222,6 +229,8 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
+    assert_select "[data-controller='flat-pack--image-input']"
+    assert_select "label[for] input[type='file'][name='appearances[chatgpt][picture]'][accept='image/*']"
     tempfile = Tempfile.new(["chatgpt", ".png"])
     tempfile.binmode
     tempfile.write(MINI_PNG)
@@ -247,6 +256,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "img[alt='Chat helper']"
+    assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
   ensure
     tempfile&.close!
   end

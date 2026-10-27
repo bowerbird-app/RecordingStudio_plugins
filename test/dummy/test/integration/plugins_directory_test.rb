@@ -34,6 +34,8 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Plugins"
+    assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
+    refute_select "[data-fp-page-layout-width='full']"
     assert_select "ul[role='list'][class*='grid'][class*='grid-cols-1'][class*='md:grid-cols-2']"
     assert_select "li[role='listitem']"
     assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"

@@ -168,6 +168,27 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
+
+    blank = File.read(File.expand_path("dummy/app/views/layouts/recording_studio/blank.html.erb", __dir__))
+    default = File.read(File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__))
+    edit = File.read(File.expand_path("../app/views/recording_studio_plugins/admin/appearances/edit.html.erb", __dir__))
+    index = File.read(File.expand_path("../app/views/recording_studio_plugins/admin/appearances/index.html.erb", __dir__))
+    directory = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/index.html.erb", __dir__))
+
+    assert_includes default, "FlatPack::PageLayout::Component.new(width: :default)"
+    assert_includes blank, "FlatPack::PageLayout::Component.new(width: :default)"
+    refute_includes blank, "width: :full"
+    refute_includes blank, "SidebarLayout"
+    assert_includes edit, "content_for :title"
+    assert_includes edit, "flat_pack_page_nav"
+    assert_includes edit, "flex w-fit max-w-full items-start gap-4"
+    refute_includes edit, "cols: 2"
+    refute_includes edit, "px-"
+    refute_includes edit, "p-4"
+    assert_includes index, "content_for :title"
+    assert_includes index, "flat_pack_page_nav"
+    assert_includes directory, "content_for :title"
+    assert_includes directory, "content_for :subtitle"
   end
 
   def test_dummy_login_layout_keeps_flatpack_assets_without_tight_main_offset
