@@ -3,12 +3,11 @@
 module RecordingStudioPlugins
   module Admin
     class AppearancesController < ApplicationController
-      include AppearanceAccess
+      include StaffAccess
 
       helper RecordingStudioAttachable::ApplicationHelper
       helper Rails.application.routes.mounted_helpers
       helper_method :recording_direct_uploads_path
-      helper_method :recording_studio_admin_context, :plugin_admin_back_href
 
       before_action :authorize_plugin_staff!
       rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
@@ -77,35 +76,26 @@ module RecordingStudioPlugins
       end
 
       def prepare_edit_recording!(definition)
-        return unless Appearance.configured? && staff_can_change_appearance?
+        return unless Appearance.configured?
+        return unless staff_can_change_appearance?
 
         Appearance.ensure_recording!(definition.key, actor: staff_actor)
       end
 
       def save_name(key)
-        attrs = appearance_params[key.to_s] || appearance_params[key.to_sym]
-        name = attrs&.[](:name) || attrs&.[]("name")
-        Appearance.update_name!(key, name: name, actor: staff_actor)
+        Appearance.update_name!(key, name: appearance_name_param(key), actor: staff_actor)
       end
 
-      def appearance_params
+      def appearance_name_param(key)
         raw = params[:appearances]
-        return {} if raw.blank?
+        return if raw.blank?
 
         hash = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw.to_h
-        hash.each_with_object({}) do |(key, attrs), allowed|
-          next unless key.to_s.match?(/\A[a-z][a-z0-9_]*\z/)
+        attrs = hash.stringify_keys[key.to_s]
+        return if attrs.blank?
 
-          values = appearance_value_hash(attrs)
-          allowed[key] = { name: values["name"] || values[:name] }
-        end
-      end
-
-      def appearance_value_hash(attrs)
-        return attrs.to_unsafe_h if attrs.respond_to?(:to_unsafe_h)
-        return attrs.to_h if attrs.respond_to?(:to_h)
-
-        {}
+        values = attrs.respond_to?(:to_h) ? attrs.to_h : {}
+        values.stringify_keys["name"]
       end
 
       def plugin_copy(key, default: nil)

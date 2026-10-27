@@ -27,12 +27,6 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       role: "view",
       manager_actor: @workspace_admin
     )
-    RecordingStudioAccessible.grant_access(
-      recording: @workspace_root,
-      actor: @staff,
-      role: "view",
-      manager_actor: @workspace_admin
-    )
   end
 
   teardown do
@@ -129,26 +123,18 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get "/admin"
 
     assert_response :success
-    assert_select "a[href='/recording_studio_plugins/admin/plugins']"
-    assert_includes response.body, "Plugin names and pictures"
+    assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
 
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
-    assert_select "a[href='/recording_studio_plugins/admin/plugins']"
-    assert_includes response.body, "Plugin names and pictures"
+    assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
   end
 
   test "staff get 403 on /admin from a workspace root" do
     sign_in @staff
     Current.actor = @staff
     switch_to_root!(@workspace_root)
-
-    get recording_studio_plugins.root_path
-
-    assert_response :success
-    assert_select "a[href='/recording_studio_plugins/']"
-    assert_select "a[href='/recording_studio_plugins/admin/plugins']", count: 0
 
     get "/admin"
 

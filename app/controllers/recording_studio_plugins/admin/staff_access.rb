@@ -2,7 +2,15 @@
 
 module RecordingStudioPlugins
   module Admin
-    module AppearanceAccess
+    module StaffAccess
+      extend ActiveSupport::Concern
+
+      included do
+        helper_method :recording_studio_admin_context, :plugin_admin_back_href
+      end
+
+      private
+
       def authorize_plugin_staff!(role: :view)
         deny_unless_staff_role!(role)
         RecordingStudioAdmin::BlastRadius.authorize!(
