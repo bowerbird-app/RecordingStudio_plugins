@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Staff-only Admin section for plugin display names and one picture per registered plugin. The page lives on the admin root (`section :plugins`). Site staff with Accessible access on that root can open and edit it. Workspace admins and members cannot.
-- `recording_studio_plugin_appearances` plus `recording_studio_plugins:migrations`. Each plugin key has a current appearance recording under the admin root. Attachable holds the optional picture (`max_file_count: 1`). Clearing the display name falls back to the registered name. Removing the picture falls back to no picture. The plugin key never changes.
+- `recording_studio_plugin_appearances` plus `recording_studio_plugins:migrations`. Each plugin key has a current appearance recording under the admin root. `revise` writes a new appearance row, so `plugin_key` is indexed but not unique. Attachable holds the optional picture (`max_file_count: 1`). Clearing the display name falls back to the registered name. Removing the picture falls back to no picture. The plugin key never changes.
 - Directory and inbound modal use the display name. A custom picture renders next to the name with alt text equal to that name. Those pages load appearance recordings and pictures in one map per request.
 - Appearance recordings are created when staff save a name or upload a picture, not when they open the staff list or a plugin's edit page.
 
@@ -20,8 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin appearance names and pictures are cached in `ActiveSupport::CurrentAttributes` for the current request or job. They are not stored on `Thread.current`.
 - Directory rows without a custom picture show a puzzle-piece placeholder next to the name.
 - Directory omits "Not connected" (`directory_status_text`) and hides a 0 connected count (`people_connected_text`).
-- `recording_studio_plugin_appearances.plugin_key` is indexed, not unique. `revise` writes a new snapshot row with the same key and keeps the same recording, so attachments stay put. Lookup uses the current appearance recording for that key.
-- Locale keys with apostrophes use `_html` so `RecordingStudio.t` can render them without escaping (`empty.none.description_html`, `detail.people_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`).
+- `recording_studio_plugin_appearances.plugin_key` is indexed, not unique. Saving a name revises a new snapshot with the same key and keeps the same recording, so attachments stay put.
+- Locale keys with apostrophes use `_html` so `RecordingStudio.t` can render them without escaping (`empty.none.description_html`, `detail.people_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`, `admin.unconfigured.description_html`).
 
 ### Removed
 - **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.

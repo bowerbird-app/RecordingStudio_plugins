@@ -169,7 +169,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_equal "Press Grok", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:grok_bot))
   end
 
-  test "revising a display name keeps one recording and the plugin key" do
+  test "revising a plugin name keeps the key and one current recording" do
     sign_in @staff
     Current.actor = @staff
     RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press", actor: @staff)
@@ -177,11 +177,12 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press two", actor: @staff)
     RecordingStudioPlugins::Appearance.reset_index!
-    second = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    current = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
 
     assert first
-    assert_equal first.id, second.id
-    assert_equal "chatgpt", second.recordable.plugin_key
+    assert current
+    assert_equal first.id, current.id
+    assert_equal "chatgpt", current.recordable.plugin_key
     assert_equal :chatgpt, RecordingStudioPlugins.find(:chatgpt).key
     assert_equal "Press two", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
     assert_operator RecordingStudioPlugins::PluginAppearance.where(plugin_key: "chatgpt").count, :>=, 2

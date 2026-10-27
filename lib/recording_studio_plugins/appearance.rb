@@ -13,10 +13,9 @@ module RecordingStudioPlugins
     module_function
 
     def ensure_recording!(key, actor:)
-      recording_for(key).presence || insert_recording!(key, actor:)
-    end
+      existing = recording_for(key)
+      return existing if existing.present?
 
-    def insert_recording!(key, actor:)
       created = create_recording!(key, actor: actor)
       return if created.blank?
 

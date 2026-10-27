@@ -17,17 +17,21 @@ class MigrationsGeneratorTest < Minitest::Test
 
       generator.stub(:say, nil) { generator.copy_migrations }
       first = Dir.glob(File.join(dir, "db/migrate", "*_create_recording_studio_plugin_appearances.rb"))
+      follow_up = Dir.glob(File.join(dir, "db/migrate", "*_nonunique_recording_studio_plugin_appearance_plugin_key.rb"))
 
       assert_equal 1, first.size
+      assert_equal 1, follow_up.size
       assert_includes File.read(first.first), "create_table :recording_studio_plugin_appearances"
       copied = File.read(first.first)
       assert_includes copied, "add_index :recording_studio_plugin_appearances, :plugin_key"
       refute_includes copied, "unique: true"
+      assert_includes File.read(follow_up.first), "remove_index :recording_studio_plugin_appearances, :plugin_key"
 
       generator.stub(:say, nil) { generator.copy_migrations }
       second = Dir.glob(File.join(dir, "db/migrate", "*_create_recording_studio_plugin_appearances.rb"))
 
       assert_equal 1, second.size
+      assert_equal 1, Dir.glob(File.join(dir, "db/migrate", "*_nonunique_recording_studio_plugin_appearance_plugin_key.rb")).size
     end
   end
 end
