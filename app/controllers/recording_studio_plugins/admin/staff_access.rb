@@ -6,8 +6,6 @@ module RecordingStudioPlugins
       extend ActiveSupport::Concern
 
       included do
-        include RecordingStudioPlugins::Copy
-
         before_action :authorize_plugin_staff!
         rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
         rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden
@@ -31,7 +29,7 @@ module RecordingStudioPlugins
         recording = context.access_recording
         return if actor && recording && RecordingStudioAccessible.authorized?(actor:, recording:, role:)
 
-        raise RecordingStudioAdmin::AuthorizationFailed, plugin_copy("admin.forbidden.description")
+        raise RecordingStudioAdmin::AuthorizationFailed, helpers.plugin_copy("admin.forbidden.description")
       end
 
       def recording_studio_admin_context

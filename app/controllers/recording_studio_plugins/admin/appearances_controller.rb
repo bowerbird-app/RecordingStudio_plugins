@@ -3,7 +3,6 @@
 module RecordingStudioPlugins
   module Admin
     class AppearancesController < ApplicationController
-      include Copy
       include StaffAccess
 
       helper RecordingStudioAttachable::ApplicationHelper
@@ -39,13 +38,13 @@ module RecordingStudioPlugins
         end
 
         save_name(definition.key)
-        redirect_to admin_plugins_path, notice: plugin_copy("admin.flashes.saved")
+        redirect_to admin_plugins_path, notice: helpers.plugin_copy("admin.flashes.saved")
       end
 
       def destroy_image
         authorize_plugin_staff!(role: :admin)
         Appearance.remove_image!(params[:key], actor: staff_actor)
-        redirect_to admin_plugin_edit_path(params[:key]), notice: plugin_copy("admin.flashes.picture_removed")
+        redirect_to admin_plugin_edit_path(params[:key]), notice: helpers.plugin_copy("admin.flashes.picture_removed")
       end
 
       private

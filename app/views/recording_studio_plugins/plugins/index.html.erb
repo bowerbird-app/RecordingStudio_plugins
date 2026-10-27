@@ -1,5 +1,5 @@
 <% content_for :title, plugin_copy("directory.title") %>
-<% content_for :subtitle, plugin_copy("directory.description") %>
+<% content_for :subtitle, plugin_copy("directory.description_html") %>
 
 <% if @listings.empty? %>
   <%= render FlatPack::EmptyState::Component.new(

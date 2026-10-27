@@ -2,7 +2,7 @@
 
 A directory of integrations for Recording Studio.
 
-Gems and host apps register plugins in Ruby. People browse them, read how to connect and use each one, and see a status the owning gem reports. This gem does not connect, authorize, import, or monitor an integration. Site staff can set a public display name and one picture per plugin; those are the only facts this gem stores.
+Gems and host apps register plugins in Ruby. People browse them in the directory and see a status the owning gem reports. This gem does not connect, authorize, import, or monitor an integration. Site staff can set a public display name and one picture per plugin; those are the only facts this gem stores.
 
 ## Install and mount
 
@@ -53,16 +53,16 @@ Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation
 
 ## Provider
 
-A provider is any object that responds to some of these methods. Every method is optional. The controller passes a `RecordingStudioPlugins::Context` and the provider does not read `Current`.
+A provider is any object that responds to some of these methods. Every method is optional. The controller passes a `RecordingStudioPlugins::Context` and the provider does not read `Current`. The directory calls `available?` and `status`. It does not call `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
 
 | Method | Returns | When missing |
 |---|---|---|
 | `available?(context)` | `true` or `false` | listed |
 | `status(context)` | `nil` or `RecordingStudioPlugins::Status` | no status, one Set up button with no URL |
-| `about(context)` | plain text or `nil` | section hidden |
-| `setup_instructions(context)` | plain text or `nil` | section hidden |
-| `usage_instructions(context)` | plain text or `nil` | section hidden |
-| `documentation_url(context)` | URL string or `nil` | no link |
+| `about(context)` | plain text or `nil` | unused by the directory |
+| `setup_instructions(context)` | plain text or `nil` | unused by the directory |
+| `usage_instructions(context)` | plain text or `nil` | unused by the directory |
+| `documentation_url(context)` | URL string or `nil` | unused by the directory |
 
 ```ruby
 RecordingStudioPlugins::Context.new(actor:, root_recording:, request:)

@@ -150,6 +150,36 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "appearance lookup returns the recording for that plugin key" do
+    sign_in @staff
+    Current.actor = @staff
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press Chat", actor: @staff)
+    RecordingStudioPlugins::Appearance.update_name!(:grok_bot, name: "Press Grok", actor: @staff)
+    RecordingStudioPlugins::Appearance.reset_index!
+
+    chatgpt = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    grok = RecordingStudioPlugins::Appearance.recording_for(:grok_bot)
+
+    assert chatgpt
+    assert grok
+    refute_equal chatgpt.id, grok.id
+    assert_equal "chatgpt", chatgpt.recordable.plugin_key
+    assert_equal "grok_bot", grok.recordable.plugin_key
+    assert_equal "Press Chat", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
+    assert_equal "Press Grok", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:grok_bot))
+  end
+
+  test "plugin appearance plugin_key is unique" do
+    sign_in @staff
+    Current.actor = @staff
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press", actor: @staff)
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      RecordingStudioPlugins::PluginAppearance.create!(plugin_key: "chatgpt")
+    end
+    assert_equal 1, RecordingStudioPlugins::PluginAppearance.where(plugin_key: "chatgpt").count
+  end
+
   test "a later request does not keep the previous request's appearance names" do
     sign_in @staff
     Current.actor = @staff

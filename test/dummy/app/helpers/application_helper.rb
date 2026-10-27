@@ -26,13 +26,7 @@ module ApplicationHelper
   end
 
   def dummy_layout_copy(content)
-    return if content.blank?
-
-    stripped = content.to_s.strip
-    return if stripped.blank?
-    return stripped.html_safe if content.html_safe?
-
-    stripped
+    content.presence
   end
 
   def dummy_signed_in_chrome

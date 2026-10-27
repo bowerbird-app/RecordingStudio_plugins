@@ -5,6 +5,7 @@ require "active_support/current_attributes"
 module RecordingStudioPlugins
   module Appearance
     RECORDABLE_TYPE = "RecordingStudioPlugins::PluginAppearance"
+    UNIQUE_PLUGIN_KEY_INDEX = "index_recording_studio_plugin_appearances_on_plugin_key"
 
     class IndexState < ActiveSupport::CurrentAttributes
       attribute :index
@@ -46,6 +47,17 @@ module RecordingStudioPlugins
 
       reset_index!
       unwrap_recording(created) || recording_for(key)
+    rescue ActiveRecord::RecordNotUnique => error
+      raise unless unique_plugin_key_conflict?(error)
+
+      reset_index!
+      recording_for(key)
+    end
+
+    def unique_plugin_key_conflict?(error)
+      [error.message, error.cause&.message].compact.any? do |text|
+        text.include?(UNIQUE_PLUGIN_KEY_INDEX)
+      end
     end
 
     def create_recording!(key, actor:)
@@ -163,13 +175,8 @@ module RecordingStudioPlugins
           plugin_key = recording.recordable&.plugin_key
           next if plugin_key.blank?
 
-          current = map[plugin_key]
-          map[plugin_key] = recording if current.nil? || prefer_recording?(recording, current)
+          map[plugin_key] = recording
         end
-      end
-
-      def prefer_recording?(candidate, current)
-        (candidate.updated_at || Time.at(0)) >= (current.updated_at || Time.at(0))
       end
 
       def appearance_relation

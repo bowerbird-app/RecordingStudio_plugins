@@ -67,6 +67,24 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_directory_apostrophes
   end
 
+  test "directory escapes a locale value that contains a script tag" do
+    I18n.backend.store_translations(
+      :en,
+      recording_studio: { plugins: { directory: { title: "<script>alert(1)</script>" } } }
+    )
+
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    refute_includes response.body, "<script>alert(1)</script>"
+    assert_includes response.body, "&lt;script&gt;alert(1)&lt;/script&gt;"
+  ensure
+    I18n.backend.store_translations(
+      :en,
+      recording_studio: { plugins: { directory: { title: "Plugins" } } }
+    )
+  end
+
   test "non-root connected plugin still shows the Connected badge" do
     register_plugin(:linked, name: "Linked plugin", provider: connected_provider)
 

@@ -3,7 +3,7 @@ en:
     plugins:
       directory:
         title: Plugins
-        description: See what you can connect, and what's already set up.
+        description_html: See what you can connect, and what's already set up.
       empty:
         none:
           title: Nothing here yet

@@ -2,8 +2,11 @@
 
 module RecordingStudioPlugins
   module ApplicationHelper
-    include Copy
     include PluginIcons
+
+    def plugin_copy(key, default: nil)
+      RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
+    end
 
     def plugin_badge(listing)
       return if listing.badge_style.nil?

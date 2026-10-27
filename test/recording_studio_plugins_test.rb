@@ -111,6 +111,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes schema, "index_recording_studio_access_constraints_on_action"
     assert_includes schema, "index_recording_studio_access_rules_on_action"
     assert_includes schema, 'create_table "recording_studio_plugin_appearances"'
+    assert_includes schema, 't.index ["plugin_key"], name: "index_recording_studio_plugin_appearances_on_plugin_key", unique: true'
     assert_includes schema, 'create_table "admin_roots"'
     assert_includes schema, 'create_table "active_storage_blobs"'
     assert_includes schema, 'create_table "recording_studio_attachable_attachments"'
