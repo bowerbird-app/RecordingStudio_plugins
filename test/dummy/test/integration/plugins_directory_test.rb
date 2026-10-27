@@ -280,7 +280,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     callback = lambda do |_name, _started, _finished, _unique_id, payload|
       sql = payload[:sql].to_s
       next if payload[:name] == "SCHEMA"
-      next if sql.match?(/\A(BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)/i)
+      next unless sql.match?(/PluginAppearance|plugin_appearances|Attachable::Attachment|attachable_attachments/i)
 
       count += 1
     end

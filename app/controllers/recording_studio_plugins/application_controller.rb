@@ -20,5 +20,13 @@ module RecordingStudioPlugins
     recording_studio_layout { RecordingStudioPlugins.configuration.layout }
 
     protect_from_forgery with: :exception
+
+    before_action :reset_plugin_appearance_index
+
+    private
+
+    def reset_plugin_appearance_index
+      Appearance.reset_index!
+    end
   end
 end

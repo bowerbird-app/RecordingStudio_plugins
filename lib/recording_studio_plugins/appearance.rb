@@ -19,11 +19,11 @@ module RecordingStudioPlugins
     end
 
     def image_recording(key)
-      index.image_recording(key)
+      request_index.image_recording(key)
     end
 
     def recording_for(key)
-      index.recording_for(key)
+      request_index.recording_for(key)
     end
 
     def current_recordable(key) = recording_for(key)&.recordable
@@ -36,16 +36,22 @@ module RecordingStudioPlugins
       existing = recording_for(key)
       return existing if existing.present?
 
+      created = create_recording!(key, actor: actor)
+      return if created.blank?
+
+      reset_index!
+      unwrap_recording(created) || recording_for(key)
+    end
+
+    def create_recording!(key, actor:)
       admin = admin_recording
       return if admin.blank? || actor.blank?
 
-      created = with_actor(actor) do
+      with_actor(actor) do
         admin.record(PluginAppearance, actor: actor) do |appearance|
           appearance.plugin_key = key.to_s
         end
       end
-      reset_index!
-      unwrap_recording(created) || recording_for(key)
     end
 
     def unwrap_recording(value)
@@ -117,18 +123,12 @@ module RecordingStudioPlugins
       Current.actor = previous_actor if defined?(Current)
     end
 
-    def index
-      if defined?(ActiveSupport::IsolatedExecutionState)
-        ActiveSupport::IsolatedExecutionState[INDEX_STATE_KEY] ||= Index.new
-      else
-        Index.new
-      end
+    def request_index
+      Thread.current[INDEX_STATE_KEY] ||= Index.new
     end
 
     def reset_index!
-      return unless defined?(ActiveSupport::IsolatedExecutionState)
-
-      ActiveSupport::IsolatedExecutionState.delete(INDEX_STATE_KEY)
+      Thread.current[INDEX_STATE_KEY] = nil
     end
 
     class Index
@@ -151,38 +151,44 @@ module RecordingStudioPlugins
       private
 
       def load_recordings_by_key
-        return {} unless Appearance.recordings_ready?
+        relation = appearance_relation
+        return {} if relation.nil?
 
-        admin = Appearance.admin_recording
-        return {} if admin.blank?
-
-        relation = if admin.respond_to?(:recordings_of)
-                     admin.recordings_of(PluginAppearance)
-                   else
-                     RecordingStudio::Recording.where(
-                       recordable_type: RECORDABLE_TYPE,
-                       parent_recording_id: admin.id
-                     )
-                   end
         kept(relation).includes(:recordable).each_with_object({}) do |recording, map|
           plugin_key = recording.recordable&.plugin_key
           map[plugin_key] = recording if plugin_key.present?
         end
       end
 
+      def appearance_relation
+        return unless Appearance.recordings_ready?
+
+        admin = Appearance.admin_recording
+        return if admin.blank?
+
+        if admin.respond_to?(:recordings_of)
+          admin.recordings_of(PluginAppearance)
+        else
+          RecordingStudio::Recording.where(recordable_type: RECORDABLE_TYPE, parent_recording_id: admin.id)
+        end
+      end
+
       def load_image_recordings_by_key
         recordings = recordings_by_key
-        parent_ids = recordings.values.map(&:id)
+        attachments_by_parent = attachment_recordings_by_parent(recordings.values.map(&:id))
+        recordings.each_with_object({}) do |(plugin_key, recording), map|
+          map[plugin_key] = attachments_by_parent[recording.id]&.first
+        end
+      end
+
+      def attachment_recordings_by_parent(parent_ids)
         return {} if parent_ids.empty? || !defined?(RecordingStudioAttachable::Attachment)
 
         relation = RecordingStudio::Recording.where(
           parent_recording_id: parent_ids,
           recordable_type: RecordingStudioAttachable::Attachment.name
         )
-        attachments_by_parent = kept(relation).includes(:recordable).group_by(&:parent_recording_id)
-        recordings.each_with_object({}) do |(plugin_key, recording), map|
-          map[plugin_key] = attachments_by_parent[recording.id]&.first
-        end
+        kept(relation).includes(:recordable).group_by(&:parent_recording_id)
       end
 
       def kept(relation)
