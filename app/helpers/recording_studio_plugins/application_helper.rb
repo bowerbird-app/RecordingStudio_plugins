@@ -41,18 +41,24 @@ module RecordingStudioPlugins
       )
     end
 
-    def plugin_directory_row(trailing:, &block)
-      tag.li(
-        class: "flex items-center rounded-[var(--radius-sm)] py-[var(--list-item-padding-y)] px-[var(--list-item-padding-x)] text-[var(--surface-content-color)]",
-        role: "listitem"
-      ) do
-        safe_join(
-          [
-            tag.div(class: "min-w-0 flex-1 flex items-center", &block),
-            (tag.span(trailing, class: "flex-shrink-0 ml-2") if trailing.present?)
-          ].compact
-        )
+    DIRECTORY_ROW_CLASS = [
+      "flex items-center rounded-[var(--radius-sm)]",
+      "py-[var(--list-item-padding-y)] px-[var(--list-item-padding-x)]",
+      "text-[var(--surface-content-color)]"
+    ].join(" ").freeze
+
+    def plugin_directory_row(trailing:, &)
+      tag.li(class: DIRECTORY_ROW_CLASS, role: "listitem") do
+        safe_join([plugin_directory_row_main(&), plugin_directory_row_trailing(trailing)].compact)
       end
+    end
+
+    def plugin_directory_row_main(&)
+      tag.div(class: "min-w-0 flex-1 flex items-center", &)
+    end
+
+    def plugin_directory_row_trailing(trailing)
+      tag.span(trailing, class: "flex-shrink-0 ml-2") if trailing.present?
     end
 
     def plugin_inbound_modal_id(listing)
