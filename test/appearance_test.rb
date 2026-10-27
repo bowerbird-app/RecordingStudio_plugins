@@ -32,6 +32,18 @@ class AppearanceTest < Minitest::Test
     assert_respond_to RecordingStudioPlugins, :admin_plugins_path
   end
 
+  def test_ensure_recording_returns_the_existing_recording_without_inserting
+    existing = Object.new
+    created = false
+
+    RecordingStudioPlugins::Appearance.stub(:recording_for, ->(*) { existing }) do
+      RecordingStudioPlugins::Appearance.stub(:create_recording!, ->(*) { created = true }) do
+        assert_equal existing, RecordingStudioPlugins::Appearance.ensure_recording!(:sample, actor: Object.new)
+        refute created
+      end
+    end
+  end
+
   def test_ensure_recording_looks_up_again_after_a_plugin_key_unique_conflict
     existing = Object.new
     error = ActiveRecord::RecordNotUnique.new(
@@ -64,6 +76,23 @@ class AppearanceTest < Minitest::Test
           RecordingStudioPlugins::Appearance.ensure_recording!(:sample, actor: Object.new)
         end
         assert_equal error, raised
+      end
+    end
+  end
+
+  def test_ensure_recording_inserts_when_no_recording_exists
+    created = Object.new
+    lookups = 0
+    lookup = lambda do |_key|
+      lookups += 1
+      lookups == 1 ? nil : created
+    end
+
+    RecordingStudioPlugins::Appearance.stub(:recording_for, lookup) do
+      RecordingStudioPlugins::Appearance.stub(:create_recording!, ->(*) { created }) do
+        RecordingStudioPlugins::Appearance.stub(:reset_index!, -> {}) do
+          assert_equal created, RecordingStudioPlugins::Appearance.ensure_recording!(:sample, actor: Object.new)
+        end
       end
     end
   end

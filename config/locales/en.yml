@@ -51,8 +51,8 @@ en:
           title: Nothing to name yet
           description: Register a plugin, then come back and give it a public name.
         unconfigured:
-          title: Plugin names aren't wired up
-          description: This host hasn't chosen the staff admin page that holds names and pictures.
+          title_html: Plugin names aren't wired up
+          description_html: This host hasn't chosen the staff admin page that holds names and pictures.
         flashes:
           saved: Names updated.
           picture_removed: Picture removed.
