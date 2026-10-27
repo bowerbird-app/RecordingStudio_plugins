@@ -10,10 +10,6 @@ module RecordingStudioPlugins
       helper Rails.application.routes.mounted_helpers
       helper_method :recording_direct_uploads_path
 
-      before_action :authorize_plugin_staff!
-      rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
-      rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden
-
       def index
         unless Appearance.configured?
           @unconfigured = true
@@ -31,7 +27,6 @@ module RecordingStudioPlugins
           return
         end
 
-        prepare_edit_recording!(definition)
         @row = appearance_row(definition)
       end
 
@@ -74,13 +69,6 @@ module RecordingStudioPlugins
         return if definition.nil? || RecordingStudioPlugins.configuration.hidden?(definition.key)
 
         definition
-      end
-
-      def prepare_edit_recording!(definition)
-        return unless Appearance.configured?
-        return unless staff_can_change_appearance?
-
-        Appearance.ensure_recording!(definition.key, actor: staff_actor)
       end
 
       def save_name(key)

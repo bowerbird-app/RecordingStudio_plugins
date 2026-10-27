@@ -6,6 +6,9 @@ module RecordingStudioPlugins
       extend ActiveSupport::Concern
 
       included do
+        before_action :authorize_plugin_staff!
+        rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
+        rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden
         helper_method :recording_studio_admin_context, :plugin_admin_back_href
       end
 
@@ -47,11 +50,8 @@ module RecordingStudioPlugins
         end
       end
 
-      def staff_can_change_appearance?
-        context = recording_studio_admin_context
-        actor = context.current_actor
-        recording = context.access_recording
-        actor && recording && RecordingStudioAccessible.authorized?(actor:, recording:, role: :admin)
+      def plugin_copy(key, default: nil)
+        RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
       end
 
       def plugin_admin_back_href

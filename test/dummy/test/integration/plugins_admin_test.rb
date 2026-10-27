@@ -49,6 +49,12 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_equal recording_count, appearance_recording_count
     assert_includes response.body, "ChatGPT"
 
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
+
+    assert_response :success
+    assert_equal appearance_count, RecordingStudioPlugins::PluginAppearance.count
+    assert_equal recording_count, appearance_recording_count
+
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Should not save" } }
     }
@@ -81,7 +87,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "input[name='appearances[chatgpt][name]']"
-    assert_includes response.body, "plugin-chatgpt-picture"
+    refute_includes response.body, "plugin-chatgpt-picture"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Press machine" } }
@@ -235,7 +241,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
-    assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert_select "input[name='appearances[chatgpt][name]']"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
