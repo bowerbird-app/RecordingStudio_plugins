@@ -21,7 +21,7 @@ class MigrationsGeneratorTest < Minitest::Test
       assert_equal 1, first.size
       assert_includes File.read(first.first), "create_table :recording_studio_plugin_appearances"
       copied = File.read(first.first)
-      assert_includes copied, "add_index :recording_studio_plugin_appearances, :plugin_key, unique: true"
+      assert_includes copied, "add_index :recording_studio_plugin_appearances, :plugin_key"
 
       generator.stub(:say, nil) { generator.copy_migrations }
       second = Dir.glob(File.join(dir, "db/migrate", "*_create_recording_studio_plugin_appearances.rb"))

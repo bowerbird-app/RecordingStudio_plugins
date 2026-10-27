@@ -9,7 +9,7 @@
 
 <% if @unconfigured %>
   <%= render FlatPack::EmptyState::Component.new(
-    title: plugin_copy("admin.unconfigured.title"),
+    title: plugin_copy("admin.unconfigured.title_html"),
     description: plugin_copy("admin.unconfigured.description"),
     icon: :squares_2x2
   ) %>

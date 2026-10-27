@@ -112,7 +112,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes schema, "index_recording_studio_access_rules_on_action"
     assert_includes schema, 'create_table "recording_studio_plugin_appearances"'
     appearance_index = 't.index ["plugin_key"], name: "index_recording_studio_plugin_appearances_on_plugin_key"'
-    assert_includes schema, "#{appearance_index}, unique: true"
+    assert_includes schema, appearance_index
+    refute_includes schema, "#{appearance_index}, unique: true"
     assert_includes schema, 'create_table "admin_roots"'
     assert_includes schema, 'create_table "active_storage_blobs"'
     assert_includes schema, 'create_table "recording_studio_attachable_attachments"'
