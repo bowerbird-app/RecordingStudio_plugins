@@ -225,30 +225,27 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
   def grant_staff!(user, role: "admin")
     recording = admin_root_recording
-    manager = @staff || User.find_by(email: "admin@admin.com")
+    manager = authorized_staff_manager(recording)
     Current.actor = manager || user
-    if role.to_s == "admin"
-      if manager && manager != user && RecordingStudioAccessible.authorized?(actor: manager, recording: recording, role: :admin)
-        result = RecordingStudioAccessible.grant_access(
-          recording: recording,
-          actor: user,
-          role: "admin",
-          manager_actor: manager
-        )
-        raise result.error if result.respond_to?(:failure?) && result.failure?
-      else
-        RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
-      end
+
+    if manager && (role.to_s != "admin" || manager != user)
+      result = RecordingStudioAccessible.grant_access(
+        recording: recording,
+        actor: user,
+        role: role,
+        manager_actor: manager
+      )
+      raise result.error if result.respond_to?(:failure?) && result.failure?
       return
     end
 
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: user,
-      role: role,
-      manager_actor: manager
-    )
-    raise result.error if result.respond_to?(:failure?) && result.failure?
+    RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
+  end
+
+  def authorized_staff_manager(recording)
+    [User.find_by(email: "admin@admin.com"), @staff].compact.uniq.find do |actor|
+      RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: :admin)
+    end
   end
 
   def appearance_recording_count
