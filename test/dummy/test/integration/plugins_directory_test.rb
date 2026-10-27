@@ -241,6 +241,14 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     refute_select "a[href='#']", text: "Connect"
   end
 
+  test "dummy google drive and dropbox connect forms skip turbo" do
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect'][data-turbo='false']"
+    assert_select "form[method='post'][action='/recording_studio_oauth/outbound/dropbox/connect'][data-turbo='false']"
+  end
+
   test "google drive connect follows fake authorize then shows connected on the directory" do
     follow_dummy_connect!(provider: "google_drive")
 

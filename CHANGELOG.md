@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Appearance recordings are created when a site admin opens a plugin's edit page (so Attachable has a parent for the picture), when they save a name, or when they upload a picture. They are not created when staff open the staff list, and a view-only GET still does not create them.
 
 ### Changed
+- Oauth Connect and Disconnect forms skip Turbo (`data-turbo="false"`) so the browser can follow the provider redirect off-site.
 - **BREAKING:** this gem now depends on `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`. Dummy and development GitHub tags stay on Admin `v2.5.1` (newest Admin without Logs) and Attachable `v0.22.0`. Logs `v0.4.1` stays because API `v0.14.0` still needs it.
 - **BREAKING:** helper `plugin_setup_link` is now `plugin_setup_button`. An inbound row with an https `setup_url` shows a Connect button that opens that URL, not a "How to connect" link.
 - Dummy root switching lists workspace roots first, then the Admin root, so a workspace stays the default and staff can switch to Admin before opening `/admin`. Dummy screens use a dummy-only sidebar.
