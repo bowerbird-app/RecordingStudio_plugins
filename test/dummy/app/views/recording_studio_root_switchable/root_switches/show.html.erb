@@ -1,15 +1,26 @@
-<%# Root Switchable 0.9 still renders PageNav `anchor_label` and Card `style`, which Flatpack 0.1.320 removed. Dummy keeps the 0.9 gem pin (0.10+ does not resolve with Metrics 0.5) and maps this page onto the current helpers. %>
-<% content_for :title, @page_copy.fetch(:title) %>
-<% page_subtitle = @page_copy.fetch(:subtitle).presence %>
-<% content_for :subtitle, page_subtitle if page_subtitle.present? %>
-<% flat_pack_page_nav(
-     round: true,
-     style: :default,
-     anchor_href: @return_anchor_url,
-     anchor_tooltip: t("recording_studio.root_switchable.navigation.close")
-   ) %>
+<div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+  <% if flash[:notice].present? %>
+    <%= render FlatPack::Alert::Component.new(style: :success, title: flash[:notice]) %>
+  <% end %>
 
-<div class="flex w-full flex-col gap-6">
+  <% if flash[:alert].present? %>
+    <%= render FlatPack::Alert::Component.new(style: :danger, title: flash[:alert]) %>
+  <% end %>
+
+  <%= render FlatPack::PageNav::Component.new(round: true, style: :default) do |nav| %>
+    <% nav.with_close(
+      href: @return_anchor_url,
+      tooltip: t("recording_studio.root_switchable.navigation.close")
+    ) %>
+  <% end %>
+
+  <% page_subtitle = @page_copy.fetch(:subtitle).presence %>
+  <%= render FlatPack::PageTitle::Component.new(
+    title: @page_copy.fetch(:title),
+    subtitle: page_subtitle,
+    variant: :h1
+  ) %>
+
   <% if @available_roots.empty? %>
     <%= render FlatPack::Alert::Component.new(
       style: :info,
@@ -22,7 +33,7 @@
       <p class="text-sm text-(--surface-muted-content-color)"><%= persistence_hint %></p>
     <% end %>
 
-    <%= render FlatPack::Card::Component.new(background: :default, border: :default, class: "w-full") do |card| %>
+    <%= render FlatPack::Card::Component.new(class: "w-full") do |card| %>
       <% card.body do %>
         <%= render FlatPack::List::Component.new(selectable: true, class: "w-full") do %>
           <% @available_roots.each do |root_recording| %>

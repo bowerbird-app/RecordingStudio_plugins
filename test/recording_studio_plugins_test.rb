@@ -63,7 +63,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"'
     refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.18.0"'
     refute_includes gemfile, 'RecordingStudio_metrics", tag: "v0.6.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.9.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.320"'
     refute_includes gemfile, 'tag: "v0.1.213"'
@@ -217,8 +217,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     switch_page = File.read(
       File.expand_path("dummy/app/views/recording_studio_root_switchable/root_switches/show.html.erb", __dir__)
     )
-    assert_includes switch_page, "anchor_href:"
-    assert_includes switch_page, "anchor_tooltip:"
+    assert_includes switch_page, "with_close"
     refute_includes switch_page, "anchor_label:"
     refute_includes switch_page, "Card::Component.new(style:"
   end
