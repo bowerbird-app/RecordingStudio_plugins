@@ -33,9 +33,11 @@ module RecordingStudioPlugins
       end
     end
 
-    extend Persist
-
     module_function
+
+    def ensure_recording!(key, actor:)
+      Persist.ensure_recording!(key, actor: actor)
+    end
 
     def display_name(definition)
       current_recordable(definition.key)&.name.presence || definition.name
