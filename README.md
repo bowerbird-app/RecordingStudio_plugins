@@ -6,7 +6,7 @@ Gems and host apps register plugins in Ruby. People browse them, read how to con
 
 ## Install and mount
 
-Add the gem and its runtime dependencies: Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`. Oauth is a hard dependency: installing Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
+Add the gem and its runtime dependencies: Rails, `recording_studio` `>= 6.1.0`, `recording_studio_accessible`, `recording_studio_oauth` `>= 0.19.0`, and `flat_pack` `>= 0.1.315`. Oauth is a hard dependency: installing Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
 
 ```ruby
 gem "recording_studio_plugins"
@@ -16,7 +16,7 @@ gem "recording_studio_plugins"
 bin/rails generate recording_studio_plugins:install
 ```
 
-The generator mounts the engine at `/recording_studio_plugins`. Change the path with `--mount_path` or `config.mount_path`. The pages use Recording Studio's default layout.
+The generator mounts the engine at `/recording_studio_plugins`. Change the path with `--mount_path` or `config.mount_path`. Controllers call `recording_studio_layout { RecordingStudioPlugins.configuration.layout }`. `config.layout` is `nil` by default (the shared Recording Studio layout). Set it to a layout name, `false`, or `->(controller:) { ... }`. Headings come from `content_for :title` and `:subtitle`. Back uses `flat_pack_page_nav`.
 
 People need access to the current workspace. Both pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those rows, and the detail page 404s. This gem has no mutating endpoint. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
 
@@ -162,7 +162,7 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |
 
-This gem depends on Rails, `recording_studio`, `recording_studio_accessible`, `recording_studio_oauth`, and `flat_pack`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable).
+This gem depends on Rails, Recording Studio `>= 6.1.0`, `recording_studio_accessible`, Oauth `>= 0.19.0`, and Flatpack `>= 0.1.315`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Dummy and development Gemfiles pin Recording Studio `v6.1.0`, Oauth `v0.19.0`, Flatpack `v0.1.320`, Accessible `v0.22.0`, Admin `v2.7.0`, API `v0.14.0`, Attachable `v0.15.0`, Cache `v0.5.0`, Logs `v0.4.1`, Metrics `v0.5.0`, Site Settings `v0.2.0`, Trashable `v0.11.3`, and Root Switchable `v0.9.0`. Sibling gems that still declare Recording Studio below 6 need `test/support/widen_recording_studio_requirement.rb` before `bundle install`.
 
 ## Another gem registering
 

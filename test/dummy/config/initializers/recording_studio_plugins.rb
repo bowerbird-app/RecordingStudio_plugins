@@ -6,6 +6,7 @@ RecordingStudioPlugins.configure do |config|
   # config.overrides = {}
   # config.extra_categories = []
   config.enabled_plugins = %i[google_drive dropbox]
+  config.layout = ->(controller:) { "application" if controller.devise_controller? }
 end
 
 RecordingStudioPlugins.register_mcp_client(

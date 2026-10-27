@@ -1,9 +1,5 @@
-<% recording_studio_page_nav(title: plugin_copy("directory.title")) %>
-
-<%= render FlatPack::PageTitle::Component.new(
-  title: plugin_copy("directory.title"),
-  subtitle: plugin_copy("directory.description")
-) %>
+<% content_for :title, plugin_copy("directory.title") %>
+<% content_for :subtitle, plugin_copy("directory.description") %>
 
 <% if @listings.empty? %>
   <%= render FlatPack::EmptyState::Component.new(

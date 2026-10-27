@@ -5,9 +5,10 @@ require "test_helper"
 class RecordingStudioTemplateTest < ActiveSupport::TestCase
   test "dummy app loads root switchable config and controller support" do
     assert_equal [ "all_workspaces" ], RecordingStudioRootSwitchable.configuration.scopes.keys
-    assert_equal :application_layout, RecordingStudioRootSwitchable.configuration.layout
+    assert_equal "recording_studio/default_layout", RecordingStudioRootSwitchable.configuration.layout
     assert_includes ApplicationController.ancestors, RecordingStudio::RootSwitchable::ControllerSupport
-    assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
+    assert_includes ApplicationController.instance_methods, :recording_studio_resolved_layout
+    refute_includes ApplicationController.ancestors.map(&:name), "RecordingStudio::UsesDefaultLayout"
   end
 
   test "dummy app validates recordable declarations" do
@@ -73,6 +74,18 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: Folder)
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
     refute RecordingStudio.capability_enabled?(:example, for: Workspace)
-    assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
+    assert_includes ApplicationController.instance_methods, :recording_studio_resolved_layout
+  end
+
+  test "layout setting falls through for the host and devise uses application" do
+    host = ApplicationController.new
+    host.define_singleton_method(:devise_controller?) { false }
+    assert_equal "recording_studio/default_layout", host.recording_studio_resolved_layout
+
+    login = ApplicationController.new
+    login.define_singleton_method(:devise_controller?) { true }
+    assert_equal "application", login.recording_studio_resolved_layout
+
+    assert_empty RecordingStudio::Layout.hardcoded_layout_paths(Rails.root)
   end
 end

@@ -4,7 +4,7 @@ module RecordingStudioPlugins
   class Configuration
     DEFAULT_CATEGORIES = %i[ai_agents storage social websites automation other].freeze
 
-    attr_reader :hooks
+    attr_reader :hooks, :layout
     attr_accessor :mount_path
 
     def initialize
@@ -13,7 +13,12 @@ module RecordingStudioPlugins
       @overrides = {}
       @extra_categories = []
       @enabled_plugins = []
+      @layout = nil
       @hooks = RecordingStudio::Hooks.new
+    end
+
+    def layout=(value)
+      @layout = RecordingStudio::Layout.accept(value)
     end
 
     def hidden_keys
@@ -78,6 +83,7 @@ module RecordingStudioPlugins
         overrides: overrides,
         extra_categories: extra_categories,
         enabled_plugins: enabled_plugins,
+        layout: layout,
         hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
       }
     end

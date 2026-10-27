@@ -30,7 +30,10 @@ class BootTest < Minitest::Test
     changelog = File.read(File.expand_path("../CHANGELOG.md", __dir__))
 
     assert_includes changelog, "## [0.6.0]"
-    assert_includes changelog, "cursor/inbound-plugin-key-e105"
+    assert_includes changelog, "recording_studio >= 6.1.0"
+    assert_includes changelog, "recording_studio_oauth >= 0.19.0"
+    refute_includes changelog, "cursor/inbound-plugin-key-e105"
+    refute_includes changelog, "TEMPORARY"
     assert_includes changelog, "## [0.4.0]"
     assert_includes changelog, "There are no tables to migrate."
     assert_includes changelog, "**BREAKING:**"

@@ -1,12 +1,9 @@
-<% dummy_page_nav(title: "Template Demo", back_url: root_path) %>
+<% dummy_page_nav(
+  title: "Template Demo",
+  subtitle: "This dummy app is the browser-facing demo surface for the template."
+) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "Template Demo",
-    subtitle: "This dummy app is the browser-facing demo surface for the template.",
-    variant: :h1
-  ) %>
-
   <div class="grid gap-6 lg:grid-cols-2">
     <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
       <% card.header do %>

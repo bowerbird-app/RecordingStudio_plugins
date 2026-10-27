@@ -13,6 +13,7 @@ class ConfigurationTest < Minitest::Test
     assert_empty @configuration.overrides
     assert_empty @configuration.extra_categories
     assert_empty @configuration.enabled_plugins
+    assert_nil @configuration.layout
     assert_equal %i[ai_agents storage social websites automation other], @configuration.categories
     named = Struct.new(:name, :email).new("Kit", "kit@example.com")
     emailed = Struct.new(:name, :email).new(nil, "kit@example.com")
@@ -98,6 +99,16 @@ class ConfigurationTest < Minitest::Test
 
   def test_actor_label_must_be_callable
     assert_raises(ArgumentError) { @configuration.actor_label = "Kit" }
+  end
+
+  def test_layout_accepts_nil_and_name
+    assert_nil @configuration.layout
+
+    @configuration.layout = "application"
+    assert_equal "application", @configuration.layout
+
+    @configuration.layout = nil
+    assert_nil @configuration.layout
   end
 
   def test_configure_without_block_is_safe

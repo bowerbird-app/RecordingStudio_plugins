@@ -13,10 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `McpClientStatus` maps Oauth inbound answers onto the existing `Status` type. `setup_url` on registration is checked with `SafeUrl` (https only). `config.actor_label` names people on the list (default: name, then email, then "User"), loaded in one query per actor type when the modal or detail page asks.
 
 ### Changed
-- **BREAKING:** `recording_studio_oauth >= 0.18.0`. The Gemfile currently pins Oauth to git branch `cursor/inbound-plugin-key-e105` (Oauth #69). **TEMPORARY:** re-pin to tag `v0.18.0` after that PR is merged and tagged.
+- **BREAKING:** Recording Studio `>= 6.1.0` and Oauth `>= 0.19.0`. Oauth 0.19.0 is the first release with `inbound_connection_status` / `inbound_connections` / `plugin_key`.
+- Dummy and root GitHub tags: Recording Studio `v4.7.0` → `v6.1.0`, Flatpack `v0.1.213` → `v0.1.320`, Accessible `v0.18.0` → `v0.22.0`, Oauth `v0.19.0`, Admin `v2.2.0` → `v2.7.0`, API `v0.16.0` → `v0.14.0`, Attachable `v0.21.1` → `v0.15.0`, Metrics `v0.6.1` → `v0.5.0`. Cache `v0.5.0`, Logs `v0.4.1`, Site Settings `v0.2.0`, Trashable `v0.11.3`, and Root Switchable `v0.9.0` stay. Sibling gemspecs that still require Recording Studio below 6 are widened in `test/support/widen_recording_studio_requirement.rb`.
+- `RecordingStudioPlugins.configuration.layout` is `nil` by default. Engine and dummy controllers call `recording_studio_layout`. Page headings come from `content_for :title` and `:subtitle`. Back uses `flat_pack_page_nav`.
 
 ### Upgrade notes
-- Point host and dummy Gemfiles at Oauth `>= 0.18.0`. Until Oauth #69 is tagged, use branch `cursor/inbound-plugin-key-e105`, then switch to `v0.18.0`.
+- Point host and dummy Gemfiles at Recording Studio `v6.1.0`, Oauth `v0.19.0`, Flatpack `v0.1.320`, and Accessible `v0.22.0`. Pin Admin `v2.7.0`, API `v0.14.0`, Attachable `v0.15.0`, and Metrics `v0.5.0` so the Oauth 0.19.0 stack resolves. API `v0.14.0` needs Metrics `< 0.6`.
+- Replace `UsesDefaultLayout` / a hard-coded default layout with `recording_studio_layout { RecordingStudioPlugins.configuration.layout }`. Set `config.layout` to `nil`, a layout name, `false`, or `->(controller:) { ... }` (dummy uses the application layout for Devise).
+- Set `content_for :title` (and `:subtitle` when you have one). Do not also render `FlatPack::PageTitle` for that same heading. Replace `recording_studio_page_nav` back arguments with `flat_pack_page_nav`.
 - Run Oauth's migrations so registered apps have `plugin_key`. This gem still has no tables of its own.
 - Register ChatGPT and Grok Bot in the host initializer. Staff set `plugin_key` on the Oauth app; this gem does not.
 - There are no tables to migrate in this gem.
