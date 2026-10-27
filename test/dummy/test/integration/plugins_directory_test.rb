@@ -332,7 +332,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       authorize_url: "https://accounts.google.com/o/oauth2/auth",
       token_url: "https://oauth2.googleapis.com/token",
       revoke_url: "https://oauth2.googleapis.com/revoke",
-      scopes: ["files.read"],
+      scopes: [ "files.read" ],
       client_id: "dummy-https-drive",
       client_secret: "dummy-https-drive-secret",
       pkce: true,
@@ -364,7 +364,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       access_token: "dummy-access-token",
       refresh_token: "dummy-refresh-token",
       status: "active",
-      granted_scopes: ["files.read"]
+      granted_scopes: [ "files.read" ]
     )
 
     with_csrf_protection do

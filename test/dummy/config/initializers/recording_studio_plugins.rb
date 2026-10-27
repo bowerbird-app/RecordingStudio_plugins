@@ -6,7 +6,7 @@ RecordingStudioPlugins.configure do |config|
   # config.overrides = {}
   # config.extra_categories = []
   config.enabled_plugins = %i[google_drive dropbox]
-  config.admin_root_types = ["AdminRoot"]
+  config.admin_root_types = [ "AdminRoot" ]
   config.admin_root_name = "Admin"
   config.layout = lambda do |controller:|
     next "application" if controller.devise_controller?
