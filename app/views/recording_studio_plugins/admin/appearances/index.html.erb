@@ -21,9 +21,9 @@
   ) %>
 <% else %>
   <%= render FlatPack::Table::Component.new(data: @rows) do |table| %>
-    <% table.column(title: plugin_copy("admin.picture"), html: ->(row) { plugin_appearance_picture(row) }) %>
-    <% table.column(title: plugin_copy("admin.display_name"), html: ->(row) { row[:name] }) %>
-    <% table.column(title: plugin_copy("admin.default_name"), html: ->(row) { row[:registered_name] }) %>
-    <% table.column(title: plugin_copy("admin.edit"), html: ->(row) { plugin_appearance_edit_link(row) }) %>
+    <% table.column(title: plugin_copy("admin.picture")) { |row| plugin_admin_picture_cell(row) } %>
+    <% table.column(title: plugin_copy("admin.display_name")) { |row| row[:name] } %>
+    <% table.column(title: plugin_copy("admin.default_name")) { |row| row[:registered_name] } %>
+    <% table.column(title: plugin_copy("admin.edit")) { |row| plugin_admin_edit_cell(row) } %>
   <% end %>
 <% end %>

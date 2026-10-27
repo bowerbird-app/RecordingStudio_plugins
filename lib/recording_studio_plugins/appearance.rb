@@ -161,8 +161,15 @@ module RecordingStudioPlugins
 
         kept(relation).includes(:recordable).each_with_object({}) do |recording, map|
           plugin_key = recording.recordable&.plugin_key
-          map[plugin_key] = recording if plugin_key.present?
+          next if plugin_key.blank?
+
+          current = map[plugin_key]
+          map[plugin_key] = recording if current.nil? || prefer_recording?(recording, current)
         end
+      end
+
+      def prefer_recording?(candidate, current)
+        (candidate.updated_at || Time.at(0)) >= (current.updated_at || Time.at(0))
       end
 
       def appearance_relation

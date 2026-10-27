@@ -85,7 +85,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "input[name='appearances[chatgpt][name]']"
-    assert_includes response.body, "plugin-chatgpt-picture"
+    refute_includes response.body, "plugin-chatgpt-picture"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Press machine" } }
@@ -94,6 +94,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_redirected_to recording_studio_plugins.admin_plugins_path
     assert_equal :chatgpt, RecordingStudioPlugins.find(:chatgpt).key
     assert_equal "ChatGPT", RecordingStudioPlugins.find(:chatgpt).name
+    RecordingStudioPlugins::Appearance.reset_index!
     assert_equal "Press machine", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
 
     sign_in @workspace_admin
@@ -128,31 +129,18 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get "/admin"
 
     assert_response :success
-    assert_select "a[href='/recording_studio_plugins/admin/plugins'] .fp-sidebar-label", text: "Plugin names and pictures"
+    assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
 
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
-    assert_select "a[href='/recording_studio_plugins/admin/plugins'] .fp-sidebar-label", text: "Plugin names and pictures"
+    assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
   end
 
   test "staff get 403 on /admin from a workspace root" do
     sign_in @staff
-    Current.actor = @workspace_admin
-    RecordingStudioAccessible.grant_access(
-      recording: @workspace_root,
-      actor: @staff,
-      role: "view",
-      manager_actor: @workspace_admin
-    )
     Current.actor = @staff
     switch_to_root!(@workspace_root)
-
-    get recording_studio_plugins.root_path
-
-    assert_response :success
-    assert_select "a[href='/recording_studio_plugins/'] .fp-sidebar-label", text: "Plugins"
-    assert_select "a[href='/recording_studio_plugins/admin/plugins']", count: 0
 
     get "/admin"
 

@@ -5,7 +5,6 @@ module RecordingStudioPlugins
     class AppearancesController < ApplicationController
       include StaffAccess
 
-      helper AppearancesHelper
       helper RecordingStudioAttachable::ApplicationHelper
       helper Rails.application.routes.mounted_helpers
       helper_method :recording_direct_uploads_path
@@ -72,21 +71,19 @@ module RecordingStudioPlugins
       end
 
       def save_name(key)
-        attrs = appearance_params[key.to_s] || appearance_params[key.to_sym]
-        Appearance.update_name!(key, name: attrs&.fetch(:name, nil), actor: staff_actor)
+        Appearance.update_name!(key, name: appearance_name_param(key), actor: staff_actor)
       end
 
-      def appearance_params
+      def appearance_name_param(key)
         raw = params[:appearances]
-        return {} if raw.blank?
+        return if raw.blank?
 
         hash = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw.to_h
-        hash.each_with_object({}) do |(key, attrs), allowed|
-          next unless key.to_s.match?(/\A[a-z][a-z0-9_]*\z/)
+        attrs = hash.stringify_keys[key.to_s]
+        return if attrs.blank?
 
-          values = attrs.respond_to?(:to_h) ? attrs.to_h : {}
-          allowed[key] = { name: values["name"] || values[:name] }
-        end
+        values = attrs.respond_to?(:to_h) ? attrs.to_h : {}
+        values.stringify_keys["name"]
       end
 
       def recording_direct_uploads_path(recording, **)
