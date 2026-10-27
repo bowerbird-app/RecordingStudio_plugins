@@ -6,6 +6,7 @@ module RecordingStudioPlugins
       extend ActiveSupport::Concern
 
       included do
+        include RecordingStudioPlugins::Copy
         before_action :authorize_plugin_staff!
         rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
         rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden
@@ -48,10 +49,6 @@ module RecordingStudioPlugins
         elsif respond_to?(:current_user)
           current_user
         end
-      end
-
-      def plugin_copy(key, default: nil)
-        RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
       end
 
       def plugin_admin_back_href
