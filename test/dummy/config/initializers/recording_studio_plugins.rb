@@ -10,7 +10,7 @@ RecordingStudioPlugins.configure do |config|
   config.admin_root_name = "Admin"
   config.layout = lambda do |controller:|
     next "application" if controller.devise_controller?
-    next "recording_studio/blank" if controller.is_a?(RecordingStudioPlugins::Admin::AppearancesController)
+    next "recording_studio/blank" if controller.controller_path == "recording_studio_plugins/admin/appearances"
 
     nil
   end
