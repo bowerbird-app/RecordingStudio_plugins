@@ -13,7 +13,7 @@ gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_access
 # https://github.com/bowerbird-app/RecordingStudio_Oauth/pull/69
 gem "recording_studio_oauth", github: "bowerbird-app/RecordingStudio_Oauth",
                               branch: "cursor/inbound-plugin-key-e105"
-# Required by oauth 0.17.0 (GitHub-only; not on RubyGems).
+# Required by oauth >= 0.18.0 (GitHub-only; not on RubyGems).
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.2.0"
 gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.16.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.21.1"
