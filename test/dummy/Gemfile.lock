@@ -8,6 +8,26 @@ GIT
       rails (>= 8.1.0)
 
 GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_Dropbox.git
+  revision: 56cf5f78070994b162cdd57fd2dc5c2b5722c18f
+  ref: 56cf5f78070994b162cdd57fd2dc5c2b5722c18f
+  specs:
+    recording_studio_dropbox (0.4.1)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_oauth (>= 0.17.0, < 1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_GoogleDrive.git
+  revision: 4d3ef7dc6a9dde24a54bfcb6c7c1dbde31cbcaea
+  ref: 4d3ef7dc6a9dde24a54bfcb6c7c1dbde31cbcaea
+  specs:
+    recording_studio_google_drive (0.5.1)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_oauth (>= 0.17.0, < 1.0)
+
+GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_Oauth.git
   revision: 138de2692aa5a7f889113a4f564f1cc5ada64771
   tag: v0.19.0
@@ -582,6 +602,8 @@ DEPENDENCIES
   recording_studio_api!
   recording_studio_attachable!
   recording_studio_cache!
+  recording_studio_dropbox!
+  recording_studio_google_drive!
   recording_studio_logs!
   recording_studio_metrics!
   recording_studio_oauth!
@@ -719,6 +741,8 @@ CHECKSUMS
   recording_studio_api (0.14.0)
   recording_studio_attachable (0.22.0)
   recording_studio_cache (0.5.0)
+  recording_studio_dropbox (0.4.1)
+  recording_studio_google_drive (0.5.1)
   recording_studio_logs (0.4.1)
   recording_studio_metrics (0.5.0)
   recording_studio_oauth (0.19.0)
