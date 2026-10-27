@@ -12,9 +12,23 @@ module RecordingStudioPlugins
 
     def show
       @listing = directory_listing
-      return if @listing
+      unless @listing
+        head :not_found
+        return
+      end
 
-      head :not_found
+      @people = @listing.inbound_people if inbound_people_allowed?
+    end
+
+    def people
+      @listing = directory_listing
+      unless inbound_people_allowed?
+        head :not_found
+        return
+      end
+
+      @people = @listing.inbound_people
+      render layout: false
     end
 
     private
@@ -68,7 +82,12 @@ module RecordingStudioPlugins
     end
 
     def can_admin_plugins?
-      directory_allowed?(:admin)
+      @can_admin_plugins = directory_allowed?(:admin) if @can_admin_plugins.nil?
+      @can_admin_plugins
+    end
+
+    def inbound_people_allowed?
+      @listing&.user? && can_admin_plugins?
     end
   end
 end

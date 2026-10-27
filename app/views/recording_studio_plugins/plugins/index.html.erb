@@ -1,9 +1,5 @@
-<% recording_studio_page_nav(title: plugin_copy("directory.title")) %>
-
-<%= render FlatPack::PageTitle::Component.new(
-  title: plugin_copy("directory.title"),
-  subtitle: plugin_copy("directory.description")
-) %>
+<% content_for :title, plugin_copy("directory.title") %>
+<% content_for :subtitle, plugin_copy("directory.description") %>
 
 <% if @listings.empty? %>
   <%= render FlatPack::EmptyState::Component.new(
@@ -14,7 +10,10 @@
 <% else %>
   <ul class="grid grid-cols-1 md:grid-cols-2 gap-3" role="list">
     <% @listings.each do |listing| %>
-      <%= render "listing", listing: listing %>
+      <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
     <% end %>
   </ul>
+  <% @listings.select(&:user?).each do |listing| %>
+    <%= render "inbound_modal", listing: listing %>
+  <% end %>
 <% end %>

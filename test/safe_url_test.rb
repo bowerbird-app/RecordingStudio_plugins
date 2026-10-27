@@ -8,6 +8,9 @@ class SafeUrlTest < Minitest::Test
     assert_equal "/plugins/dropbox", RecordingStudioPlugins::SafeUrl.allowed("/plugins/dropbox")
     assert RecordingStudioPlugins::SafeUrl.external?("https://example.com/docs")
     refute RecordingStudioPlugins::SafeUrl.external?("/plugins/dropbox")
+    assert_equal "https://example.com/docs", RecordingStudioPlugins::SafeUrl.https_only("https://example.com/docs")
+    assert_nil RecordingStudioPlugins::SafeUrl.https_only("/plugins/dropbox")
+    assert_nil RecordingStudioPlugins::SafeUrl.https_only("http://example.com")
   end
 
   def test_rejects_unsafe_urls

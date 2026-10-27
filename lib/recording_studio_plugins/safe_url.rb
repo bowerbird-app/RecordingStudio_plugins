@@ -17,6 +17,11 @@ module RecordingStudioPlugins
       nil
     end
 
+    def https_only(value)
+      text = allowed(value)
+      text if external?(text)
+    end
+
     def external?(value)
       allowed(value).to_s.start_with?("https://")
     end

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "recording_studio_plugins/safe_url"
+
 module RecordingStudioPlugins
   class Definition
-    FIELDS = %i[key name description category icon provider position owner kind].freeze
+    FIELDS = %i[key name description category icon provider position owner kind setup_url].freeze
 
     attr_reader(*FIELDS)
 
@@ -11,6 +13,7 @@ module RecordingStudioPlugins
       require_text(attributes, :name)
       require_text(attributes, :owner)
       assert_category(attributes[:category])
+      assert_setup_url(attributes[:setup_url])
       new(**attributes)
     end
 
@@ -25,13 +28,23 @@ module RecordingStudioPlugins
       raise UnknownCategory, "#{category} is not a plugin category"
     end
 
+    def self.assert_setup_url(value)
+      return if value.nil? || value.to_s.strip.empty?
+      return if SafeUrl.https_only(value)
+
+      raise ArgumentError, "setup_url must be an https URL"
+    end
+
     def initialize(**attributes)
       coerced = self.class.coerce(attributes)
       FIELDS.each { |field| instance_variable_set(:"@#{field}", coerced[field]) }
     end
 
     def self.coerce(attributes)
-      typed_fields(attributes).merge(kind: attributes[:kind]&.to_sym)
+      typed_fields(attributes).merge(
+        kind: attributes[:kind]&.to_sym,
+        setup_url: attributes[:setup_url].to_s
+      )
     end
 
     def self.typed_fields(attributes)
@@ -50,6 +63,10 @@ module RecordingStudioPlugins
 
     def root?
       kind == :root
+    end
+
+    def user?
+      kind == :user
     end
 
     def override(values)

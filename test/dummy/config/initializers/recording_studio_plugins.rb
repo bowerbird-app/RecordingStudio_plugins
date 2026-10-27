@@ -6,7 +6,19 @@ RecordingStudioPlugins.configure do |config|
   # config.overrides = {}
   # config.extra_categories = []
   config.enabled_plugins = %i[google_drive dropbox]
+  config.layout = ->(controller:) { "application" if controller.devise_controller? }
 end
+
+RecordingStudioPlugins.register_mcp_client(
+  :chatgpt,
+  setup_url: "https://example.com/how-to-connect-chatgpt",
+  owner: "dummy"
+)
+RecordingStudioPlugins.register_mcp_client(
+  :grok_bot,
+  setup_url: "https://example.com/how-to-connect-grok-bot",
+  owner: "dummy"
+)
 
 RecordingStudioGoogleDrive.register_oauth_provider if defined?(RecordingStudioGoogleDrive)
 RecordingStudioDropbox.register_oauth_provider if defined?(RecordingStudioDropbox)

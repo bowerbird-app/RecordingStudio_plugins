@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-10-27
+
+### Added
+- Inbound MCP client plugins in the directory: ChatGPT and Grok Bot (`kind: :user`). Hosts register them with `RecordingStudioPlugins.register_mcp_client`. Status comes from Oauth `inbound_connection_status` / `inbound_connections`. There is no Connect or Disconnect on those rows. A "How to connect" link renders when `setup_url` is an https URL.
+- Workspace admins see workspace plugins and inbound plugins. On the directory, the connected-people count sits under the plugin name. Clicking an inbound plugin opens a modal; the people list (name, role, app, connected since, last used) loads in that modal when it opens, and still on the detail page. Other members see inbound plugins with their own connected or not connected status. They do not see counts, connected-people names, the modal people section, or workspace plugins.
+- `McpClientStatus` maps Oauth inbound answers onto the existing `Status` type. `setup_url` on registration is checked with `SafeUrl` (https only). `config.actor_label` names people on the list (default: name, then email, then "User"), loaded in one query per actor type when the modal or detail page asks.
+
+### Changed
+- **BREAKING:** `recording_studio >= 6.1.0` and `recording_studio_oauth >= 0.19.0`. Oauth 0.19.0 is the first release with `inbound_connection_status` / `inbound_connections` / `plugin_key`.
+- Dummy and root GitHub tags: Recording Studio `v4.7.0` → `v6.1.0`, Flatpack `v0.1.213` → `v0.1.320`, Accessible `v0.18.0` → `v0.22.0`, Oauth `v0.19.0`, Admin `v2.2.0` → `v2.7.0`, API `v0.16.0` → `v0.14.0`, Attachable `v0.21.1` → `v0.15.0`, Metrics `v0.6.1` → `v0.5.0`. Cache `v0.5.0`, Logs `v0.4.1`, Site Settings `v0.2.0`, Trashable `v0.11.3` stay. Root Switchable `v0.9.0` → `v0.8.0` (same pin Oauth 0.19 uses; 0.9.0's switch page calls Flatpack APIs this stack does not have). Sibling gemspecs that still require Recording Studio below 6 are widened in `test/support/widen_recording_studio_requirement.rb`. Dummy lists Attachable Library and Placement, and overrides the Root Switchable switch page.
+- `RecordingStudioPlugins.configuration.layout` is `nil` by default. Engine and dummy controllers call `recording_studio_layout`. Page headings come from `content_for :title` and `:subtitle`. Back uses `flat_pack_page_nav`.
+
+### Upgrade notes
+- Point host and dummy Gemfiles at Recording Studio `v6.1.0`, Oauth `v0.19.0`, Flatpack `v0.1.320`, and Accessible `v0.22.0`. Pin Admin `v2.7.0`, API `v0.14.0`, Attachable `v0.15.0`, and Metrics `v0.5.0` so the Oauth 0.19.0 stack resolves. API `v0.14.0` needs Metrics `< 0.6`.
+- Replace `UsesDefaultLayout` / a hard-coded default layout with `recording_studio_layout { RecordingStudioPlugins.configuration.layout }`. Set `config.layout` to `nil`, a layout name, `false`, or `->(controller:) { ... }` (dummy uses the application layout for Devise).
+- Set `content_for :title` (and `:subtitle` when you have one). Do not also render `FlatPack::PageTitle` for that same heading. Replace `recording_studio_page_nav` back arguments with `flat_pack_page_nav`.
+- Run Oauth's migrations so registered apps have `plugin_key`. This gem still has no tables of its own.
+- Register ChatGPT and Grok Bot in the host initializer. Staff set `plugin_key` on the Oauth app; this gem does not.
+- There are no tables to migrate in this gem.
+
 ## [0.5.0] - 2026-10-26
 
 ### Removed
@@ -159,7 +179,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.3.0

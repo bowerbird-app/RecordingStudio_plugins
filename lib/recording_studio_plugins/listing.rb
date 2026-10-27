@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require "recording_studio_plugins/listing/root_action"
+require "recording_studio_plugins/listing/inbound"
 
 module RecordingStudioPlugins
   class Listing
     include RootAction
+    include Inbound
 
-    delegate :key, :name, :description, :icon, :category, :position, :kind, :root?, to: :definition
+    delegate :key, :name, :description, :icon, :category, :position, :kind, :root?, :user?, to: :definition
 
     attr_reader :definition
 
@@ -35,12 +37,14 @@ module RecordingStudioPlugins
     end
 
     def message
+      return status_record&.message if user?
       return unless attention?
 
       status_record.message
     end
 
     def action?(can_edit:)
+      return false if user?
       return false unless can_edit
       return false if status_failed? || (connected? && action_href.blank?)
       return false if rejected_action_url?

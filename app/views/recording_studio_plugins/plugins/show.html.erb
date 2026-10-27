@@ -1,22 +1,21 @@
-<% recording_studio_page_nav(
-  title: @listing.name,
-  page_nav_back_url: root_path,
-  page_nav_back_label: plugin_copy("directory.title")
-) %>
+<% content_for :title, @listing.name %>
+<% content_for :subtitle, @listing.description if @listing.description.present? %>
+<% flat_pack_page_nav(
+     round: true,
+     style: :default,
+     back_href: root_path,
+     back_tooltip: plugin_copy("directory.title")
+   ) %>
 
 <%= render FlatPack::Shared::IconComponent.new(name: @listing.icon, size: :xl) %>
 
-<%= render FlatPack::PageTitle::Component.new(
-  title: @listing.name,
-  subtitle: @listing.description
-) do |page_title| %>
-  <% page_title.slot do %>
-    <%= plugin_badge(@listing) %>
-    <%= plugin_action(@listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?) %>
-  <% end %>
-<% end %>
+<div class="flex flex-wrap items-center gap-3">
+  <%= plugin_inbound_status(@listing) || plugin_badge(@listing) %>
+  <%= plugin_setup_link(@listing) %>
+  <%= plugin_action(@listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?) %>
+</div>
 
-<% if @listing.message.present? %>
+<% if @listing.message.present? && !@listing.user? %>
   <p><%= @listing.message %></p>
 <% end %>
 
@@ -39,6 +38,10 @@
   <% plugin_paragraphs(@listing.usage_instructions).each do |paragraph| %>
     <p><%= paragraph %></p>
   <% end %>
+<% end %>
+
+<% if @listing.user? && can_admin_plugins? %>
+  <%= render "inbound_people", people: @people %>
 <% end %>
 
 <% if @listing.documentation_url %>

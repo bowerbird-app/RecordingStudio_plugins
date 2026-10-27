@@ -34,6 +34,10 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Plugins"
     assert_select "ul[role='list'][class*='grid'][class*='grid-cols-1'][class*='md:grid-cols-2']"
     assert_select "li[role='listitem']"
+    assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
+    assert_select "button[data-modal-id=?]", "plugin-grok_bot-people", text: "Grok Bot"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:chatgpt)
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:grok_bot)
     assert_select "a[href=?]", recording_studio_plugins.plugin_path(:google_drive), text: "Google Drive"
     assert_select "a[href=?]", recording_studio_plugins.plugin_path(:dropbox), text: "Dropbox"
     assert_select "a[href=?]", recording_studio_plugins.plugin_path(:wordpress), text: "WordPress"
@@ -139,7 +143,11 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "WordPress"
+    assert_includes response.body, "ChatGPT"
+    assert_includes response.body, "Grok Bot"
+    assert_includes response.body, "Not connected"
     assert_includes response.body, "Attention"
+    refute_includes response.body, "people connected"
     refute_includes response.body, "Google Drive"
     refute_includes response.body, "Dropbox"
     refute_includes response.body, ">Connect<"
