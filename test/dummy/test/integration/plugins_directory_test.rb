@@ -54,7 +54,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "a[href*='category=']", count: 0
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     assert_includes response.body, @root.recordable.name
-    assert_select "form[action*='root_switch']"
+    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
     assert_directory_apostrophes
     refute_includes response.body, "Not connected"
     refute_includes response.body, "0 people connected"

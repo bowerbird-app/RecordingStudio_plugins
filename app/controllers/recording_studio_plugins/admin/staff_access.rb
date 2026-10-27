@@ -7,6 +7,7 @@ module RecordingStudioPlugins
 
       included do
         include RecordingStudioPlugins::Copy
+
         before_action :authorize_plugin_staff!
         rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
         rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden

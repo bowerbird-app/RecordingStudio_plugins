@@ -75,7 +75,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Plugin names and pictures"
-    assert_select "form[action*='root_switch']"
+    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     RecordingStudioPlugins.all.each do |definition|
       assert_includes response.body, RecordingStudioPlugins::Appearance.display_name(definition)
@@ -132,7 +132,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
-    assert_select "form[action*='root_switch']"
+    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
 
     get recording_studio_plugins.admin_plugins_path
 

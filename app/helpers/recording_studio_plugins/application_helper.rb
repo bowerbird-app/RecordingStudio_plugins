@@ -3,6 +3,7 @@
 module RecordingStudioPlugins
   module ApplicationHelper
     include Copy
+
     def plugin_badge(listing)
       return if listing.badge_style.nil?
 
@@ -110,23 +111,13 @@ module RecordingStudioPlugins
     end
 
     def plugin_icon(image_url:, alt:, size: :sm)
-      if image_url.present?
-        return render FlatPack::Avatar::Component.new(
-          src: image_url,
-          size: size,
-          shape: :square,
-          alt: alt
-        )
-      end
+      render FlatPack::Avatar::Component.new(**plugin_icon_attributes(image_url:, alt:, size:))
+    end
 
-      render FlatPack::Avatar::Component.new(
-        size: size,
-        shape: :square,
-        icon: "puzzle-piece",
-        alt: "",
-        show_tooltip: false,
-        aria: { hidden: true }
-      )
+    def plugin_icon_attributes(image_url:, alt:, size:)
+      return { src: image_url, size:, shape: :square, alt: } if image_url.present?
+
+      { size:, shape: :square, icon: "puzzle-piece", alt: "", show_tooltip: false, aria: { hidden: true } }
     end
   end
 end
