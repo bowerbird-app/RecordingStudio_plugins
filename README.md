@@ -39,7 +39,7 @@ RecordingStudioPlugins.all                        # ordered Definitions, overrid
 RecordingStudioPlugins.available(context:)        # all, minus hidden and unavailable
 ```
 
-Metadata is `key`, `name`, `description`, `category`, `icon`, `provider`, `position`, and `owner`. `icon` is a Heroicon name. `category` must be a known category or registration raises `RecordingStudioPlugins::UnknownCategory`. Order is `position`, then `name`.
+Metadata is `key`, `name`, `description`, `category`, `icon`, `provider`, `position`, `owner`, `kind`, and `setup_url`. `icon` is a Heroicon name. `category` must be a known category or registration raises `RecordingStudioPlugins::UnknownCategory`. `setup_url` is optional and must be `https` (the same `SafeUrl` check as other links, https only). Order is `position`, then `name`.
 
 Registering the same key with the same `owner` replaces the definition, so reloads are safe. The same key with a different `owner` raises `RecordingStudioPlugins::RegistryConflict`.
 
@@ -83,7 +83,8 @@ The directory is a two-column list of items. Each row is the plugin name (linked
 - `state: :connected` shows a green badge reading "Connected" on the detail page.
 - `state: :attention` shows an amber badge reading "Attention". The detail page also shows `message`. An action renders when the provider supplies one.
 - Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
-- There is no "Not connected" badge.
+- Inbound MCP clients (ChatGPT, Grok Bot) have no Connect or Disconnect button. The row shows "Connected" or "Not connected", a people count for workspace admins, and a "How to connect" link when `setup_url` is set.
+- There is no "Not connected" badge on other plugins.
 
 This gem does not decide health, heartbeats, or staleness. The provider decides.
 
@@ -106,10 +107,13 @@ RecordingStudioPlugins.configure do |config|
   config.overrides = { google_drive: { name: "Drive", position: 1 } }
   config.extra_categories = [:press]
   config.enabled_plugins = %i[google_drive dropbox]
+  config.actor_label = ->(person) { person&.name.presence || person&.email.presence || "User" }
 end
 ```
 
-Default `enabled_plugins` is empty. Nothing from Oauth is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Only providers with `kind: :root` appear in this directory for now.
+Default `enabled_plugins` is empty. Nothing from Oauth outbound is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Outbound providers with `kind: :root` appear for workspace admins. Inbound MCP clients are registered by the host (below), not through `enabled_plugins`.
+
+`actor_label` names people on an inbound plugin's detail page. The default is `name`, then `email`, then `"User"`. The directory loads those people in one query per actor type.
 
 The host still registers the provider with Oauth:
 
@@ -118,15 +122,28 @@ RecordingStudioGoogleDrive.register_oauth_provider
 RecordingStudioDropbox.register_oauth_provider
 ```
 
+## Inbound MCP clients
+
+ChatGPT and Grok Bot connect from the client, not from this directory. The host registers them. This gem never writes Oauth `plugin_key`; staff set that on the registered app in Oauth admin.
+
+```ruby
+RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://help.example.com/chatgpt")
+RecordingStudioPlugins.register_mcp_client(:grok_bot, setup_url: "https://help.example.com/grok")
+```
+
+Display name, description, category, and position come from `KnownProviders`, same as Google Drive and Dropbox. Status comes from `RecordingStudioOauth.inbound_connection_status` and `inbound_connections`, always for the current workspace.
+
 ## Root plugins and who sees what
 
-Workspace members with `:view` can open the directory. Plugins from `RecordingStudioPlugins.register` stay visible to them.
+Workspace members with `:view` can open the directory. Plugins from `RecordingStudioPlugins.register` stay visible to them, including inbound MCP clients (`kind: :user`).
 
-Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak.
+Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak. Non-admins never see workspace plugins or connected-people counts. Status does not carry across workspaces.
 
 Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain link.
 
-Status comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
+Status for root plugins comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
+
+Inbound MCP clients use `McpClientStatus`: connected or not connected for that person in this workspace. Admins also see how many people are connected, and the detail page lists name, role, app, connected since, and last used. Non-admins see only their own status. Tokens never appear.
 
 This gem does not display or log tokens.
 
@@ -136,9 +153,9 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 
 | Gem | Owns |
 |---|---|
-| Recording Studio Plugins | Registry, directory page, detail page, status display, display names for known Oauth providers |
+| Recording Studio Plugins | Registry, directory page, detail page, status display, display names for known Oauth providers and inbound MCP clients |
 | Recording Studio Attachable | Google Drive and Dropbox picking, import, and their OAuth. Tokens live in the Rails session, not on the workspace. |
-| Recording Studio OAuth | Outbound provider registry, connection status, Connect and Disconnect routes, tokens |
+| Recording Studio OAuth | Outbound provider registry, inbound plugin lookup, connection status, Connect and Disconnect routes, tokens |
 | Recording Studio MCP | Remote MCP HTTP adapter over the OAuth grant. No installation or usage signal. |
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |

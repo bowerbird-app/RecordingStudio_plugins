@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.5.0", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.6.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
@@ -17,7 +17,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.196"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.18"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_oauth", ">= 0.17.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_oauth", ">= 0.18.0"'
   end
 
   def test_gemspec_excludes_cursor_config
@@ -51,7 +51,9 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes gemfile, 'tag: "v4.6.0"'
     refute_includes gemfile, 'tag: "v4.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.17.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth"'
+    assert_includes gemfile, 'branch: "cursor/inbound-plugin-key-e105"'
+    refute_includes gemfile, 'tag: "v0.17.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.16.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.21.1"'
@@ -113,6 +115,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert role_migration, "expected role-column migration in dummy db/migrate"
     assert_includes File.read(role_migration), "change_column :recording_studio_accesses, :role, :string"
 
+    assert_includes schema, 't.string "plugin_key"'
+    assert_includes schema, "index_recording_studio_oauth_clients_on_plugin_key"
     assert_includes schema, 'create_table "recording_studio_oauth_outbound_connections"'
     assert_includes schema, 'create_table "recording_studio_access_constraints"'
     assert_includes schema, 'create_table "recording_studio_access_rules"'
@@ -218,12 +222,17 @@ class RecordingStudioPluginsTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "RecordingStudioPlugins.register"
+    assert_includes readme, "register_mcp_client"
     assert_includes readme, "available?"
     assert_includes readme, "RecordingStudioPlugins::Status"
     assert_includes readme, "RecordingStudioPlugins::Context"
     assert_includes readme, "hidden_keys"
     assert_includes readme, "enabled_plugins"
     assert_includes readme, "kind: :root"
+    assert_includes readme, "kind: :user"
+    assert_includes readme, "inbound_connection_status"
+    assert_includes readme, "McpClientStatus"
+    assert_includes readme, "setup_url"
     assert_includes readme, "Oauth is a hard dependency"
     assert_includes readme, "Admin, API, Cache, Metrics, Site Settings, Trashable"
     assert_includes readme, "Recording Studio MCP"

@@ -2,6 +2,8 @@
 
 module RecordingStudioPlugins
   class Configuration
+    include ActorLabelConfig
+
     DEFAULT_CATEGORIES = %i[ai_agents storage social websites automation other].freeze
 
     attr_reader :hooks
@@ -13,6 +15,7 @@ module RecordingStudioPlugins
       @overrides = {}
       @extra_categories = []
       @enabled_plugins = []
+      @actor_label = nil
       @hooks = RecordingStudio::Hooks.new
     end
 
@@ -45,30 +48,22 @@ module RecordingStudioPlugins
       (@overrides[key.to_s] || {}).dup
     end
 
-    def extra_categories
-      @extra_categories.dup
-    end
+    def extra_categories = @extra_categories.dup
 
     def extra_categories=(categories)
       @extra_categories = Array(categories).map(&:to_sym)
     end
 
-    def enabled_plugins
-      @enabled_plugins.dup
-    end
+    def enabled_plugins = @enabled_plugins.dup
 
     def enabled_plugins=(keys)
       @enabled_plugins = Array(keys).map(&:to_sym)
     end
 
-    def categories
-      (DEFAULT_CATEGORIES + @extra_categories).uniq
-    end
+    def categories = (DEFAULT_CATEGORIES + @extra_categories).uniq
 
     def category?(category)
-      return false if category.nil? || category.to_s.strip.empty?
-
-      categories.include?(category.to_sym)
+      category.to_s.strip.present? && categories.include?(category.to_sym)
     end
 
     def to_h

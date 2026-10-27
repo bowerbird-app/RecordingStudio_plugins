@@ -29,6 +29,8 @@ class BootTest < Minitest::Test
   def test_changelog_records_upgrade_notes_for_this_version
     changelog = File.read(File.expand_path("../CHANGELOG.md", __dir__))
 
+    assert_includes changelog, "## [0.6.0]"
+    assert_includes changelog, "cursor/inbound-plugin-key-e105"
     assert_includes changelog, "## [0.4.0]"
     assert_includes changelog, "There are no tables to migrate."
     assert_includes changelog, "**BREAKING:**"

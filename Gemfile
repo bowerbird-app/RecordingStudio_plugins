@@ -9,7 +9,10 @@ gemspec
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
-gem "recording_studio_oauth", github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.17.0"
+# TEMPORARY: re-pin to tag v0.18.0 after Oauth #69 is merged and tagged.
+# https://github.com/bowerbird-app/RecordingStudio_Oauth/pull/69
+gem "recording_studio_oauth", github: "bowerbird-app/RecordingStudio_Oauth",
+                              branch: "cursor/inbound-plugin-key-e105"
 # Required by oauth 0.17.0 (GitHub-only; not on RubyGems).
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.2.0"
 gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.16.0"

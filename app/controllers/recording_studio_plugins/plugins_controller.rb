@@ -12,9 +12,12 @@ module RecordingStudioPlugins
 
     def show
       @listing = directory_listing
-      return if @listing
+      unless @listing
+        head :not_found
+        return
+      end
 
-      head :not_found
+      @people = @listing.inbound_people if @listing.user? && can_admin_plugins?
     end
 
     private

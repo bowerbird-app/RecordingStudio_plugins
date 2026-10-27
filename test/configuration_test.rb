@@ -14,6 +14,14 @@ class ConfigurationTest < Minitest::Test
     assert_empty @configuration.extra_categories
     assert_empty @configuration.enabled_plugins
     assert_equal %i[ai_agents storage social websites automation other], @configuration.categories
+    named = Struct.new(:name, :email).new("Kit", "kit@example.com")
+    emailed = Struct.new(:name, :email).new(nil, "kit@example.com")
+    blank = Struct.new(:name, :email).new(nil, nil)
+
+    assert_equal "Kit", @configuration.actor_label.call(named)
+    assert_equal "kit@example.com", @configuration.actor_label.call(emailed)
+    assert_equal "User", @configuration.actor_label.call(blank)
+    assert_equal "User", @configuration.actor_label.call(nil)
     assert_instance_of RecordingStudio::Hooks, @configuration.hooks
   end
 
@@ -77,6 +85,19 @@ class ConfigurationTest < Minitest::Test
 
     assert_equal 2, result.fetch(:hooks_registered).fetch(:before_initialize)
     assert_equal 1, result.fetch(:hooks_registered).fetch(:after_service)
+  end
+
+  def test_actor_label_override_and_reset
+    @configuration.actor_label = ->(_actor) { "Nickname" }
+
+    assert_equal "Nickname", @configuration.actor_label.call(nil)
+
+    @configuration.actor_label = nil
+    assert_equal "User", @configuration.actor_label.call(nil)
+  end
+
+  def test_actor_label_must_be_callable
+    assert_raises(ArgumentError) { @configuration.actor_label = "Kit" }
   end
 
   def test_configure_without_block_is_safe

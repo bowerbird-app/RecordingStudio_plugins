@@ -5,6 +5,8 @@ require "recording_studio_accessible"
 require "recording_studio_oauth"
 require "flat_pack"
 require "recording_studio_plugins/version"
+require "recording_studio_plugins/actor_label"
+require "recording_studio_plugins/actor_label_config"
 require "recording_studio_plugins/configuration"
 require "recording_studio_plugins/definition"
 require "recording_studio_plugins/registry"
@@ -15,6 +17,8 @@ require "recording_studio_plugins/listing"
 require "recording_studio_plugins/known_providers"
 require "recording_studio_plugins/oauth_paths"
 require "recording_studio_plugins/oauth_adapter"
+require "recording_studio_plugins/mcp_client_status"
+require "recording_studio_plugins/inbound_people"
 require "recording_studio_plugins/oauth_directory"
 require "recording_studio_plugins/engine"
 
@@ -38,6 +42,23 @@ module RecordingStudioPlugins
 
     def register(key, **attributes)
       registry.register(Definition.build(key: key, **attributes))
+    end
+
+    def register_mcp_client(key, setup_url: nil, owner: "host")
+      register(key, **mcp_client_attributes(key, setup_url: setup_url, owner: owner))
+    end
+
+    def mcp_client_attributes(key, setup_url:, owner:)
+      meta = KnownProviders.fetch(key)
+      raise ArgumentError, "#{key} is not a known MCP client plugin" if meta.nil?
+
+      meta.slice(:name, :description, :category, :position).merge(
+        icon: meta[:icon].to_s,
+        provider: McpClientStatus.new(key),
+        owner: owner,
+        kind: :user,
+        setup_url: setup_url
+      )
     end
 
     def find(key)

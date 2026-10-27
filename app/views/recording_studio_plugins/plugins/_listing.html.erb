@@ -1,6 +1,7 @@
 <% trailing = capture do %>
   <span class="inline-flex items-center gap-2">
     <%= plugin_directory_status(listing) %>
+    <%= plugin_setup_link(listing) %>
     <%= plugin_action(listing, can_edit: can_edit_plugins?, can_admin: can_admin_plugins?, directory: true) %>
   </span>
 <% end %>

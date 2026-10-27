@@ -78,6 +78,18 @@ class RegistryTest < Minitest::Test
     assert_equal "Google Drive", RecordingStudioPlugins.find(:google_drive).name
   end
 
+  def test_setup_url_must_be_https
+    error = assert_raises(ArgumentError) do
+      register(:docs, owner: "my_app", setup_url: "/relative")
+    end
+
+    assert_includes error.message, "https"
+
+    register(:docs, owner: "my_app", setup_url: "https://example.com/docs")
+
+    assert_equal "https://example.com/docs", RecordingStudioPlugins.find(:docs).setup_url
+  end
+
   def test_override_ignores_kind_and_owner
     register(:google_drive, owner: "my_app", name: "Google Drive")
     definition = RecordingStudioPlugins.find(:google_drive)

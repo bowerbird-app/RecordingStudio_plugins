@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-10-27
+
+### Added
+- Inbound MCP client plugins in the directory: ChatGPT and Grok Bot (`kind: :user`). Hosts register them with `RecordingStudioPlugins.register_mcp_client`. Status comes from Oauth `inbound_connection_status` / `inbound_connections`. There is no Connect or Disconnect on those rows. A "How to connect" link renders when `setup_url` is an https URL.
+- Workspace admins see workspace plugins and inbound plugins, including a connected-people count and a detail list (name, role, app, connected since, last used). Other members see inbound plugins with their own connected or not connected status. They do not see counts, connected-people names, or workspace plugins.
+- `McpClientStatus` maps Oauth inbound answers onto the existing `Status` type. `setup_url` on registration is checked with `SafeUrl` (https only). `config.actor_label` names people on the detail list (default: name, then email, then "User"), loaded in one query per actor type.
+
+### Changed
+- **BREAKING:** `recording_studio_oauth >= 0.18.0`. The Gemfile currently pins Oauth to git branch `cursor/inbound-plugin-key-e105` (Oauth #69). **TEMPORARY:** re-pin to tag `v0.18.0` after that PR is merged and tagged.
+
+### Upgrade notes
+- Point host and dummy Gemfiles at Oauth `>= 0.18.0`. Until Oauth #69 is tagged, use branch `cursor/inbound-plugin-key-e105`, then switch to `v0.18.0`.
+- Run Oauth's migrations so registered apps have `plugin_key`. This gem still has no tables of its own.
+- Register ChatGPT and Grok Bot in the host initializer. Staff set `plugin_key` on the Oauth app; this gem does not.
+- There are no tables to migrate in this gem.
+
 ## [0.5.0] - 2026-10-26
 
 ### Removed
@@ -159,7 +175,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.3.0

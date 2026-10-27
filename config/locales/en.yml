@@ -13,14 +13,26 @@ en:
         setup: How to connect
         usage: How to use
         documentation: Documentation
+        people: Who's connected
+        people_empty: Nobody's connected through here yet.
+        person: Name
+        role: Role
+        app: App
+        connected_since: Connected since
+        last_used: Last used
+        never: Never
       status:
         connected: Connected
+        not_connected: Not connected
         attention: Attention
         setup: Set up
         connect: Connect
         disconnect: Disconnect
         reconnect_action: Reconnect
         reconnect: This connection needs another look.
+        people_connected:
+          one: 1 person connected
+          other: "%{count} people connected"
       forbidden:
         title: You don't have access
         description: Ask someone to invite you to this workspace.

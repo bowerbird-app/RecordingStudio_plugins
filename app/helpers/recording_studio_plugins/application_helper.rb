@@ -9,12 +9,50 @@ module RecordingStudioPlugins
     end
 
     def plugin_directory_status(listing)
+      return plugin_inbound_status(listing) if listing.user?
       return if listing.root? && listing.badge_style == :success
 
       plugin_badge(listing)
     end
 
+    def plugin_inbound_status(listing)
+      return if listing.directory_status_text.blank?
+
+      parts = [tag.span(listing.directory_status_text)]
+      parts << tag.span(listing.people_connected_text) if listing.people_connected_text.present?
+      tag.span(safe_join(parts, " "), class: "inline-flex items-center gap-2")
+    end
+
+    def plugin_setup_link(listing)
+      href = listing.setup_href
+      return if href.blank?
+
+      render FlatPack::Link::Component.new(href: href, target: "_blank") do
+        plugin_copy("detail.setup")
+      end
+    end
+
+    def plugin_people_rows(people)
+      Array(people).map do |row|
+        {
+          name: row[:name],
+          role: row[:role].to_s.humanize,
+          app: row[:app_name],
+          connected_since: plugin_time(row[:connected_at]),
+          last_used: plugin_time(row[:last_used_at])
+        }
+      end
+    end
+
+    def plugin_time(value)
+      return plugin_copy("detail.never") if value.blank?
+
+      I18n.l(value, format: :long)
+    end
+
     def plugin_action(listing, can_edit:, can_admin: false, directory: false)
+      return if listing.user?
+
       allowed = listing.root? ? can_admin : can_edit
       return unless listing.action?(can_edit: allowed)
 
