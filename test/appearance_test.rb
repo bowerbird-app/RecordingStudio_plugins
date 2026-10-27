@@ -110,6 +110,29 @@ class AppearanceTest < Minitest::Test
     assert_nil recordable.name
   end
 
+  def test_replace_image_imports_after_removing_the_existing_picture
+    recording = Object.new
+    file = Struct.new(:original_filename, :content_type).new("chatgpt.png", "image/png")
+    imported = Object.new
+    result = Struct.new(:failure?, :error, :value).new(false, nil, imported)
+    removed = false
+
+    RecordingStudioPlugins::Appearance.stub(:ensure_recording!, ->(*) { recording }) do
+      RecordingStudioPlugins::Appearance.stub(:remove_image!, ->(*) { removed = true }) do
+        RecordingStudioPlugins::Appearance.stub(:recording_for, ->(*) { recording }) do
+          RecordingStudioPlugins::Appearance.stub(:import_attachment!, ->(*_args, **_kwargs) { result }) do
+            RecordingStudioPlugins::Appearance.stub(:reset_index!, -> {}) do
+              assert_equal imported, RecordingStudioPlugins::Appearance.replace_image!(
+                :sample, file: file, actor: Object.new
+              )
+              assert removed
+            end
+          end
+        end
+      end
+    end
+  end
+
   def test_ensure_recording_inserts_when_no_recording_exists
     created = Object.new
     lookups = 0

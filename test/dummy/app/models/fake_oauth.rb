@@ -9,7 +9,7 @@ class FakeOauth
   class << self
     def call(url, params)
       if url.to_s.include?("revoke")
-        [200, {}]
+        [ 200, {} ]
       elsif params["grant_type"] == "refresh_token"
         refresh(params)
       else
@@ -46,17 +46,17 @@ class FakeOauth
     private
 
     def redeem(params)
-      return [401, { "error" => "invalid_client" }] unless credentials_match?(params)
+      return [ 401, { "error" => "invalid_client" } ] unless credentials_match?(params)
 
       entry = take_code(params["code"].to_s)
-      return [400, { "error" => "invalid_grant" }] if entry.nil?
-      return [400, { "error" => "invalid_grant" }] unless verifier_matches?(params["code_verifier"], entry[:challenge])
+      return [ 400, { "error" => "invalid_grant" } ] if entry.nil?
+      return [ 400, { "error" => "invalid_grant" } ] unless verifier_matches?(params["code_verifier"], entry[:challenge])
 
-      [200, entry[:payload]]
+      [ 200, entry[:payload] ]
     end
 
     def refresh(params)
-      return [401, { "error" => "invalid_client" }] unless credentials_match?(params)
+      return [ 401, { "error" => "invalid_client" } ] unless credentials_match?(params)
 
       [
         200,

@@ -234,26 +234,24 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   end
 
   test "connect posts to oauth then lands on the dummy fake provider page" do
-    with_csrf_protection do
-      post "/recording_studio_oauth/outbound/google_drive/connect", params: {
-        owner: "root",
-        root_recording_id: @root.id,
-        return_to: recording_studio_plugins.root_path
-      }
+    post "/recording_studio_oauth/outbound/google_drive/connect", params: {
+      owner: "root",
+      root_recording_id: @root.id,
+      return_to: recording_studio_plugins.root_path
+    }
 
-      assert_response :redirect
-      location = response.redirect_url
-      refute_nil location
-      assert_includes location, "/fake_oauth/authorize"
-      refute_equal recording_studio_plugins.root_path, URI.parse(location).path
+    assert_response :redirect
+    location = response.redirect_url
+    refute_nil location
+    assert_includes location, "/fake_oauth/authorize"
+    refute_equal recording_studio_plugins.root_path, URI.parse(location).path
 
-      follow_redirect!
+    follow_redirect!
 
-      assert_response :success
-      assert_equal "/fake_oauth/authorize", request.path
-      assert_includes response.body, "Fake provider"
-      assert_select "form[action='/fake_oauth/continue']"
-    end
+    assert_response :success
+    assert_equal "/fake_oauth/authorize", request.path
+    assert_includes response.body, "Fake provider"
+    assert_select "form[action='/fake_oauth/continue']"
   end
 
   test "admin sees a connect action that posts to oauth when authorize url is https" do
