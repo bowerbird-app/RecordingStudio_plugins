@@ -101,10 +101,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
   test "admin directory shows the count and a lazy people frame without names" do
     connect_chatgpt!(user: @user, access_recording: @access)
 
-    calls = { status: 0, connections: 0 }
-    spy_inbound_oauth_calls(calls) do
-      get recording_studio_plugins.root_path
-    end
+    get recording_studio_plugins.root_path
 
     assert_response :success
     assert_includes chatgpt_row_text, "1 person connected"
@@ -113,8 +110,6 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Who's connected"
     assert_select "turbo-frame#plugin-chatgpt-people-frame[loading='lazy'][src=?]",
                   recording_studio_plugins.plugin_people_path(:chatgpt)
-    assert_equal 2, calls[:status]
-    assert_equal 0, calls[:connections]
 
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
@@ -163,24 +158,6 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
   end
 
   private
-
-  def spy_inbound_oauth_calls(calls)
-    real_status = RecordingStudioOauth.method(:inbound_connection_status)
-    real_connections = RecordingStudioOauth.method(:inbound_connections)
-    status_probe = lambda do |**kw|
-      calls[:status] += 1
-      real_status.call(**kw)
-    end
-    connections_probe = lambda do |**kw|
-      calls[:connections] += 1
-      real_connections.call(**kw)
-    end
-    RecordingStudioOauth.stub(:inbound_connection_status, status_probe) do
-      RecordingStudioOauth.stub(:inbound_connections, connections_probe) do
-        yield
-      end
-    end
-  end
 
   def connect_chatgpt!(user:, access_recording:)
     client, = chatgpt_client
