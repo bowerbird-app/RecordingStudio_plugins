@@ -15,9 +15,10 @@
     collapse: :menu
   )
   page_nav_right = content_for(:page_nav_right).presence
+  nav_right = safe_join([page_nav_right, page_buttons].compact)
 %>
 <!DOCTYPE html>
-<html <%= tag.attributes(dummy_document_attributes) %>>
+<html class="h-full overflow-hidden overscroll-none" <%= tag.attributes(dummy_document_attributes) %>>
   <head>
     <title><%= document_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -47,35 +48,43 @@
     <%= javascript_importmap_tags if respond_to?(:javascript_importmap_tags) %>
   </head>
 
-  <body class="bg-(--surface-page-background-color) text-(--surface-content-color)" data-recording-studio-default-layout="true">
-    <%= render FlatPack::PageLayout::Component.new(width: :default) do |layout| %>
-      <% if back_row || page_buttons || page_nav_right %>
-        <% layout.top_nav do %>
-          <%= render FlatPack::TopNav::Component.new(padding: :none, size: :lg) do |nav| %>
-            <% nav.left { back_row } if back_row %>
-            <% nav.right { safe_join([page_nav_right, page_buttons].compact) } if page_buttons || page_nav_right %>
-          <% end %>
-        <% end %>
+  <body class="m-0 h-full overflow-hidden overscroll-none bg-(--surface-page-background-color) text-(--surface-content-color)" data-recording-studio-default-layout="true">
+    <%= render FlatPack::SidebarLayout::Component.new(side: :left, storage_key: "flat-pack-sidebar-layout") do |layout| %>
+      <% layout.sidebar do %>
+        <%= render "recording_studio/dummy_sidebar" %>
       <% end %>
 
-      <% if flash[:notice].present? || flash[:alert].present? %>
-        <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
-          <% if flash[:notice].present? %>
-            <%= render FlatPack::Alert::Component.new(description: flash[:notice], style: :success) %>
+      <% layout.main do %>
+        <%= render FlatPack::PageLayout::Component.new(width: :default) do |page| %>
+          <% if back_row || nav_right.present? %>
+            <% page.top_nav do %>
+              <%= render FlatPack::TopNav::Component.new(padding: :none, size: :lg) do |nav| %>
+                <% nav.left { back_row } if back_row %>
+                <% nav.right { nav_right } if nav_right.present? %>
+              <% end %>
+            <% end %>
           <% end %>
-          <% if flash[:alert].present? %>
-            <%= render FlatPack::Alert::Component.new(description: flash[:alert], style: :danger) %>
+
+          <% if flash[:notice].present? || flash[:alert].present? %>
+            <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
+              <% if flash[:notice].present? %>
+                <%= render FlatPack::Alert::Component.new(description: flash[:notice], style: :success) %>
+              <% end %>
+              <% if flash[:alert].present? %>
+                <%= render FlatPack::Alert::Component.new(description: flash[:alert], style: :danger) %>
+              <% end %>
+              <% if heading %>
+                <%= render FlatPack::PageTitle::Component.new(title: heading, subtitle: subtitle) %>
+              <% end %>
+              <%= yield %>
+            <% end %>
+          <% else %>
+            <% if heading %>
+              <%= render FlatPack::PageTitle::Component.new(title: heading, subtitle: subtitle) %>
+            <% end %>
+            <%= yield %>
           <% end %>
-          <% if heading %>
-            <%= render FlatPack::PageTitle::Component.new(title: heading, subtitle: subtitle) %>
-          <% end %>
-          <%= yield %>
         <% end %>
-      <% else %>
-        <% if heading %>
-          <%= render FlatPack::PageTitle::Component.new(title: heading, subtitle: subtitle) %>
-        <% end %>
-        <%= yield %>
       <% end %>
     <% end %>
   </body>

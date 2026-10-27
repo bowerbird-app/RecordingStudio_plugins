@@ -23,16 +23,33 @@ module RecordingStudioPlugins
         assign_rows
       end
 
+      def edit
+        definition = plugin_definition
+        unless definition
+          head :not_found
+          return
+        end
+
+        prepare_edit_recording!(definition)
+        @row = appearance_row(definition)
+      end
+
       def update
         authorize_plugin_staff!(role: :admin)
-        save_names
+        definition = plugin_definition
+        unless definition
+          head :not_found
+          return
+        end
+
+        save_name(definition.key)
         redirect_to admin_plugins_path, notice: plugin_copy("admin.flashes.saved")
       end
 
       def destroy_image
         authorize_plugin_staff!(role: :admin)
         Appearance.remove_image!(params[:key], actor: staff_actor)
-        redirect_to admin_plugins_path, notice: plugin_copy("admin.flashes.picture_removed")
+        redirect_to admin_plugin_edit_path(params[:key]), notice: plugin_copy("admin.flashes.picture_removed")
       end
 
       private
@@ -87,10 +104,30 @@ module RecordingStudioPlugins
         }
       end
 
-      def save_names
-        appearance_params.each do |key, attrs|
-          Appearance.update_name!(key, name: attrs[:name], actor: staff_actor)
-        end
+      def plugin_definition
+        definition = RecordingStudioPlugins.find(params[:key])
+        return if definition.nil? || RecordingStudioPlugins.configuration.hidden?(definition.key)
+
+        definition
+      end
+
+      def prepare_edit_recording!(definition)
+        return unless Appearance.configured?
+        return unless staff_can_change_appearance?
+
+        Appearance.ensure_recording!(definition.key, actor: staff_actor)
+      end
+
+      def staff_can_change_appearance?
+        context = recording_studio_admin_context
+        actor = context.current_actor
+        recording = context.access_recording
+        actor && recording && RecordingStudioAccessible.authorized?(actor:, recording:, role: :admin)
+      end
+
+      def save_name(key)
+        attrs = appearance_params[key.to_s] || appearance_params[key.to_sym]
+        Appearance.update_name!(key, name: attrs&.fetch(:name, nil), actor: staff_actor)
       end
 
       def appearance_params

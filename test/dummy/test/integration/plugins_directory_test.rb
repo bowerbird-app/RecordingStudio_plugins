@@ -37,18 +37,17 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "li[role='listitem']"
     assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
     assert_select "button[data-modal-id=?]", "plugin-grok_bot-people", text: "Grok Bot"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:chatgpt)
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:grok_bot)
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:google_drive), text: "Google Drive"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:dropbox), text: "Dropbox"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:wordpress), text: "WordPress"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:grokbot), text: "Grokbot"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:website_embed), text: "Website embed"
-    assert_includes response.body, "Attention"
+    assert_includes response.body, "Google Drive"
+    assert_includes response.body, "Dropbox"
+    refute_includes response.body, "WordPress"
+    refute_includes response.body, "Website embed"
+    refute_includes response.body, "Grokbot"
     assert_includes response.body, "Connect"
-    assert_includes response.body, "Check connection"
-    assert_includes response.body, "Install"
-    assert_includes response.body, "Set up"
+    assert_select "a[href=?]", "/recording_studio_plugins/", text: "Plugins"
+    assert_select "a[href='/recording_studio_plugins/admin/plugins']", count: 0
+    %w[ChatGPT Grok\ Bot Google\ Drive Dropbox].each do |name|
+      assert_equal 1, directory_rows.count { |row| row.include?(name) }, "#{name} should appear once"
+    end
     assert_select "li[role='listitem'] .flat-pack-list-item-icon", count: 0
     assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='secondary']", text: "Connect"
     assert_select "input[name='q']", count: 0
@@ -72,8 +71,8 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Google Drive"
-    assert_includes response.body, "WordPress"
-    assert_includes response.body, "Grokbot"
+    assert_includes response.body, "ChatGPT"
+    assert_includes response.body, "Grok Bot"
   end
 
   test "directory appearance queries do not grow with plugin count" do
@@ -102,25 +101,18 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "li[role='listitem']", count: 0
   end
 
-  test "detail page shows provider text and escapes html" do
-    register_plugin(:markup, provider: html_provider)
+  test "directory names are escaped" do
+    register_plugin(:markup, name: "<script>alert(1)</script>", provider: html_provider)
 
-    get recording_studio_plugins.plugin_path(:wordpress)
-
-    assert_response :success
-    assert_includes response.body, "Attention"
-    assert_includes response.body, "needs another look"
-    assert_includes response.body, "Check connection"
-
-    get recording_studio_plugins.plugin_path(:markup)
+    get recording_studio_plugins.root_path
 
     assert_response :success
     assert_includes response.body, "&lt;script&gt;alert(1)&lt;/script&gt;"
     refute_includes response.body, "<script>alert(1)</script>"
   end
 
-  test "unknown key is not found" do
-    get recording_studio_plugins.plugin_path(:missing)
+  test "removed detail pages are not found" do
+    get "/recording_studio_plugins/chatgpt"
 
     assert_response :not_found
   end
@@ -161,20 +153,17 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_includes response.body, "WordPress"
     assert_includes response.body, "ChatGPT"
     assert_includes response.body, "Grok Bot"
     assert_includes response.body, "Not connected"
-    assert_includes response.body, "Attention"
     refute_includes response.body, "people connected"
     refute_includes response.body, "Google Drive"
     refute_includes response.body, "Dropbox"
-    refute_includes response.body, ">Connect<"
     refute_includes response.body, ">Check connection<"
     refute_includes response.body, ">Set up<"
   end
 
-  test "root plugin detail is not found without admin access" do
+  test "root plugins are hidden without admin access" do
     viewer = User.create!(
       email: "viewer-show-#{SecureRandom.hex(4)}@example.com",
       password: "Password123!",
@@ -184,9 +173,10 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     sign_in viewer
     switch_to_root!(@root)
 
-    get recording_studio_plugins.plugin_path(:google_drive)
+    get recording_studio_plugins.root_path
 
-    assert_response :not_found
+    assert_response :success
+    refute_includes response.body, "Google Drive"
   end
 
   test "admin sees a connect action that posts to oauth with the workspace" do
@@ -202,9 +192,6 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       refute_includes response.body, 'data-method="post"'
       assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect'] button[data-fp-style='secondary']", text: "Connect"
 
-      get recording_studio_plugins.plugin_path(:google_drive)
-
-      assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
     end
   end
 
@@ -232,10 +219,6 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
       assert_select "form[action=?] input[name='return_to'][value=?]", action, recording_studio_plugins.root_path
       assert_select "form[action=?] button[data-fp-style='secondary']", action, text: "Connected"
       refute_select "form[action=?] button", action, text: "Disconnect"
-
-      get recording_studio_plugins.plugin_path(:google_drive)
-
-      assert_select "form[action=?] button", action, text: "Disconnect"
     end
   end
 
@@ -258,22 +241,16 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Broken plugin"
-    assert_includes response.body, "WordPress"
-
-    calls.each_key { |key| calls[key] = 0 }
-
-    get recording_studio_plugins.plugin_path(:counted)
-
-    assert_response :success
+    assert_includes response.body, "ChatGPT"
     assert_equal 1, calls[:available?]
     assert_equal 1, calls[:status]
-    assert_equal 1, calls[:about]
-    assert_equal 1, calls[:setup_instructions]
-    assert_equal 1, calls[:usage_instructions]
-    assert_equal 1, calls[:documentation_url]
   end
 
   private
+
+  def directory_rows
+    css_select("li[role='listitem']").map { |node| node.text.gsub(/\s+/, " ").strip }
+  end
 
   def count_directory_queries
     count = 0

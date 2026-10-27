@@ -10,16 +10,6 @@ module RecordingStudioPlugins
       @listings = RecordingStudioPlugins.listings_for(context: plugin_context)
     end
 
-    def show
-      @listing = directory_listing
-      unless @listing
-        head :not_found
-        return
-      end
-
-      @people = @listing.inbound_people if inbound_people_allowed?
-    end
-
     def people
       @listing = directory_listing
       unless inbound_people_allowed?

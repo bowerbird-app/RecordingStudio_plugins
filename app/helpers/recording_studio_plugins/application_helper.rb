@@ -23,13 +23,16 @@ module RecordingStudioPlugins
       tag.span(safe_join(parts, " "), class: "inline-flex items-center gap-2")
     end
 
-    def plugin_setup_link(listing)
+    def plugin_setup_button(listing)
       href = listing.setup_href
       return if href.blank?
 
-      render FlatPack::Link::Component.new(href: href, target: "_blank") do
-        plugin_copy("detail.setup")
-      end
+      render FlatPack::Button::Component.new(
+        text: plugin_copy("status.connect"),
+        style: :secondary,
+        href: href,
+        target: "_blank"
+      )
     end
 
     def plugin_inbound_modal_id(listing)

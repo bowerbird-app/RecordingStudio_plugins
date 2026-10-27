@@ -25,13 +25,14 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     Current.actor = nil
   end
 
-  test "admin sees inbound rows with count and how to connect" do
+  test "admin sees inbound rows with count and connect" do
     get recording_studio_plugins.root_path
 
     assert_response :success
     assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:chatgpt)
-    assert_select "a[href=?]", "https://example.com/how-to-connect-chatgpt", text: "How to connect"
+    assert_select "a[href=?]", "https://example.com/how-to-connect-chatgpt", text: "Connect"
+    refute_includes response.body, "How to connect"
+    refute_includes response.body, "More about this"
     assert_includes response.body, "Not connected"
     assert_includes response.body, "0 people connected"
     refute_select "form[action*='chatgpt']"
@@ -53,7 +54,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     member_access = access_recording_for(@root, member)
     connect_chatgpt!(user: member, access_recording: member_access)
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
     assert_includes response.body, "Who&#39;s connected"
@@ -71,7 +72,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     sign_in viewer
     Current.actor = viewer
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
+    get recording_studio_plugins.root_path
 
     assert_response :success
     refute_includes response.body, "Who's connected"
@@ -149,7 +150,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     connect_chatgpt!(user: @user, access_recording: @access)
     RecordingStudioPlugins.configuration.actor_label = ->(_actor) { "Workspace nickname" }
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_includes response.body, "Workspace nickname"
     refute_includes response.body, @user.email

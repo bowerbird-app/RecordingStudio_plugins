@@ -10,9 +10,4 @@
             loading: :lazy %>
     <% end %>
   <% end %>
-  <% modal.footer do %>
-    <%= render FlatPack::Link::Component.new(href: plugin_path(listing.key)) do %>
-      <%= plugin_copy("directory.details") %>
-    <% end %>
-  <% end %>
 <% end %>

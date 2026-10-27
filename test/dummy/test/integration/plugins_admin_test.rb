@@ -47,16 +47,16 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal appearance_count, RecordingStudioPlugins::PluginAppearance.count
     assert_equal recording_count, appearance_recording_count
-    assert_includes response.body, "WordPress"
+    assert_includes response.body, "ChatGPT"
 
-    patch recording_studio_plugins.admin_plugins_path, params: {
-      appearances: { wordpress: { name: "Should not save" } }
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: { chatgpt: { name: "Should not save" } }
     }
 
     assert_response :forbidden
-    assert_equal "WordPress", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:wordpress))
+    assert_equal "ChatGPT", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
 
-    delete recording_studio_plugins.admin_plugin_image_path(:wordpress)
+    delete recording_studio_plugins.admin_plugin_image_path(:chatgpt)
 
     assert_response :forbidden
   end
@@ -69,17 +69,26 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Plugin names and pictures"
-    assert_includes response.body, "WordPress"
-    assert_select "input[name='appearances[wordpress][name]']"
+    RecordingStudioPlugins.all.each do |definition|
+      assert_includes response.body, RecordingStudioPlugins::Appearance.display_name(definition)
+      assert_select "a[href=?]", recording_studio_plugins.admin_plugin_edit_path(definition.key), text: "Edit", count: 1
+    end
+    assert_select "input[name='appearances[chatgpt][name]']", count: 0
 
-    patch recording_studio_plugins.admin_plugins_path, params: {
-      appearances: { wordpress: { name: "Press machine" } }
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
+
+    assert_response :success
+    assert_select "input[name='appearances[chatgpt][name]']"
+    assert_includes response.body, "plugin-chatgpt-picture"
+
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: { chatgpt: { name: "Press machine" } }
     }
 
     assert_redirected_to recording_studio_plugins.admin_plugins_path
-    assert_equal :wordpress, RecordingStudioPlugins.find(:wordpress).key
-    assert_equal "WordPress", RecordingStudioPlugins.find(:wordpress).name
-    assert_equal "Press machine", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:wordpress))
+    assert_equal :chatgpt, RecordingStudioPlugins.find(:chatgpt).key
+    assert_equal "ChatGPT", RecordingStudioPlugins.find(:chatgpt).name
+    assert_equal "Press machine", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
 
     sign_in @workspace_admin
     Current.actor = @workspace_admin
@@ -88,17 +97,12 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Press machine"
-    refute_includes response.body, ">WordPress<"
-
-    get recording_studio_plugins.plugin_path(:wordpress)
-
-    assert_response :success
-    assert_includes response.body, "Press machine"
+    refute_includes response.body, ">ChatGPT<"
 
     sign_in @staff
     Current.actor = @staff
-    patch recording_studio_plugins.admin_plugins_path, params: {
-      appearances: { wordpress: { name: "" } }
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: { chatgpt: { name: "" } }
     }
 
     follow_redirect!
@@ -107,7 +111,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     switch_to_root!(@workspace_root)
     get recording_studio_plugins.root_path
 
-    assert_includes response.body, "WordPress"
+    assert_includes response.body, "ChatGPT"
   end
 
   test "staff can open /admin after switching to the Admin root" do
@@ -118,12 +122,24 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get "/admin"
 
     assert_response :success
+    assert_select "a[href=?]", "/recording_studio_plugins/admin/plugins", text: "Plugin names and pictures"
+
+    get recording_studio_plugins.admin_plugins_path
+
+    assert_response :success
+    assert_select "a[href=?]", "/recording_studio_plugins/admin/plugins", text: "Plugin names and pictures"
   end
 
   test "staff get 403 on /admin from a workspace root" do
     sign_in @staff
     Current.actor = @staff
     switch_to_root!(@workspace_root)
+
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_select "a[href=?]", "/recording_studio_plugins/", text: "Plugins"
+    assert_select "a[href='/recording_studio_plugins/admin/plugins']", count: 0
 
     get "/admin"
 
@@ -133,19 +149,19 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   test "a later request does not keep the previous request's appearance names" do
     sign_in @staff
     Current.actor = @staff
-    RecordingStudioPlugins::Appearance.update_name!(:wordpress, name: "First press", actor: @staff)
-    wordpress = RecordingStudioPlugins.find(:wordpress)
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "First press", actor: @staff)
+    chatgpt = RecordingStudioPlugins.find(:chatgpt)
 
-    assert_equal "First press", RecordingStudioPlugins::Appearance.display_name(wordpress)
+    assert_equal "First press", RecordingStudioPlugins::Appearance.display_name(chatgpt)
 
-    appearance_id = RecordingStudioPlugins::Appearance.current_recordable(:wordpress).id
+    appearance_id = RecordingStudioPlugins::Appearance.current_recordable(:chatgpt).id
     RecordingStudioPlugins::PluginAppearance.where(id: appearance_id).update_all(name: "Later press")
 
-    assert_equal "First press", RecordingStudioPlugins::Appearance.display_name(wordpress)
+    assert_equal "First press", RecordingStudioPlugins::Appearance.display_name(chatgpt)
 
     RecordingStudioPlugins::Appearance::IndexState.reset
 
-    assert_equal "Later press", RecordingStudioPlugins::Appearance.display_name(wordpress)
+    assert_equal "Later press", RecordingStudioPlugins::Appearance.display_name(chatgpt)
 
     sign_in @workspace_admin
     Current.actor = @workspace_admin
@@ -172,18 +188,22 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
 
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
+
+    assert_response :forbidden
+
     sign_in @member
     Current.actor = @member
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :forbidden
 
-    patch recording_studio_plugins.admin_plugins_path, params: {
-      appearances: { wordpress: { name: "Nope" } }
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: { chatgpt: { name: "Nope" } }
     }
 
     assert_response :forbidden
-    assert_equal "WordPress", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:wordpress))
+    assert_equal "ChatGPT", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
   end
 
   test "unconfigured admin root shows an empty staff page" do
@@ -203,7 +223,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_select "h3", text: /Plugin names aren't wired up/
     refute_includes response.body, "WordPress"
     refute_includes response.body, "ChatGPT"
-    assert_select "input[name='appearances[wordpress][name]']", count: 0
+    assert_select "input[name='appearances[chatgpt][name]']", count: 0
     assert_select "img", count: 0
   ensure
     config.admin_root_types = original_types
@@ -214,12 +234,13 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   test "custom picture shows on directory detail and inbound modal and removing it falls back" do
     sign_in @staff
     Current.actor = @staff
-    get recording_studio_plugins.admin_plugins_path
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
-    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_select "input[name='appearances[chatgpt][name]']"
 
-    patch recording_studio_plugins.admin_plugins_path, params: {
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Chat helper" } }
     }
 
@@ -249,17 +270,11 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       assert_select "*", text: /Chat helper/
     end
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
-
-    assert_response :success
-    assert_select "img[alt='Chat helper']"
-    refute_includes response.body, "flat-pack-shared-icon" if response.body.include?("Chat helper")
-
     sign_in @staff
     Current.actor = @staff
     delete recording_studio_plugins.admin_plugin_image_path(:chatgpt)
 
-    assert_redirected_to recording_studio_plugins.admin_plugins_path
+    assert_redirected_to recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
     sign_in @workspace_admin
     Current.actor = @workspace_admin
     switch_to_root!(@workspace_root)

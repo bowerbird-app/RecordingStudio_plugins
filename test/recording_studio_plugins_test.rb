@@ -143,7 +143,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     )
     gem_root = File.expand_path("..", __dir__)
     index = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/index.html.erb", __dir__))
-    show = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/show.html.erb", __dir__))
+    routes = File.read(File.expand_path("../config/routes.rb", __dir__))
 
     assert_includes controller, "recording_studio_layout { RecordingStudioPlugins.configuration.layout }"
     refute_includes controller, "UsesDefaultLayout"
@@ -152,9 +152,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes index, "content_for :title"
     refute_includes index, "recording_studio_page_nav"
     refute_includes index, "FlatPack::PageTitle::Component"
-    assert_includes show, "flat_pack_page_nav"
-    refute_includes show, "recording_studio_page_nav"
-    refute_includes show, "page_nav_back_url"
+    refute_includes routes, "plugins#show"
+    refute File.exist?(File.expand_path("../app/views/recording_studio_plugins/plugins/show.html.erb", __dir__))
   end
 
   def test_dummy_app_uses_recording_studio_default_layout

@@ -20,9 +20,9 @@ bin/rails db:migrate
 
 The generator mounts the engine at `/recording_studio_plugins`. Change the path with `--mount_path` or `config.mount_path`. Controllers call `recording_studio_layout { RecordingStudioPlugins.configuration.layout }`. `config.layout` is `nil` by default (the shared Recording Studio layout). Set it to a layout name, `false`, or `->(controller:) { ... }`. Headings come from `content_for :title` and `:subtitle`. Back uses `flat_pack_page_nav`.
 
-People need access to the current workspace. Both directory pages call `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those rows, and the detail page 404s. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
+People need access to the current workspace. The directory calls `RecordingStudioAccessible.authorized?(actor:, recording:, role: :view)`. A missing workspace or a failed check returns 403. Action links on plugins from `RecordingStudioPlugins.register` render when the same check passes for `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). A member who is not an admin does not see those rows. Connect and Disconnect post to Oauth. Oauth authorizes those requests.
 
-Site staff set Plugin names and pictures on an Admin section. That page is not a workspace setting. Workspace admins and members cannot open it. Access uses Admin's staff gate: Accessible on the admin root, plus the section's site blast radius. Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`, enable `section :plugins` on the admin root, mount Admin with `recording_studio_admin_for` and Attachable, set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to that staff admin root, and grant Accessible access on that admin root to staff only. There is no baked-in admin root name. Until the host sets that, the staff page is empty and the directory uses each plugin's registered name with no picture.
+Site staff set Plugin names and pictures on an Admin section. The index is a table of every registered plugin, with an Edit link per row. Each edit page holds the display name and the Attachable picture. That page is not a workspace setting. Workspace admins and members cannot open it. Access uses Admin's staff gate: Accessible on the admin root, plus the section's site blast radius. Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`, enable `section :plugins` on the admin root, mount Admin with `recording_studio_admin_for` and Attachable, set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to that staff admin root, and grant Accessible access on that admin root to staff only. There is no baked-in admin root name. Until the host sets that, the staff page is empty and the directory uses each plugin's registered name with no picture.
 
 ## Register
 
@@ -81,13 +81,13 @@ Each provider call is rescued and logged. If `available?` raises, the plugin is 
 
 ## Display
 
-The directory is a two-column list of items. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Registered and workspace plugin names still open the detail page. Inbound MCP client names open a modal that uses the same display name; the modal links through to the detail page.
+The directory is a two-column list of items. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Inbound MCP client names open a modal that uses the same display name.
 
-- On the directory, a missing connection is a primary Connect button. An active connection is a secondary Connected button that still posts Disconnect to Oauth. The detail page still shows Disconnect.
-- `state: :connected` shows a green badge reading "Connected" on the detail page.
-- `state: :attention` shows an amber badge reading "Attention". The detail page also shows `message`. An action renders when the provider supplies one.
+- On the directory, a missing Oauth connection is a primary Connect button. An active connection is a secondary Connected button that still posts Disconnect to Oauth.
+- `state: :connected` shows a green badge reading "Connected".
+- `state: :attention` shows an amber badge reading "Attention". An action renders when the provider supplies one.
 - Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
-- Inbound MCP clients (ChatGPT, Grok Bot) have no Connect or Disconnect button. The row shows "Connected" or "Not connected", a people count under the name for workspace admins, and a "How to connect" link when `setup_url` is set. Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section. The modal people list is a lazy Turbo Frame and needs Turbo in the host; the "More about this" footer link is the fallback.
+- Inbound MCP clients (ChatGPT, Grok Bot) have no Oauth Connect or Disconnect. The row shows "Connected" or "Not connected", a people count under the name for workspace admins, and a Connect button when `setup_url` is an https URL. That button opens the setup URL. Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section. The modal people list is a lazy Turbo Frame and needs Turbo in the host.
 - There is no "Not connected" badge on other plugins.
 
 This gem does not decide health, heartbeats, or staleness. The provider decides.
@@ -119,7 +119,7 @@ end
 
 Default `enabled_plugins` is empty. Nothing from Oauth outbound is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Outbound providers with `kind: :root` appear for workspace admins. Inbound MCP clients are registered by the host (below), not through `enabled_plugins`.
 
-`actor_label` names people on an inbound plugin's modal and detail page. The default is `name`, then `email`, then `"User"`. Those people load in one query per actor type when an admin opens the modal or the detail page, not when the directory lists cards.
+`actor_label` names people on an inbound plugin's modal. The default is `name`, then `email`, then `"User"`. Those people load in one query per actor type when an admin opens the modal, not when the directory lists cards.
 
 The host still registers the provider with Oauth:
 
@@ -143,15 +143,15 @@ Display name, description, category, and position come from `KnownProviders`, sa
 
 Workspace members with `:view` can open the directory. Plugins from `RecordingStudioPlugins.register` stay visible to them, including inbound MCP clients (`kind: :user`).
 
-Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. The show page 404s for everyone else, so the name does not leak. Non-admins never see workspace plugins or connected-people counts. Status does not carry across workspaces.
+Oauth providers with `kind: :root` (Google Drive and Dropbox as registered by those gems) are workspace plugins. Only a workspace admin sees them on the index. Non-admins never see workspace plugins or connected-people counts. Status does not carry across workspaces.
 
-Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain link.
+Connect, Reconnect, and Disconnect on those rows render only for workspace admins. They are real POST forms (Disconnect uses `_method=delete`) to Oauth, with CSRF, `owner=root`, `root_recording_id`, and `return_to` back to the directory. On the directory the connected control is labelled Connected and uses the secondary button style. Registered plugins that are not Oauth keep a plain action link.
 
 Status for root plugins comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
 
-Inbound MCP clients use `McpClientStatus`: connected or not connected for that person in this workspace. Admins also see how many people are connected under the name, and the modal (and detail page) lists name, role, app, connected since, and last used. Non-admins see only their own status. Tokens never appear.
+Inbound MCP clients use `McpClientStatus`: connected or not connected for that person in this workspace. Admins also see how many people are connected under the name, and the modal lists name, role, app, connected since, and last used. Non-admins see only their own status. Tokens never appear.
 
-Oauth has no batch inbound status API. The directory calls `inbound_connection_status` once per inbound plugin (the same as listing status before). It does not call `inbound_connections` until an admin opens one plugin's modal or detail page.
+Oauth has no batch inbound status API. The directory calls `inbound_connection_status` once per inbound plugin (the same as listing status before). It does not call `inbound_connections` until an admin opens one plugin's modal.
 
 This gem does not display or log tokens.
 
@@ -161,7 +161,7 @@ Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translat
 
 | Gem | Owns |
 |---|---|
-| Recording Studio Plugins | Registry, directory page, detail page, status display, display names for known Oauth providers and inbound MCP clients |
+| Recording Studio Plugins | Registry, directory page, staff names and pictures, status display, display names for known Oauth providers and inbound MCP clients |
 | Recording Studio Attachable | Google Drive and Dropbox picking, import, and their OAuth. Tokens live in the Rails session, not on the workspace. |
 | Recording Studio OAuth | Outbound provider registry, inbound plugin lookup, connection status, Connect and Disconnect routes, tokens |
 | Recording Studio MCP | Remote MCP HTTP adapter over the OAuth grant. No installation or usage signal. |

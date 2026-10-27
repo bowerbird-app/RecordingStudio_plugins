@@ -56,4 +56,22 @@ module ApplicationHelper
     attributes[:data] = (attributes[:data] || {}).merge(flat_pack_copy_data)
     attributes
   end
+
+  def dummy_admin_root?
+    return false unless respond_to?(:current_root_recording)
+
+    current = current_root_recording
+    return false if current.blank?
+
+    config = RecordingStudioPlugins.configuration
+    admin = config.admin_recording_resolver.call if config.respond_to?(:admin_recording_resolver)
+    return current == admin || (current.respond_to?(:id) && admin.respond_to?(:id) && current.id == admin.id) if admin.present?
+
+    recordable = current.respond_to?(:recordable) ? current.recordable : nil
+    return false if recordable.blank?
+
+    types = Array(config.admin_root_types).map(&:to_s)
+    name = config.admin_root_name
+    types.include?(recordable.class.name) && (name.blank? || recordable.try(:name).to_s == name.to_s)
+  end
 end

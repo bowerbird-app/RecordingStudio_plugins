@@ -7,7 +7,7 @@ This Rails app exists to validate the Recording Studio addon template in a real 
 - Devise authentication with a seeded admin user
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded folder and page recordables
-- Recording Studio default layout, FlatPack assets, and Tailwind source scanning
+- Recording Studio default layout with a dummy left sidebar, FlatPack assets, and Tailwind source scanning
 - Attachable Attachment in `recordable_types`; dummy override of Root Switchable's switch page for Flatpack 0.1.320; dummy maps Admin 2.5.1 `recording_studio_page_nav` onto `flat_pack_page_nav`
 - Admin root at `/admin` for staff plugin names and pictures (`section :plugins`)
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
@@ -25,7 +25,7 @@ bin/dev
 
 Run the commands above from the dummy app directory, not the repository root.
 
-Then open the app and sign in with the seeded site staff user `admin@admin.com`. The seeded staff password is in `test/dummy/db/seeds.rb`. Switch to the "Admin" root in the root switcher, then open `/admin` (Plugins section). The direct page `/recording_studio_plugins/admin/plugins` also works.
+Then open the app and sign in with the seeded site staff user `admin@admin.com`. The seeded staff password is in `test/dummy/db/seeds.rb`. Switch to the "Admin" root in the root switcher. The dummy sidebar then shows Plugin names and pictures. Open `/admin` (Plugins section) or `/recording_studio_plugins/admin/plugins`, then Edit a row.
 
 ## Useful Routes
 

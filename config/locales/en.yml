@@ -4,7 +4,6 @@ en:
       directory:
         title: Plugins
         description: See what you can connect, and what's already set up.
-        details: More about this
       empty:
         none:
           title: Nothing here yet
@@ -41,8 +40,11 @@ en:
         title: Plugin names and pictures
         subtitle: What people see in the directory. The wiring name stays put.
         back: Plugins
-        save: Save names
+        save: Save
         display_name: Display name
+        default_name: Default name
+        picture: Picture
+        edit: Edit
         key_stays: The plugin key never changes.
         remove_picture: Remove picture
         empty:
