@@ -2,8 +2,6 @@
 
 module RecordingStudioPlugins
   class Configuration
-    include ActorLabelConfig
-
     DEFAULT_CATEGORIES = %i[ai_agents storage social websites automation other].freeze
 
     attr_reader :hooks
@@ -15,7 +13,6 @@ module RecordingStudioPlugins
       @overrides = {}
       @extra_categories = []
       @enabled_plugins = []
-      @actor_label = nil
       @hooks = RecordingStudio::Hooks.new
     end
 
@@ -135,6 +132,8 @@ module RecordingStudioPlugins
       hash
     end
   end
+
+  Configuration.include ActorLabelConfig
 
   module Override
     OVERRIDE_KEYS = %i[name description category position].freeze
