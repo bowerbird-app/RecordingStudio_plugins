@@ -4,6 +4,13 @@ module RecordingStudioPlugins
   module ApplicationHelper
     include PluginIcons
 
+    DIRECTORY_ROW_CLASSES = [
+      "flex items-center",
+      "rounded-[var(--radius-sm)]",
+      "py-[var(--list-item-padding-y)] px-[var(--list-item-padding-x)]",
+      "text-[var(--surface-content-color)]"
+    ].join(" ").freeze
+
     def plugin_copy(key, default: nil)
       RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
     end
@@ -42,16 +49,10 @@ module RecordingStudioPlugins
     end
 
     def plugin_directory_row(trailing:, &block)
-      tag.li(
-        class: "flex items-center rounded-[var(--radius-sm)] py-[var(--list-item-padding-y)] px-[var(--list-item-padding-x)] text-[var(--surface-content-color)]",
-        role: "listitem"
-      ) do
-        safe_join(
-          [
-            tag.div(class: "min-w-0 flex-1 flex items-center", &block),
-            (tag.span(trailing, class: "flex-shrink-0 ml-2") if trailing.present?)
-          ].compact
-        )
+      tag.li(class: DIRECTORY_ROW_CLASSES, role: "listitem") do
+        leading = tag.div(class: "min-w-0 flex-1 flex items-center", &block)
+        action = tag.span(trailing, class: "flex-shrink-0 ml-2") if trailing.present?
+        safe_join([leading, action].compact)
       end
     end
 

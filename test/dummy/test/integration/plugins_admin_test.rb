@@ -92,6 +92,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
+    RecordingStudioPlugins::Appearance.reset_index!
     assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
     assert_includes response.body, "plugin-chatgpt-picture"
@@ -149,7 +150,9 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
-    assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
+    refute_includes response.body, "flat-pack-sidebar-layout"
+    refute_select "nav[aria-label='Plugins']"
+    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
   end
 
   test "staff get 403 on /admin from a workspace root" do
@@ -305,6 +308,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
+    RecordingStudioPlugins::Appearance.reset_index!
     assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
     assert_includes response.body, "plugin-chatgpt-picture"
