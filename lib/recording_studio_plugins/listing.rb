@@ -50,6 +50,7 @@ module RecordingStudioPlugins
     def action?(can_edit:)
       return false if user?
       return false unless can_edit
+      return false if !root? && action_href.blank?
       return false if status_failed? || (connected? && action_href.blank?)
       return false if rejected_action_url?
 

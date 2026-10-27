@@ -20,14 +20,21 @@ class ListingTest < Minitest::Test
     assert_nil listing.image_url
   end
 
-  def test_metadata_only_plugin_is_listed_with_a_setup_action_and_no_badge
+  def test_metadata_only_plugin_is_listed_with_no_badge_and_no_dead_action
     listing = listing_for(provider: Object.new)
 
     assert listing.listed?
     assert_nil listing.badge_style
+    refute listing.action?(can_edit: true)
+    refute listing.action?(can_edit: false)
+  end
+
+  def test_root_plugin_keeps_connect_without_an_action_href
+    provider = status_provider(RecordingStudioPlugins::Status.new(action_label: "Connect"))
+    listing = listing_for(provider: provider, kind: :root)
+
     assert listing.action?(can_edit: true)
-    assert_equal "Set up", listing.action_label
-    assert_nil listing.action_href
+    assert_equal "Connect", listing.action_label
     refute listing.action?(can_edit: false)
   end
 
@@ -151,7 +158,7 @@ class ListingTest < Minitest::Test
 
   private
 
-  def listing_for(provider:, key: :sample)
+  def listing_for(provider:, key: :sample, kind: nil)
     RecordingStudioPlugins.register(
       key,
       name: key.to_s,
@@ -160,7 +167,8 @@ class ListingTest < Minitest::Test
       icon: "cloud",
       provider: provider,
       position: 1,
-      owner: "test"
+      owner: "test",
+      kind: kind
     )
     RecordingStudioPlugins::Listing.new(RecordingStudioPlugins.find(key), context_for)
   end
