@@ -31,6 +31,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
   teardown do
     Current.actor = nil
+    RecordingStudioPlugins::Appearance.reset_index!
   end
 
   test "view-only staff GET leaves plugin appearance counts unchanged" do
@@ -222,6 +223,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       appearances: { chatgpt: { name: "Chat helper" } }
     }
 
+    RecordingStudioPlugins::Appearance.reset_index!
     recording = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert recording
     result = RecordingStudioAttachable::Services::ImportAttachment.call(

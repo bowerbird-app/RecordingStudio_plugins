@@ -14,3 +14,7 @@ RecordingStudioAdmin.configure do |config|
   end
   config.site_admin_recording_resolver = config.access_recording_resolver
 end
+
+Rails.application.config.to_prepare do
+  RecordingStudioAdmin::ApplicationController.helper(ApplicationHelper)
+end

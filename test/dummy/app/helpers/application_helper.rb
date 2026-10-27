@@ -1,4 +1,16 @@
 module ApplicationHelper
+  # Admin 2.5.1 still calls this helper. Recording Studio 6.1 only ships
+  # flat_pack_page_nav, so dummy maps the old kwargs onto that.
+  def recording_studio_page_nav(title: nil, subtitle: nil, page_nav_anchor_url: nil, page_nav_back_url: nil, **)
+    content_for(:title, title) if title.present?
+    content_for(:subtitle, subtitle) if subtitle.present?
+
+    nav = { round: true, style: :default }
+    nav[:anchor_href] = page_nav_anchor_url if page_nav_anchor_url.present?
+    nav[:back_href] = page_nav_back_url if page_nav_back_url.present?
+    flat_pack_page_nav(**nav)
+  end
+
   def dummy_page_nav(title:, subtitle: nil, back_url: nil, back_label: "Home")
     content_for(:title, title)
     content_for(:subtitle, subtitle) if subtitle.present?
