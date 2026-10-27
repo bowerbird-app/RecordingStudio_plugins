@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
   mount RecordingStudioPlugins::Engine, at: "/recording_studio_plugins"
   mount RecordingStudioOauth::Engine, at: "/recording_studio_oauth"
+  mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
+  mount RecordingStudioAccessible::Engine, at: "/admin/access"
+  recording_studio_admin_for :admin, at: "/admin", root_section: :plugins
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

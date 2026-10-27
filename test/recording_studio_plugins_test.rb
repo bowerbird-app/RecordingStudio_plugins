@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.6.0", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.7.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
@@ -17,6 +17,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.315"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.18"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.5.1", "< 2.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", ">= 0.22.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_oauth", ">= 0.19.0"'
   end
 
@@ -54,9 +56,9 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes gemfile, "TEMPORARY"
     refute_includes gemfile, "cursor/inbound-plugin-key-e105"
     refute_includes gemfile, 'tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.5.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.14.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.4.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.3", require: false'
@@ -107,6 +109,10 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes schema, 'create_table "recording_studio_access_rules"'
     assert_includes schema, "index_recording_studio_access_constraints_on_action"
     assert_includes schema, "index_recording_studio_access_rules_on_action"
+    assert_includes schema, 'create_table "recording_studio_plugin_appearances"'
+    assert_includes schema, 'create_table "admin_roots"'
+    assert_includes schema, 'create_table "active_storage_blobs"'
+    assert_includes schema, 'create_table "recording_studio_attachable_attachments"'
     constraint_migration = Dir.glob(
       File.expand_path("dummy/db/migrate/*_create_recording_studio_access_constraints.rb", __dir__)
     ).max
@@ -194,6 +200,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     rake_task = File.read(File.expand_path("dummy/lib/tasks/tailwindcss.rake", __dir__))
     assert_includes rake_task, "FlatPack::Engine.root"
     assert_includes rake_task, "RecordingStudio::Engine.root"
+    assert_includes rake_task, "RecordingStudioAttachable::Engine.root"
+    assert_includes rake_task, "RecordingStudioAdmin::Engine.root"
     assert_includes rake_task, "tailwindcss:link_engine_sources"
   end
 
@@ -205,6 +213,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes initializer_source, '"Workspace"'
     assert_includes initializer_source, '"Folder"'
     assert_includes initializer_source, '"Page"'
+    assert_includes initializer_source, '"AdminRoot"'
+    assert_includes initializer_source, "RecordingStudioPlugins::PluginAppearance"
     assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
     assert_includes initializer_source, "RecordingStudioAttachable::Library"
     assert_includes initializer_source, "RecordingStudioAttachable::Placement"
@@ -245,10 +255,14 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "enabled_plugins"
     assert_includes readme, "kind: :root"
     assert_includes readme, "kind: :user"
+    assert_includes readme, "Plugin names and pictures"
+    assert_includes readme, "recording_studio_admin_for"
     assert_includes readme, "inbound_connection_status"
     assert_includes readme, "McpClientStatus"
     assert_includes readme, "setup_url"
     assert_includes readme, "Oauth is a hard dependency"
+    assert_includes readme, "v2.5.1"
+    assert_includes readme, "v0.22.0"
     assert_includes readme, ">= 6.1.0"
     assert_includes readme, ">= 0.19.0"
     assert_includes readme, "recording_studio_layout"

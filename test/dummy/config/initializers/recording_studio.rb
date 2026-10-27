@@ -21,6 +21,8 @@ RecordingStudio.configure do |config|
     "Workspace",
     "Folder",
     "Page",
+    "AdminRoot",
+    "RecordingStudioPlugins::PluginAppearance",
     "RecordingStudioSiteSettings::SiteSetting",
     "RecordingStudioAttachable::Attachment",
     "RecordingStudioAttachable::Library",

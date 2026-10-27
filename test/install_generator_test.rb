@@ -135,6 +135,17 @@ class InstallGeneratorTest < Minitest::Test
     assert_equal ["INSTALL.md"], shown_templates
   end
 
+  def test_install_migrations_runs_the_migrations_generator
+    generator = build_generator("/tmp")
+    generated = []
+
+    generator.stub(:generate, ->(name) { generated << name }) do
+      generator.install_migrations
+    end
+
+    assert_equal ["recording_studio_plugins:migrations"], generated
+  end
+
   def test_install_guide_includes_migration_and_host_setup_steps
     install_guide = File.read(INSTALL_TEMPLATE_PATH)
 
@@ -143,8 +154,9 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "authorized?"
     assert_includes install_guide, "enabled_plugins"
     assert_includes install_guide, "register_mcp_client"
-    refute_includes install_guide, "db:migrate"
-    refute_includes install_guide, "RecordingStudio v3"
+    assert_includes install_guide, "db:migrate"
+    assert_includes install_guide, "recording_studio_plugins:migrations"
+    assert_includes install_guide, "PluginAppearance"
     refute_includes install_guide, "RecordingStudio v3"
   end
 

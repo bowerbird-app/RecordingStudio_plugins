@@ -9,6 +9,7 @@ This Rails app exists to validate the Recording Studio addon template in a real 
 - Root workspace plus seeded folder and page recordables
 - Recording Studio default layout, FlatPack assets, and Tailwind source scanning
 - Attachable Library and Placement in `recordable_types`; dummy override of Root Switchable's switch page for Flatpack 0.1.320
+- Admin root at `/admin` for staff plugin names and pictures (`section :plugins`)
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 - Dummy registers ChatGPT and Grok Bot with `RecordingStudioPlugins.register_mcp_client`
 - Dummy-only `/docs/*` pages for gem-specific onboarding
@@ -24,14 +25,13 @@ bin/dev
 
 Run the commands above from the dummy app directory, not the repository root.
 
-Then open the app and sign in with:
-
-- Email: `admin@admin.com`
-- Password: `Password`
+Then open the app and sign in with the seeded site staff user `admin@admin.com`.
 
 ## Useful Routes
 
 - `/` - dummy app home page and template guidance
+- `/admin` - staff plugin names and pictures (site staff only)
+- `/recording_studio_plugins/admin/plugins` - the same editor on the Plugins engine
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` - dummy-only starter pages

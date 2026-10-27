@@ -7,7 +7,11 @@
 <% end %>
 
 <%= render FlatPack::List::Item.new(trailing: trailing) do %>
-  <%= render FlatPack::Link::Component.new(href: plugin_path(listing.key)) do %>
-    <%= listing.name %>
-  <% end %>
+  <span class="inline-flex items-center gap-2">
+    <%= plugin_image(listing) %>
+    <%= render FlatPack::Link::Component.new(href: plugin_path(listing.key)) do %>
+      <%= listing.name %>
+    <% end %>
+  </span>
 <% end %>
+

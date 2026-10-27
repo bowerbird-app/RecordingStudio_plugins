@@ -13,6 +13,8 @@ class ConfigurationTest < Minitest::Test
     assert_empty @configuration.overrides
     assert_empty @configuration.extra_categories
     assert_empty @configuration.enabled_plugins
+    assert_equal ["AdminRoot"], @configuration.admin_root_types
+    assert_equal "Admin", @configuration.admin_root_name
     assert_nil @configuration.layout
     assert_equal %i[ai_agents storage social websites automation other], @configuration.categories
     named = Struct.new(:name, :email).new("Kit", "kit@example.com")

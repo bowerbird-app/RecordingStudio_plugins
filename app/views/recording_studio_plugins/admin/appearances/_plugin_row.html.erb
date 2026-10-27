@@ -1,0 +1,48 @@
+<li class="flex flex-col gap-3">
+  <%= render FlatPack::SectionTitle::Component.new(title: row[:registered_name]) %>
+  <p class="text-sm text-[var(--surface-muted-content-color)]"><%= plugin_copy("admin.key_stays") %></p>
+
+  <% if row[:recording].present? %>
+    <%= turbo_frame_tag "plugin-#{row[:key]}-picture" do %>
+      <div class="inline-flex items-end gap-3">
+        <% if row[:image_url].present? %>
+          <%= render FlatPack::Avatar::Component.new(
+            src: row[:image_url],
+            size: :lg,
+            shape: :square,
+            alt: row[:name]
+          ) %>
+        <% else %>
+          <%= render FlatPack::Avatar::Component.new(
+            size: :lg,
+            shape: :square,
+            icon: "photo",
+            alt: row[:name]
+          ) %>
+        <% end %>
+        <%= render_attachment_file_button(
+              row[:recording],
+              return_to: admin_plugins_path,
+              target: "plugin-#{row[:key]}-picture"
+            ) %>
+        <% if row[:attachment_recording].present? %>
+          <%= form_with url: admin_plugin_image_path(row[:key]), method: :delete, html: { class: "inline-flex" } do %>
+            <%= render FlatPack::Button::Component.new(
+              text: plugin_copy("admin.remove_picture"),
+              type: "submit",
+              style: :secondary
+            ) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= render FlatPack::TextInput::Component.new(
+    name: "appearances[#{row[:key]}][name]",
+    label: plugin_copy("admin.display_name"),
+    value: row[:custom_name],
+    placeholder: row[:registered_name],
+    form: "plugin-names-form"
+  ) %>
+</li>

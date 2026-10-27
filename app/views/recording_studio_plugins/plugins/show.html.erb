@@ -7,7 +7,11 @@
      back_tooltip: plugin_copy("directory.title")
    ) %>
 
-<%= render FlatPack::Shared::IconComponent.new(name: @listing.icon, size: :xl) %>
+<% if @listing.image_url.present? %>
+  <%= plugin_image(@listing, size: :lg) %>
+<% else %>
+  <%= render FlatPack::Shared::IconComponent.new(name: @listing.icon, size: :xl) %>
+<% end %>
 
 <div class="flex flex-wrap items-center gap-3">
   <%= plugin_inbound_status(@listing) || plugin_badge(@listing) %>

@@ -12,6 +12,14 @@ class ListingTest < Minitest::Test
     RecordingStudioPlugins.clear!
   end
 
+  def test_name_falls_back_to_the_registered_name_without_an_appearance
+    listing = listing_for(provider: Object.new)
+
+    assert_equal "sample", listing.name
+    assert_equal "sample", listing.registered_name
+    assert_nil listing.image_url
+  end
+
   def test_metadata_only_plugin_is_listed_with_a_setup_action_and_no_badge
     listing = listing_for(provider: Object.new)
 

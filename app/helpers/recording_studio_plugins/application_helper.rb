@@ -94,5 +94,16 @@ module RecordingStudioPlugins
     def plugin_copy(key, default: nil)
       RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
     end
+
+    def plugin_image(listing, size: :sm)
+      return if listing.image_url.blank?
+
+      render FlatPack::Avatar::Component.new(
+        src: listing.image_url,
+        size: size,
+        shape: :square,
+        alt: listing.name
+      )
+    end
   end
 end

@@ -46,11 +46,18 @@ begin
 
     RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
   end
+
+  admin_root = AdminRoot.find_or_create_by!(name: "Admin")
+  admin_root_recording = RecordingStudio.root_recording_for(admin_root)
+  unless RecordingStudioAccessible.authorized?(actor: user, recording: admin_root_recording, role: :admin)
+    RecordingStudioAccessible.bootstrap_owner_access!(recording: admin_root_recording, actor: user)
+  end
 ensure
   Current.actor = previous_actor
 end
 
 puts "Seeded: admin@admin.com / Password"
+puts "Seeded: Admin root '#{admin_root.name}' with root recording ##{admin_root_recording.id}"
 puts "Seeded: Workspace '#{workspace.name}' with root recording ##{root_recording.id}"
 puts "Seeded: Workspace '#{accessible_workspace.name}' with root recording ##{accessible_root_recording.id}"
 puts "Seeded: Workspace '#{private_workspace.name}' with root recording ##{private_root_recording.id}"

@@ -1,0 +1,31 @@
+<% content_for :title, plugin_copy("admin.title") %>
+<% content_for :subtitle, plugin_copy("admin.subtitle") %>
+<% flat_pack_page_nav(
+     round: true,
+     style: :default,
+     back_href: plugin_admin_back_href,
+     back_tooltip: plugin_copy("admin.back")
+   ) %>
+
+<% if @rows.empty? %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: plugin_copy("admin.empty.title"),
+    description: plugin_copy("admin.empty.description"),
+    icon: :squares_2x2
+  ) %>
+<% else %>
+  <%= form_with url: admin_plugins_path, method: :patch, html: { id: "plugin-names-form" } do %>
+    <ul class="flex flex-col gap-6" role="list">
+      <% @rows.each do |row| %>
+        <%= render "plugin_row", row: row %>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= render FlatPack::Button::Component.new(
+    text: plugin_copy("admin.save"),
+    type: "submit",
+    style: :primary,
+    form: "plugin-names-form"
+  ) %>
+<% end %>
