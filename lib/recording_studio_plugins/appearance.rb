@@ -153,3 +153,4 @@ module RecordingStudioPlugins
 end
 
 require "recording_studio_plugins/appearance/writes"
+require "recording_studio_plugins/appearance/images"

@@ -78,20 +78,14 @@ module RecordingStudioPlugins
 
       def save_picture(key)
         upload = appearance_picture_param(key)
-        if upload
-          Appearance.replace_image!(
-            key,
-            io: upload,
-            filename: upload.original_filename,
-            content_type: upload.content_type,
-            actor: staff_actor
-          )
-          return
-        end
-
+        return replace_uploaded_picture(key, upload) if upload
         return unless appearance_remove_picture?(key)
 
         Appearance.remove_image!(key, actor: staff_actor)
+      end
+
+      def replace_uploaded_picture(key, upload)
+        Appearance.replace_image!(key, file: upload, actor: staff_actor)
       end
 
       def appearance_name_param(key)

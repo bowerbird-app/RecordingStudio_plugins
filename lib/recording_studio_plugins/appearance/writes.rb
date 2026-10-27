@@ -104,25 +104,5 @@ module RecordingStudioPlugins
 
       text
     end
-
-    def replace_image!(key, io:, filename:, content_type:, actor:)
-      recording = ensure_recording!(key, actor: actor)
-      return if recording.blank? || io.blank?
-
-      remove_image!(key, actor: actor)
-      recording = recording_for(key) || recording
-      result = RecordingStudioAttachable::Services::ImportAttachment.call(
-        parent_recording: recording,
-        io: io,
-        filename: filename,
-        content_type: content_type,
-        actor: actor,
-        source: "direct_upload"
-      )
-      raise result.error if result.failure?
-
-      reset_index!
-      result.value
-    end
   end
 end
