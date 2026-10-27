@@ -32,6 +32,14 @@ module RecordingStudioPlugins
       end
     end
 
+    def plugin_inbound_modal_id(listing)
+      "plugin-#{listing.key}-people"
+    end
+
+    def plugin_inbound_people_frame_id(listing)
+      "#{plugin_inbound_modal_id(listing)}-frame"
+    end
+
     def plugin_people_rows(people)
       Array(people).map do |row|
         {

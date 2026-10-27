@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Inbound MCP client plugins in the directory: ChatGPT and Grok Bot (`kind: :user`). Hosts register them with `RecordingStudioPlugins.register_mcp_client`. Status comes from Oauth `inbound_connection_status` / `inbound_connections`. There is no Connect or Disconnect on those rows. A "How to connect" link renders when `setup_url` is an https URL.
-- Workspace admins see workspace plugins and inbound plugins, including a connected-people count and a detail list (name, role, app, connected since, last used). Other members see inbound plugins with their own connected or not connected status. They do not see counts, connected-people names, or workspace plugins.
-- `McpClientStatus` maps Oauth inbound answers onto the existing `Status` type. `setup_url` on registration is checked with `SafeUrl` (https only). `config.actor_label` names people on the detail list (default: name, then email, then "User"), loaded in one query per actor type.
+- Workspace admins see workspace plugins and inbound plugins. On the directory, the connected-people count sits under the plugin name. Clicking an inbound plugin opens a modal; the people list (name, role, app, connected since, last used) loads in that modal when it opens, and still on the detail page. Other members see inbound plugins with their own connected or not connected status. They do not see counts, connected-people names, the modal people section, or workspace plugins.
+- `McpClientStatus` maps Oauth inbound answers onto the existing `Status` type. `setup_url` on registration is checked with `SafeUrl` (https only). `config.actor_label` names people on the list (default: name, then email, then "User"), loaded in one query per actor type when the modal or detail page asks.
 
 ### Changed
 - **BREAKING:** `recording_studio_oauth >= 0.18.0`. The Gemfile currently pins Oauth to git branch `cursor/inbound-plugin-key-e105` (Oauth #69). **TEMPORARY:** re-pin to tag `v0.18.0` after that PR is merged and tagged.

@@ -1,0 +1,23 @@
+<% trailing = capture do %>
+  <span class="inline-flex items-center gap-2">
+    <% if listing.directory_status_text.present? %>
+      <%= tag.span(listing.directory_status_text) %>
+    <% end %>
+    <%= plugin_setup_link(listing) %>
+  </span>
+<% end %>
+
+<%= render FlatPack::List::Item.new(trailing: trailing) do %>
+  <div>
+    <%= tag.button listing.name,
+          type: "button",
+          class: "bg-transparent p-0 text-left text-[var(--surface-content-color)]",
+          data: { modal_id: plugin_inbound_modal_id(listing) },
+          aria: { haspopup: "dialog", controls: plugin_inbound_modal_id(listing) } %>
+    <% if can_admin_plugins? && listing.people_connected_text.present? %>
+      <p class="text-sm text-[var(--surface-muted-content-color)]"><%= listing.people_connected_text %></p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= render "inbound_modal", listing: listing %>

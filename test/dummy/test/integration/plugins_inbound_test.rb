@@ -29,7 +29,8 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:chatgpt), text: "ChatGPT"
+    assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
+    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:chatgpt)
     assert_select "a[href=?]", "https://example.com/how-to-connect-chatgpt", text: "How to connect"
     assert_includes response.body, "Not connected"
     assert_includes response.body, "0 people connected"
@@ -95,6 +96,70 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
     assert_includes chatgpt_row_text, "Not connected"
     refute_includes chatgpt_row_text, "1 person connected"
+  end
+
+  test "admin directory shows the count and a lazy people frame without names" do
+    connect_chatgpt!(user: @user, access_recording: @access)
+
+    status_calls = 0
+    connection_calls = 0
+    status = RecordingStudioOauth.method(:inbound_connection_status)
+    connections = RecordingStudioOauth.method(:inbound_connections)
+
+    RecordingStudioOauth.stub(:inbound_connection_status, lambda { |**kwargs|
+      status_calls += 1
+      status.call(**kwargs)
+    }) do
+      RecordingStudioOauth.stub(:inbound_connections, lambda { |**kwargs|
+        connection_calls += 1
+        connections.call(**kwargs)
+      }) do
+        get recording_studio_plugins.root_path
+      end
+    end
+
+    assert_response :success
+    assert_includes chatgpt_row_text, "1 person connected"
+    refute_includes response.body, @user.email
+    refute_includes response.body, "Who&#39;s connected"
+    refute_includes response.body, "Who's connected"
+    assert_select "turbo-frame#plugin-chatgpt-people-frame[loading='lazy'][src=?]",
+                  recording_studio_plugins.plugin_people_path(:chatgpt)
+    assert_equal 2, status_calls
+    assert_equal 0, connection_calls
+
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
+
+    assert_response :success
+    assert_includes response.body, "Who&#39;s connected"
+    assert_includes response.body, @user.email
+  end
+
+  test "member directory has no count, people frame, or people list" do
+    connect_chatgpt!(user: @user, access_recording: @access)
+    viewer = User.create!(
+      email: "inbound-directory-viewer-#{SecureRandom.hex(4)}@example.com",
+      password: "Password123!",
+      password_confirmation: "Password123!"
+    )
+    RecordingStudioAccessible.grant_access(recording: @root, actor: viewer, role: "view", manager_actor: @user)
+    sign_in viewer
+    Current.actor = viewer
+
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_includes chatgpt_row_text, "Not connected"
+    refute_includes chatgpt_row_text, "people connected"
+    refute_includes chatgpt_row_text, "person connected"
+    refute_select "turbo-frame[src=?]", recording_studio_plugins.plugin_people_path(:chatgpt)
+    refute_includes response.body, "Who's connected"
+    refute_includes response.body, @user.email
+    assert_select ".flat-pack-modal__body", count: 0
+
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
+
+    assert_response :not_found
   end
 
   test "actor_label override is used on the people list" do

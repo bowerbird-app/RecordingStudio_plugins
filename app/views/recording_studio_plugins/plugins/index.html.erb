@@ -14,7 +14,7 @@
 <% else %>
   <ul class="grid grid-cols-1 md:grid-cols-2 gap-3" role="list">
     <% @listings.each do |listing| %>
-      <%= render "listing", listing: listing %>
+      <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
     <% end %>
   </ul>
 <% end %>

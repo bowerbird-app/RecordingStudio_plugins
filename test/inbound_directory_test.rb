@@ -181,6 +181,23 @@ class InboundDirectoryTest < Minitest::Test
     assert_equal "User", people.first[:name]
   end
 
+  def test_directory_listings_do_not_load_inbound_people
+    register_clients
+    called = 0
+
+    RecordingStudioPlugins::InboundPeople.stub(:labeled, ->(**_) { called += 1; [] }) do
+      with_inbound_status(connected: true, connected_count: 2) do
+        listings = RecordingStudioPlugins.listings_for(context: admin_context)
+        listings.each do |listing|
+          listing.directory_status_text
+          listing.people_connected_text
+        end
+      end
+    end
+
+    assert_equal 0, called
+  end
+
   def test_unknown_mcp_client_key_raises
     error = assert_raises(ArgumentError) do
       RecordingStudioPlugins.register_mcp_client(:not_a_client)

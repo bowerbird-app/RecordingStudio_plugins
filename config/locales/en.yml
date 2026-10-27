@@ -4,6 +4,7 @@ en:
       directory:
         title: Plugins
         description: See what you can connect, and what's already set up.
+        details: More about this
       empty:
         none:
           title: Nothing here yet

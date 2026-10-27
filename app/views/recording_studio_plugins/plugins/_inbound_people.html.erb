@@ -1,0 +1,12 @@
+<%= render FlatPack::SectionTitle::Component.new(title: plugin_copy("detail.people")) %>
+<% if people.blank? %>
+  <p><%= plugin_copy("detail.people_empty") %></p>
+<% else %>
+  <%= render FlatPack::Table::Component.new(data: plugin_people_rows(people)) do |table| %>
+    <% table.column(title: plugin_copy("detail.person")) { |row| row[:name] } %>
+    <% table.column(title: plugin_copy("detail.role")) { |row| row[:role] } %>
+    <% table.column(title: plugin_copy("detail.app")) { |row| row[:app] } %>
+    <% table.column(title: plugin_copy("detail.connected_since")) { |row| row[:connected_since] } %>
+    <% table.column(title: plugin_copy("detail.last_used")) { |row| row[:last_used] } %>
+  <% end %>
+<% end %>

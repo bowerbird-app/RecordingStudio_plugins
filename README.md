@@ -77,13 +77,13 @@ Each provider call is rescued and logged. If `available?` raises, the plugin is 
 
 ## Display
 
-The directory is a two-column list of items. Each row is the plugin name (linked to the detail page) on the left, and the status plus action on the right. There is no icon, search box, or category filter.
+The directory is a two-column list of items. Each row is the plugin name on the left, and the status plus action on the right. There is no icon, search box, or category filter. Registered and workspace plugin names still open the detail page. Inbound MCP client names open a modal; the modal links through to the detail page.
 
 - On the directory, a missing connection is a primary Connect button. An active connection is a secondary Connected button that still posts Disconnect to Oauth. The detail page still shows Disconnect.
 - `state: :connected` shows a green badge reading "Connected" on the detail page.
 - `state: :attention` shows an amber badge reading "Attention". The detail page also shows `message`. An action renders when the provider supplies one.
 - Otherwise there is no badge. One button uses `action_label` (default "Set up") and links to `action_url` when that URL is present.
-- Inbound MCP clients (ChatGPT, Grok Bot) have no Connect or Disconnect button. The row shows "Connected" or "Not connected", a people count for workspace admins, and a "How to connect" link when `setup_url` is set.
+- Inbound MCP clients (ChatGPT, Grok Bot) have no Connect or Disconnect button. The row shows "Connected" or "Not connected", a people count under the name for workspace admins, and a "How to connect" link when `setup_url` is set. Clicking the name opens a modal. Admins get the connected-people list there (loaded when the modal opens). Other members do not get a count, a list, or that modal section.
 - There is no "Not connected" badge on other plugins.
 
 This gem does not decide health, heartbeats, or staleness. The provider decides.
@@ -113,7 +113,7 @@ end
 
 Default `enabled_plugins` is empty. Nothing from Oauth outbound is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Outbound providers with `kind: :root` appear for workspace admins. Inbound MCP clients are registered by the host (below), not through `enabled_plugins`.
 
-`actor_label` names people on an inbound plugin's detail page. The default is `name`, then `email`, then `"User"`. The directory loads those people in one query per actor type.
+`actor_label` names people on an inbound plugin's modal and detail page. The default is `name`, then `email`, then `"User"`. Those people load in one query per actor type when an admin opens the modal or the detail page, not when the directory lists cards.
 
 The host still registers the provider with Oauth:
 
@@ -143,7 +143,9 @@ Connect, Reconnect, and Disconnect on those rows render only for workspace admin
 
 Status for root plugins comes from `RecordingStudioOauth.combined_connection_status`. For a root provider only the `workspace` value is used: `:active` is Connected, `:needs_reconnect` is Attention with a reconnect message, `:missing` is not connected with Connect.
 
-Inbound MCP clients use `McpClientStatus`: connected or not connected for that person in this workspace. Admins also see how many people are connected, and the detail page lists name, role, app, connected since, and last used. Non-admins see only their own status. Tokens never appear.
+Inbound MCP clients use `McpClientStatus`: connected or not connected for that person in this workspace. Admins also see how many people are connected under the name, and the modal (and detail page) lists name, role, app, connected since, and last used. Non-admins see only their own status. Tokens never appear.
+
+Oauth has no batch inbound status API. The directory calls `inbound_connection_status` once per inbound plugin (the same as listing status before). It does not call `inbound_connections` until an admin opens one plugin's modal or detail page.
 
 This gem does not display or log tokens.
 
