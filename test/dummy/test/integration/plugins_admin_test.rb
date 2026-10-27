@@ -93,6 +93,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
       assert_select "a[href=?]", recording_studio_plugins.admin_plugin_edit_path(definition.key), text: "Edit", count: 1
     end
     assert_select "input[name='appearances[chatgpt][name]']", count: 0
+    assert_padded_page_without_sidebar
 
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
@@ -107,14 +108,9 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "The plugin key never changes."
     refute_includes response.body, "What people see in the directory. The wiring name stays put."
     refute_includes response.body, "flat-pack-sidebar-layout"
-    assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
-    refute_select "[data-fp-page-layout-width='full']"
-    refute_select "[class*='md:grid-cols-2']"
-    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4"
-    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4 div.w-72.max-w-full"
-    assert_select "div.mt-6.w-fit"
-    assert_select "[data-controller='flat-pack--image-input']"
-    assert_select "label input[type='file'][name='appearances[chatgpt][picture]'][class*='sr-only']"
+    assert_padded_page_without_sidebar
+    assert_picture_file_picker
+    assert_compact_picture_name_fields
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Press machine" } }
@@ -229,8 +225,9 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
-    assert_select "[data-controller='flat-pack--image-input']"
-    assert_select "label[for] input[type='file'][name='appearances[chatgpt][picture]'][accept='image/*']"
+    assert_padded_page_without_sidebar
+    assert_picture_file_picker
+    assert_compact_picture_name_fields
     tempfile = Tempfile.new(["chatgpt", ".png"])
     tempfile.binmode
     tempfile.write(MINI_PNG)
@@ -500,6 +497,31 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   def admin_root_recording
     admin_root = AdminRoot.find_or_create_by!(name: "Admin")
     RecordingStudio.root_recording_for(admin_root)
+  end
+
+  def assert_padded_page_without_sidebar
+    assert_select ".fp-page-layout[data-fp-page-layout-width=default]"
+    refute_select "[data-fp-page-layout-width=full]"
+    refute_includes response.body, "flat-pack-sidebar-layout"
+    refute_includes response.body, "dummy_sidebar"
+    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
+  end
+
+  def assert_picture_file_picker
+    assert_select "[data-controller='flat-pack--image-input']"
+    assert_select "label", text: "Picture"
+    assert_select "[data-controller='flat-pack--image-input'] label[for]" do |labels|
+      input_id = labels.first["for"]
+      assert_select "input##{input_id}[type='file'][name='appearances[chatgpt][picture]'][accept='image/*'][class*='sr-only']"
+    end
+  end
+
+  def assert_compact_picture_name_fields
+    refute_select "[class*='md:grid-cols-2']"
+    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4"
+    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4 div.w-72.max-w-full"
+    assert_select "div.mt-6.w-fit"
+    assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
   end
 
   def switch_to_root!(root_recording)

@@ -168,27 +168,53 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
+  end
 
+  def test_dummy_blank_layout_uses_padded_page_layout_without_a_sidebar
     blank = File.read(File.expand_path("dummy/app/views/layouts/recording_studio/blank.html.erb", __dir__))
-    default = File.read(File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__))
-    edit = File.read(File.expand_path("../app/views/recording_studio_plugins/admin/appearances/edit.html.erb", __dir__))
-    index = File.read(File.expand_path("../app/views/recording_studio_plugins/admin/appearances/index.html.erb", __dir__))
-    directory = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/index.html.erb", __dir__))
+    default_layout = File.read(
+      File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
+    )
+    initializer = File.read(File.expand_path("dummy/config/initializers/recording_studio_plugins.rb", __dir__))
 
-    assert_includes default, "FlatPack::PageLayout::Component.new(width: :default)"
     assert_includes blank, "FlatPack::PageLayout::Component.new(width: :default)"
     refute_includes blank, "width: :full"
     refute_includes blank, "SidebarLayout"
-    assert_includes edit, "content_for :title"
-    assert_includes edit, "flat_pack_page_nav"
-    assert_includes edit, "flex w-fit max-w-full items-start gap-4"
-    refute_includes edit, "cols: 2"
-    refute_includes edit, "px-"
-    refute_includes edit, "p-4"
+    assert_includes default_layout, "FlatPack::PageLayout::Component.new(width: :default)"
+    assert_includes default_layout, "SidebarLayout"
+    assert_includes initializer, 'next "recording_studio/blank" if controller.controller_path == ' \
+                                 '"recording_studio_plugins/admin/appearances"'
+  end
+
+  def test_engine_plugin_views_use_layout_title_and_nav_not_page_padding
+    gem_root = File.expand_path("..", __dir__)
+    views = Dir[File.join(gem_root, "app/views/recording_studio_plugins/**/*.html.erb")]
+    refute_empty views
+
+    views.each do |view_path|
+      source = File.read(view_path)
+
+      refute_includes source, "PageLayout::Component"
+      refute_includes source, "width: :full"
+    end
+
+    index = File.read(File.join(gem_root, "app/views/recording_studio_plugins/plugins/index.html.erb"))
+    admin_index = File.read(File.join(gem_root, "app/views/recording_studio_plugins/admin/appearances/index.html.erb"))
+    admin_edit = File.read(File.join(gem_root, "app/views/recording_studio_plugins/admin/appearances/edit.html.erb"))
+
     assert_includes index, "content_for :title"
-    assert_includes index, "flat_pack_page_nav"
-    assert_includes directory, "content_for :title"
-    assert_includes directory, "content_for :subtitle"
+    assert_includes index, "content_for :subtitle"
+    refute_includes index, "flat_pack_page_nav"
+    assert_includes admin_index, "content_for :title"
+    assert_includes admin_index, "flat_pack_page_nav"
+    assert_includes admin_edit, "content_for :title"
+    assert_includes admin_edit, "flat_pack_page_nav"
+    assert_includes admin_edit, "FlatPack::ImageInput::Component"
+    refute_includes admin_edit, "cols: 2"
+    refute_includes admin_edit, "PageLayout"
+    assert_includes admin_edit, "flex w-fit max-w-full items-start gap-4"
+    assert_includes admin_edit, "w-72 max-w-full"
+    assert_includes admin_edit, "mt-6 w-fit"
   end
 
   def test_dummy_login_layout_keeps_flatpack_assets_without_tight_main_offset
@@ -266,6 +292,9 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme_source, "Admin root at `/admin`"
     assert_includes readme_source, "test/dummy/db/seeds.rb"
     assert_includes readme_source, 'Switch to the "Admin" root'
+    assert_includes readme_source, "PageLayout"
+    assert_includes readme_source, "width: :default"
+    refute_includes readme_source, "full-width"
   end
 
   def test_readme_covers_the_plugins_directory
