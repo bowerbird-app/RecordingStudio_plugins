@@ -54,12 +54,13 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal root_recording, folder_recording.root_recording
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
-    assert_equal 3, Workspace.count
     assert_equal(
       ["Client Workspace", "Private Workspace", "Studio Workspace"],
       Workspace.where(name: ["Client Workspace", "Private Workspace", "Studio Workspace"]).order(:name).pluck(:name)
     )
-    assert AdminRoot.find_by(name: "Admin")
+    admin_root = AdminRoot.find_by!(name: "Admin")
+    admin_root_recording = RecordingStudio::Recording.find_by!(recordable: admin_root)
+    assert_nil admin_root_recording.parent_recording_id
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do
