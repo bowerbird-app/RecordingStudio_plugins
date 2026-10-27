@@ -11,6 +11,30 @@ module RecordingStudioPlugins
       attribute :index
     end
 
+    module Persist
+      module_function
+
+      def ensure_recording!(key, actor:)
+        Appearance.recording_for(key).presence || insert_recording!(key, actor: actor)
+      end
+
+      def insert_recording!(key, actor:)
+        created = Appearance.create_recording!(key, actor: actor)
+        return if created.blank?
+
+        Appearance.reset_index!
+        Appearance.unwrap_recording(created) || Appearance.recording_for(key)
+      rescue ActiveRecord::RecordNotUnique => e
+        names = [e.message, e.cause&.message].compact.join
+        raise unless names.include?(UNIQUE_PLUGIN_KEY_INDEX)
+
+        Appearance.reset_index!
+        Appearance.recording_for(key)
+      end
+    end
+
+    extend Persist
+
     module_function
 
     def display_name(definition)
@@ -36,28 +60,6 @@ module RecordingStudioPlugins
 
     def configured?
       admin_recording.present?
-    end
-
-    def ensure_recording!(key, actor:)
-      existing = recording_for(key)
-      return existing if existing.present?
-
-      created = create_recording!(key, actor: actor)
-      return if created.blank?
-
-      reset_index!
-      unwrap_recording(created) || recording_for(key)
-    rescue ActiveRecord::RecordNotUnique => error
-      raise unless unique_plugin_key_conflict?(error)
-
-      reset_index!
-      recording_for(key)
-    end
-
-    def unique_plugin_key_conflict?(error)
-      [error.message, error.cause&.message].compact.any? do |text|
-        text.include?(UNIQUE_PLUGIN_KEY_INDEX)
-      end
     end
 
     def create_recording!(key, actor:)

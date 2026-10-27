@@ -58,7 +58,7 @@ class AppearanceTest < Minitest::Test
       "PG::UniqueViolation: duplicate key value violates unique constraint \"other_index\""
     )
 
-    RecordingStudioPlugins::Appearance.stub(:recording_for, ->(_key) { nil }) do
+    RecordingStudioPlugins::Appearance.stub(:recording_for, ->(*) {}) do
       RecordingStudioPlugins::Appearance.stub(:create_recording!, ->(*) { raise error }) do
         raised = assert_raises(ActiveRecord::RecordNotUnique) do
           RecordingStudioPlugins::Appearance.ensure_recording!(:sample, actor: Object.new)
@@ -68,4 +68,3 @@ class AppearanceTest < Minitest::Test
     end
   end
 end
-
