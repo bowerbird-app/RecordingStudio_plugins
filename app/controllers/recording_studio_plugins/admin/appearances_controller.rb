@@ -3,15 +3,12 @@
 module RecordingStudioPlugins
   module Admin
     class AppearancesController < ApplicationController
+      include StaffAccess
+
+      helper AppearancesHelper
       helper RecordingStudioAttachable::ApplicationHelper
       helper Rails.application.routes.mounted_helpers
       helper_method :recording_direct_uploads_path
-
-      before_action :authorize_plugin_staff!
-      rescue_from RecordingStudioAdmin::AuthorizationFailed, with: :render_staff_forbidden
-      rescue_from RecordingStudioAdmin::DefinitionNotFound, with: :render_staff_forbidden
-
-      helper_method :recording_studio_admin_context, :plugin_admin_back_href
 
       def index
         unless Appearance.configured?
@@ -30,7 +27,6 @@ module RecordingStudioPlugins
           return
         end
 
-        prepare_edit_recording!(definition)
         @row = appearance_row(definition)
       end
 
@@ -54,42 +50,6 @@ module RecordingStudioPlugins
 
       private
 
-      def authorize_plugin_staff!(role: :view)
-        deny_unless_staff_role!(role)
-        RecordingStudioAdmin::BlastRadius.authorize!(
-          RecordingStudioPlugins::Admin::PluginsSection,
-          context: recording_studio_admin_context,
-          label: "Plugins"
-        )
-      end
-
-      def deny_unless_staff_role!(role)
-        context = recording_studio_admin_context
-        actor = context.current_actor
-        recording = context.access_recording
-        return if actor && recording && RecordingStudioAccessible.authorized?(actor:, recording:, role:)
-
-        raise RecordingStudioAdmin::AuthorizationFailed, plugin_copy("admin.forbidden.description")
-      end
-
-      def recording_studio_admin_context
-        @recording_studio_admin_context ||= RecordingStudioAdmin::Context.new(
-          params: params.to_unsafe_h,
-          current_actor: staff_actor,
-          controller: self,
-          routes: main_app,
-          view_context: view_context
-        )
-      end
-
-      def staff_actor
-        if defined?(Current) && Current.respond_to?(:actor) && Current.actor
-          Current.actor
-        elsif respond_to?(:current_user)
-          current_user
-        end
-      end
-
       def assign_rows
         @rows = RecordingStudioPlugins.all.map { |definition| appearance_row(definition) }
       end
@@ -111,20 +71,6 @@ module RecordingStudioPlugins
         definition
       end
 
-      def prepare_edit_recording!(definition)
-        return unless Appearance.configured?
-        return unless staff_can_change_appearance?
-
-        Appearance.ensure_recording!(definition.key, actor: staff_actor)
-      end
-
-      def staff_can_change_appearance?
-        context = recording_studio_admin_context
-        actor = context.current_actor
-        recording = context.access_recording
-        actor && recording && RecordingStudioAccessible.authorized?(actor:, recording:, role: :admin)
-      end
-
       def save_name(key)
         attrs = appearance_params[key.to_s] || appearance_params[key.to_sym]
         Appearance.update_name!(key, name: attrs&.fetch(:name, nil), actor: staff_actor)
@@ -141,18 +87,6 @@ module RecordingStudioPlugins
           values = attrs.respond_to?(:to_h) ? attrs.to_h : {}
           allowed[key] = { name: values["name"] || values[:name] }
         end
-      end
-
-      def plugin_copy(key, default: nil)
-        RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
-      end
-
-      def plugin_admin_back_href
-        recording_studio_admin_context.admin_section_path("plugins")
-      end
-
-      def render_staff_forbidden
-        render "recording_studio_plugins/plugins/forbidden", status: :forbidden
       end
 
       def recording_direct_uploads_path(recording, **)

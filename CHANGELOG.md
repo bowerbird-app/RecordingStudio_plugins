@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Staff-only Admin section for plugin display names and one picture per registered plugin. The page lives on the admin root (`section :plugins`). Site staff with Accessible access on that root can open and edit it. Workspace admins and members cannot.
 - `recording_studio_plugin_appearances` plus `recording_studio_plugins:migrations`. Each plugin key has a current appearance recording under the admin root. Attachable holds the optional picture (`max_file_count: 1`). Clearing the display name falls back to the registered name. Removing the picture falls back to no picture. The plugin key never changes.
-- Directory, detail, and inbound modal use the display name. A custom picture renders next to the name with alt text equal to that name. Those pages load appearance recordings and pictures in one map per request.
-- Appearance recordings are created when staff save a name or upload a picture, not when they open the staff page.
+- Directory and inbound modal use the display name. A custom picture renders next to the name with alt text equal to that name. Those pages load appearance recordings and pictures in one map per request.
+- Appearance recordings are created when staff save a name or upload a picture, not when they open the staff list or a plugin's edit page.
 
 ### Changed
 - **BREAKING:** this gem now depends on `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`. Dummy and development GitHub tags stay on Admin `v2.5.1` (newest Admin without Logs) and Attachable `v0.22.0`. Logs `v0.4.1` stays because API `v0.14.0` still needs it.

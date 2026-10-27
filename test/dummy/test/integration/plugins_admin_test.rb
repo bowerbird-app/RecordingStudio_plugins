@@ -49,6 +49,12 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_equal recording_count, appearance_recording_count
     assert_includes response.body, "ChatGPT"
 
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
+
+    assert_response :success
+    assert_equal appearance_count, RecordingStudioPlugins::PluginAppearance.count
+    assert_equal recording_count, appearance_recording_count
+
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Should not save" } }
     }
@@ -122,23 +128,30 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get "/admin"
 
     assert_response :success
-    assert_select "a[href=?]", "/recording_studio_plugins/admin/plugins", text: "Plugin names and pictures"
+    assert_select "a[href='/recording_studio_plugins/admin/plugins'] .fp-sidebar-label", text: "Plugin names and pictures"
 
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
-    assert_select "a[href=?]", "/recording_studio_plugins/admin/plugins", text: "Plugin names and pictures"
+    assert_select "a[href='/recording_studio_plugins/admin/plugins'] .fp-sidebar-label", text: "Plugin names and pictures"
   end
 
   test "staff get 403 on /admin from a workspace root" do
     sign_in @staff
+    Current.actor = @workspace_admin
+    RecordingStudioAccessible.grant_access(
+      recording: @workspace_root,
+      actor: @staff,
+      role: "view",
+      manager_actor: @workspace_admin
+    )
     Current.actor = @staff
     switch_to_root!(@workspace_root)
 
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_select "a[href=?]", "/recording_studio_plugins/", text: "Plugins"
+    assert_select "a[href='/recording_studio_plugins/'] .fp-sidebar-label", text: "Plugins"
     assert_select "a[href='/recording_studio_plugins/admin/plugins']", count: 0
 
     get "/admin"
@@ -237,7 +250,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
-    assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert_select "input[name='appearances[chatgpt][name]']"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {

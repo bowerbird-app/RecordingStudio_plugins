@@ -43,7 +43,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Website embed"
     refute_includes response.body, "Grokbot"
     assert_includes response.body, "Connect"
-    assert_select "a[href=?]", "/recording_studio_plugins/", text: "Plugins"
+    assert_select "a[href='/recording_studio_plugins/'] .fp-sidebar-label", text: "Plugins"
     assert_select "a[href='/recording_studio_plugins/admin/plugins']", count: 0
     %w[ChatGPT Grok\ Bot Google\ Drive Dropbox].each do |name|
       assert_equal 1, directory_rows.count { |row| row.include?(name) }, "#{name} should appear once"
