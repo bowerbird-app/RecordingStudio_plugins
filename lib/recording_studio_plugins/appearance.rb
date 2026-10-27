@@ -160,9 +160,18 @@ module RecordingStudioPlugins
         return {} if relation.nil?
 
         kept(relation).includes(:recordable).each_with_object({}) do |recording, map|
-          plugin_key = recording.recordable&.plugin_key
-          map[plugin_key] = recording if plugin_key.present?
+          assign_latest_appearance(map, recording)
         end
+      end
+
+      def assign_latest_appearance(map, recording)
+        plugin_key = recording.recordable&.plugin_key
+        return if plugin_key.blank?
+
+        existing = map[plugin_key]
+        return if existing && existing.recordable.created_at >= recording.recordable.created_at
+
+        map[plugin_key] = recording
       end
 
       def appearance_relation
