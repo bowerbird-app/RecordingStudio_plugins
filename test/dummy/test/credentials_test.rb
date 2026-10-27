@@ -40,26 +40,26 @@ class CredentialsTest < ActiveSupport::TestCase
     ENV["DROPBOX_APP_KEY"] = "stub-dropbox-key"
     ENV["DROPBOX_APP_SECRET"] = "stub-dropbox-secret"
 
-    Rails.env.stub(:test?, false) do
-      RecordingStudioOauth::Outbound.reset_providers!
-      load Rails.root.join("config/initializers/recording_studio_google_drive.rb")
-      load Rails.root.join("config/initializers/recording_studio_dropbox.rb")
+    Rails.env = "development"
+    RecordingStudioOauth::Outbound.reset_providers!
+    load Rails.root.join("config/initializers/recording_studio_google_drive.rb")
+    load Rails.root.join("config/initializers/recording_studio_dropbox.rb")
 
-      google = RecordingStudioOauth::Outbound.provider(:google_drive)
-      dropbox = RecordingStudioOauth::Outbound.provider(:dropbox)
+    google = RecordingStudioOauth::Outbound.provider(:google_drive)
+    dropbox = RecordingStudioOauth::Outbound.provider(:dropbox)
 
-      assert google.present?
-      assert dropbox.present?
-      assert_equal "https://accounts.google.com/o/oauth2/v2/auth", google.authorize_url
-      assert_includes google.authorize_url, "accounts.google.com"
-      assert_equal "https://www.dropbox.com/oauth2/authorize", dropbox.authorize_url
-      assert_includes dropbox.authorize_url, "dropbox.com"
-      assert_nil google.http
-      refute_equal FakeDropboxOauth, dropbox.http
-      refute_includes google.inspect, "stub-google-secret"
-      refute_includes dropbox.inspect, "stub-dropbox-secret"
-    end
+    assert google.present?
+    assert dropbox.present?
+    assert_equal "https://accounts.google.com/o/oauth2/v2/auth", google.authorize_url
+    assert_includes google.authorize_url, "accounts.google.com"
+    assert_equal "https://www.dropbox.com/oauth2/authorize", dropbox.authorize_url
+    assert_includes dropbox.authorize_url, "dropbox.com"
+    assert_nil google.http
+    refute_equal FakeDropboxOauth, dropbox.http
+    refute_includes google.inspect, "stub-google-secret"
+    refute_includes dropbox.inspect, "stub-dropbox-secret"
   ensure
+    Rails.env = "test"
     restore_oauth_env!(previous)
     RecordingStudioOauth::Outbound.reset_providers!
     load Rails.root.join("config/initializers/recording_studio_google_drive.rb")
