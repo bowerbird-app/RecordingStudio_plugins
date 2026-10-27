@@ -80,6 +80,36 @@ class AppearanceTest < Minitest::Test
     end
   end
 
+  def test_update_name_treats_the_registered_name_as_no_custom_name
+    RecordingStudioPlugins.register(
+      :sample,
+      name: "Sample",
+      category: :other,
+      position: 1,
+      owner: "test"
+    )
+    recordable = Struct.new(:name).new("Press")
+    recording = Struct.new(:recordable).new(recordable)
+    revised = false
+
+    RecordingStudioPlugins::Appearance.stub(:ensure_recording!, ->(*) { recording }) do
+      RecordingStudioPlugins::Appearance.stub(:revise_name!, lambda { |*_args, **_kwargs|
+        revised = true
+        recordable.name = nil
+        recording
+      }) do
+        RecordingStudioPlugins::Appearance.stub(:reset_index!, -> {}) do
+          RecordingStudioPlugins::Appearance.update_name!(:sample, name: "Sample", actor: Object.new)
+          RecordingStudioPlugins::Appearance.update_name!(:sample, name: "  Sample  ", actor: Object.new)
+          RecordingStudioPlugins::Appearance.update_name!(:sample, name: "", actor: Object.new)
+        end
+      end
+    end
+
+    assert revised
+    assert_nil recordable.name
+  end
+
   def test_ensure_recording_inserts_when_no_recording_exists
     created = Object.new
     lookups = 0

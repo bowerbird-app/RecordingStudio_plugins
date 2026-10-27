@@ -5,10 +5,6 @@ module RecordingStudioPlugins
     class AppearancesController < ApplicationController
       include StaffAccess
 
-      helper RecordingStudioAttachable::ApplicationHelper
-      helper Rails.application.routes.mounted_helpers
-      helper_method :recording_direct_uploads_path
-
       def index
         unless Appearance.configured?
           @unconfigured = true
@@ -38,7 +34,7 @@ module RecordingStudioPlugins
           return
         end
 
-        save_name(definition.key)
+        save_appearance(definition.key)
         redirect_to admin_plugins_path, notice: helpers.plugin_copy("admin.flashes.saved")
       end
 
@@ -75,24 +71,54 @@ module RecordingStudioPlugins
         definition
       end
 
-      def save_name(key)
+      def save_appearance(key)
         Appearance.update_name!(key, name: appearance_name_param(key), actor: staff_actor)
+        save_picture(key)
+      end
+
+      def save_picture(key)
+        upload = appearance_picture_param(key)
+        if upload
+          Appearance.replace_image!(
+            key,
+            io: upload,
+            filename: upload.original_filename,
+            content_type: upload.content_type,
+            actor: staff_actor
+          )
+          return
+        end
+
+        return unless appearance_remove_picture?(key)
+
+        Appearance.remove_image!(key, actor: staff_actor)
       end
 
       def appearance_name_param(key)
+        appearance_attrs(key)["name"]
+      end
+
+      def appearance_picture_param(key)
+        upload = appearance_attrs(key)["picture"]
+        return unless upload.respond_to?(:original_filename) && upload.original_filename.present?
+
+        upload
+      end
+
+      def appearance_remove_picture?(key)
+        appearance_attrs(key)["remove_picture"].to_s == "1"
+      end
+
+      def appearance_attrs(key)
         raw = params[:appearances]
-        return if raw.blank?
+        return {} if raw.blank?
 
         hash = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw.to_h
         attrs = hash.stringify_keys[key.to_s]
-        return if attrs.blank?
+        return {} if attrs.blank?
+        return attrs.stringify_keys if attrs.respond_to?(:stringify_keys)
 
-        values = attrs.respond_to?(:to_h) ? attrs.to_h : {}
-        values.stringify_keys["name"]
-      end
-
-      def recording_direct_uploads_path(recording, **)
-        recording_studio_attachable.recording_direct_uploads_path(recording, **)
+        {}
       end
     end
   end

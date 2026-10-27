@@ -4,6 +4,7 @@ require "test_helper"
 require "devise/test/integration_helpers"
 require "securerandom"
 require "base64"
+require "tempfile"
 
 class PluginsAdminTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
@@ -39,6 +40,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     grant_staff!(viewer, role: "view")
     sign_in viewer
     Current.actor = viewer
+    switch_to_root!(admin_root_recording)
     appearance_count = RecordingStudioPlugins::PluginAppearance.count
     recording_count = appearance_recording_count
 
@@ -54,7 +56,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal appearance_count, RecordingStudioPlugins::PluginAppearance.count
     assert_equal recording_count, appearance_recording_count
-    refute_includes response.body, "plugin-chatgpt-picture"
+    refute_select "input[type='file'][name='appearances[chatgpt][picture]']"
     refute_includes response.body, "recording-studio-attachable--attachment-revision-upload"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
@@ -72,6 +74,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   test "staff can open and edit plugin display names" do
     sign_in @staff
     Current.actor = @staff
+    switch_to_root!(admin_root_recording)
 
     get recording_studio_plugins.admin_plugins_path
 
@@ -95,12 +98,16 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     RecordingStudioPlugins::Appearance.reset_index!
     assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
-    assert_includes response.body, "plugin-chatgpt-picture"
-    assert_includes response.body, "recording-studio-attachable--attachment-revision-upload"
+    assert_select "input[type='file'][name='appearances[chatgpt][picture]']"
+    assert_select "input[type='hidden'][name='appearances[chatgpt][remove_picture]']"
+    refute_includes response.body, "plugin-chatgpt-picture"
+    refute_includes response.body, "recording-studio-attachable--attachment-revision-upload"
     refute_includes response.body, "The plugin key never changes."
     refute_includes response.body, "What people see in the directory. The wiring name stays put."
     refute_includes response.body, "flat-pack-sidebar-layout"
     assert_select ".gap-6"
+    assert_select "[class*='md:grid-cols-2']"
+    assert_select ".w-fit"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Press machine" } }
@@ -123,6 +130,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     sign_in @staff
     Current.actor = @staff
+    switch_to_root!(admin_root_recording)
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "" } }
     }
@@ -163,6 +171,84 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get "/admin"
 
     assert_response :forbidden
+  end
+
+  test "staff on a workspace root cannot open plugin staff pages" do
+    sign_in @staff
+    Current.actor = @staff
+    switch_to_root!(@workspace_root)
+
+    get recording_studio_plugins.admin_plugins_path
+
+    assert_response :forbidden
+    assert_includes response.body, "You don't have access"
+
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
+
+    assert_response :forbidden
+
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: { chatgpt: { name: "Workspace rename" } }
+    }
+
+    assert_response :forbidden
+    assert_equal "ChatGPT", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
+
+    delete recording_studio_plugins.admin_plugin_image_path(:chatgpt)
+
+    assert_response :forbidden
+  end
+
+  test "saving the prefilled registered name does not keep a custom name" do
+    sign_in @staff
+    Current.actor = @staff
+    switch_to_root!(admin_root_recording)
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press machine", actor: @staff)
+
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: { chatgpt: { name: "ChatGPT" } }
+    }
+
+    assert_redirected_to recording_studio_plugins.admin_plugins_path
+    RecordingStudioPlugins::Appearance.reset_index!
+    assert_nil RecordingStudioPlugins::Appearance.current_recordable(:chatgpt).name
+    assert_equal "ChatGPT", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
+  end
+
+  test "staff can upload a plugin picture from the edit form" do
+    sign_in @staff
+    Current.actor = @staff
+    switch_to_root!(admin_root_recording)
+    get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
+
+    assert_response :success
+    tempfile = Tempfile.new(["chatgpt", ".png"])
+    tempfile.binmode
+    tempfile.write(MINI_PNG)
+    tempfile.rewind
+
+    patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
+      appearances: {
+        chatgpt: {
+          name: "Chat helper",
+          picture: Rack::Test::UploadedFile.new(tempfile.path, "image/png", original_filename: "chatgpt.png")
+        }
+      }
+    }
+
+    assert_redirected_to recording_studio_plugins.admin_plugins_path
+    RecordingStudioPlugins::Appearance.reset_index!
+    assert RecordingStudioPlugins::Appearance.image_recording(:chatgpt)
+
+    sign_in @workspace_admin
+    Current.actor = @workspace_admin
+    switch_to_root!(@workspace_root)
+    get recording_studio_plugins.root_path
+
+    assert_response :success
+    assert_select "img[alt='Chat helper']"
+  ensure
+    tempfile&.close!
   end
 
   test "appearance lookup returns the recording for that plugin key" do
@@ -280,6 +366,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   test "unconfigured admin root shows an empty staff page" do
     sign_in @staff
     Current.actor = @staff
+    switch_to_root!(admin_root_recording)
     config = RecordingStudioPlugins.configuration
     original_types = config.admin_root_types
     original_name = config.admin_root_name
@@ -305,14 +392,14 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   test "custom picture shows on directory detail and inbound modal and removing it falls back" do
     sign_in @staff
     Current.actor = @staff
+    switch_to_root!(admin_root_recording)
     get recording_studio_plugins.admin_plugin_edit_path(:chatgpt)
 
     assert_response :success
     RecordingStudioPlugins::Appearance.reset_index!
     assert RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
     assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
-    assert_includes response.body, "plugin-chatgpt-picture"
-    assert_includes response.body, "recording-studio-attachable--attachment-revision-upload"
+    assert_select "input[type='file'][name='appearances[chatgpt][picture]']"
 
     patch recording_studio_plugins.admin_plugin_path(:chatgpt), params: {
       appearances: { chatgpt: { name: "Chat helper" } }
@@ -346,6 +433,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     sign_in @staff
     Current.actor = @staff
+    switch_to_root!(admin_root_recording)
     delete recording_studio_plugins.admin_plugin_image_path(:chatgpt)
 
     assert_redirected_to recording_studio_plugins.admin_plugin_edit_path(:chatgpt)

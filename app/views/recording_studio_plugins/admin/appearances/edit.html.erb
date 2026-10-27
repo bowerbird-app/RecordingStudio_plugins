@@ -6,63 +6,43 @@
      back_tooltip: plugin_copy("admin.back")
    ) %>
 
-<%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
-  <% if plugin_staff_admin? && @row[:recording].present? %>
-    <%= turbo_frame_tag "plugin-#{@row[:key]}-picture" do %>
-      <div class="inline-flex items-end gap-3">
-        <% if @row[:image_url].present? %>
-          <%= render FlatPack::Avatar::Component.new(
-            src: @row[:image_url],
-            size: :lg,
-            shape: :square,
-            alt: @row[:name]
-          ) %>
-        <% else %>
-          <%= render FlatPack::Avatar::Component.new(
-            size: :lg,
-            shape: :square,
-            icon: "photo",
-            alt: @row[:name]
-          ) %>
-        <% end %>
-        <%= render_attachment_file_button(
-              @row[:recording],
-              return_to: admin_plugin_edit_path(@row[:key]),
-              target: "plugin-#{@row[:key]}-picture"
-            ) %>
-        <% if @row[:attachment_recording].present? %>
-          <%= form_with url: admin_plugin_image_path(@row[:key]), method: :delete, html: { class: "inline-flex" } do %>
-            <%= render FlatPack::Button::Component.new(
-              text: plugin_copy("admin.remove_picture"),
-              type: "submit",
-              style: :secondary
-            ) %>
-          <% end %>
-        <% end %>
-      </div>
+<%= form_with url: admin_plugin_path(@row[:key]), method: :patch, multipart: true do %>
+  <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
+    <%= render FlatPack::Grid::Component.new(cols: 2, gap: :lg, align: :start) do %>
+      <% if plugin_staff_admin? && @row[:recording].present? %>
+        <%= render FlatPack::ImageInput::Component.new(
+          name: "appearances[#{@row[:key]}][picture]",
+          label: plugin_copy("admin.picture"),
+          src: @row[:image_url],
+          alt: @row[:name],
+          shape: :square,
+          size: :xl,
+          accept: "image/*",
+          clearable: true,
+          remove_name: "appearances[#{@row[:key]}][remove_picture]"
+        ) %>
+      <% elsif @row[:image_url].present? %>
+        <%= render FlatPack::Avatar::Component.new(
+          src: @row[:image_url],
+          size: :lg,
+          shape: :square,
+          alt: @row[:name]
+        ) %>
+      <% end %>
+
+      <%= render FlatPack::TextInput::Component.new(
+        name: "appearances[#{@row[:key]}][name]",
+        label: plugin_copy("admin.display_name"),
+        value: @row[:name]
+      ) %>
     <% end %>
-  <% elsif @row[:image_url].present? %>
-    <%= render FlatPack::Avatar::Component.new(
-      src: @row[:image_url],
-      size: :lg,
-      shape: :square,
-      alt: @row[:name]
-    ) %>
-  <% end %>
 
-  <%= form_with url: admin_plugin_path(@row[:key]), method: :patch, html: { id: "plugin-name-form" } do %>
-    <%= render FlatPack::TextInput::Component.new(
-      name: "appearances[#{@row[:key]}][name]",
-      label: plugin_copy("admin.display_name"),
-      value: @row[:name],
-      form: "plugin-name-form"
-    ) %>
+    <div class="w-fit">
+      <%= render FlatPack::Button::Component.new(
+        text: plugin_copy("admin.save"),
+        type: "submit",
+        style: :primary
+      ) %>
+    </div>
   <% end %>
-
-  <%= render FlatPack::Button::Component.new(
-    text: plugin_copy("admin.save"),
-    type: "submit",
-    style: :primary,
-    form: "plugin-name-form"
-  ) %>
 <% end %>

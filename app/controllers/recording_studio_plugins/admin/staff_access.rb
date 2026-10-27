@@ -15,19 +15,20 @@ module RecordingStudioPlugins
       private
 
       def authorize_plugin_staff!(role: :view)
-        deny_unless_staff_role!(role)
+        context = recording_studio_admin_context
+        recording = plugin_admin_root_recording(context)
+        deny_unless_admin_root_access!(context, recording)
+        RecordingStudioAdmin::Authorization.authorize!(context, recording: recording, role: role)
         RecordingStudioAdmin::BlastRadius.authorize!(
           RecordingStudioPlugins::Admin::PluginsSection,
-          context: recording_studio_admin_context,
+          context: context,
+          recording: recording,
           label: "Plugins"
         )
       end
 
-      def deny_unless_staff_role!(role)
-        context = recording_studio_admin_context
-        actor = context.current_actor
-        recording = context.access_recording
-        return if actor && recording && RecordingStudioAccessible.authorized?(actor:, recording:, role:)
+      def deny_unless_admin_root_access!(context, recording)
+        return if recording.present? && same_recording?(context.access_recording, recording)
 
         raise RecordingStudioAdmin::AuthorizationFailed, helpers.plugin_copy("admin.forbidden.description")
       end
@@ -45,11 +46,35 @@ module RecordingStudioPlugins
       def plugin_staff_admin?
         return @plugin_staff_admin unless @plugin_staff_admin.nil?
 
+        @plugin_staff_admin = staff_on_admin_root?(:admin)
+      end
+
+      def staff_on_admin_root?(role)
         context = recording_studio_admin_context
+        recording = plugin_admin_root_recording(context)
         actor = context.current_actor
-        recording = context.access_recording
-        @plugin_staff_admin = actor.present? && recording.present? &&
-                              RecordingStudioAccessible.authorized?(actor:, recording:, role: :admin)
+        return false unless actor && recording && same_recording?(context.access_recording, recording)
+        return false unless admin_root_is_current?(context, recording)
+
+        RecordingStudioAccessible.authorized?(actor:, recording:, role:)
+      end
+
+      def plugin_admin_root_recording(context)
+        context.site_admin_recording.presence || Appearance.admin_recording
+      end
+
+      def admin_root_is_current?(context, recording)
+        RecordingStudioAdmin::Authorization.ensure_current_root_matches!(context, recording)
+        true
+      rescue RecordingStudioAdmin::AuthorizationFailed
+        false
+      end
+
+      def same_recording?(left, right)
+        return false if left.blank? || right.blank?
+        return true if left == right
+
+        left.respond_to?(:id) && right.respond_to?(:id) && left.id.present? && left.id == right.id
       end
 
       def staff_actor

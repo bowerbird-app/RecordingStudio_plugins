@@ -50,8 +50,8 @@ module RecordingStudioPlugins
     def action?(can_edit:)
       return false if user?
       return false unless can_edit
-      return false if status_failed?
-      return false if action_href.blank?
+      return false if status_failed? || (connected? && action_href.blank?)
+      return false if rejected_action_url?
 
       true
     end
@@ -112,6 +112,11 @@ module RecordingStudioPlugins
       return false if status_result.nil? || status_result == :missing || status_result.is_a?(Status)
 
       true
+    end
+
+    def rejected_action_url?
+      raw = status_record&.action_url
+      raw.present? && action_href.nil?
     end
 
     def status_result

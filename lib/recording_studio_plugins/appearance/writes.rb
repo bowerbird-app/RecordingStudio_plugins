@@ -46,7 +46,7 @@ module RecordingStudioPlugins
       recording = ensure_recording!(key, actor: actor)
       return if recording.blank?
 
-      new_name = name.to_s.strip.presence
+      new_name = custom_name(key, name)
       return recording if recording.recordable&.name == new_name
 
       result = revise_name!(recording, key:, name: new_name, actor:)
@@ -95,6 +95,34 @@ module RecordingStudioPlugins
 
       reset_index!
       recording_for(key)
+    end
+
+    def custom_name(key, name)
+      text = name.to_s.strip.presence
+      registered = RecordingStudioPlugins.find(key)&.name
+      return if text.blank? || (registered.present? && text == registered)
+
+      text
+    end
+
+    def replace_image!(key, io:, filename:, content_type:, actor:)
+      recording = ensure_recording!(key, actor: actor)
+      return if recording.blank? || io.blank?
+
+      remove_image!(key, actor: actor)
+      recording = recording_for(key) || recording
+      result = RecordingStudioAttachable::Services::ImportAttachment.call(
+        parent_recording: recording,
+        io: io,
+        filename: filename,
+        content_type: content_type,
+        actor: actor,
+        source: "direct_upload"
+      )
+      raise result.error if result.failure?
+
+      reset_index!
+      result.value
     end
   end
 end

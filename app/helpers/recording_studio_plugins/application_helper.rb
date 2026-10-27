@@ -87,7 +87,6 @@ module RecordingStudioPlugins
 
       allowed = listing.root? ? can_admin : can_edit
       return unless listing.action?(can_edit: allowed)
-      return if listing.action_href.blank?
 
       if listing.root?
         render "recording_studio_plugins/plugins/oauth_action", listing: listing, directory: directory

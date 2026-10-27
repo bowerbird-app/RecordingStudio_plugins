@@ -3,6 +3,7 @@
 require "test_helper"
 require "devise/test/integration_helpers"
 require "securerandom"
+require "uri"
 
 class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
@@ -53,8 +54,8 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "li[role='listitem'] [class*='h-10'][class*='w-10']"
     assert_select "a[href='https://chatgpt.com'][target='_blank']", text: "Connect"
     assert_select "a[href='https://grok.com'][target='_blank']", text: "Connect"
-    refute_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
-    refute_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
+    assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
+    assert_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
@@ -221,15 +222,38 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Google Drive"
   end
 
-  test "dummy google drive and dropbox have no connect control" do
+  test "dummy google drive and dropbox connect through oauth" do
     get recording_studio_plugins.root_path
 
     assert_response :success
-    refute_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
-    refute_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
+    assert_select "form[method='post'][action='/recording_studio_oauth/outbound/google_drive/connect']"
+    assert_select "form[method='post'][action='/recording_studio_oauth/outbound/dropbox/connect']"
     refute_select "a[href='/recording_studio_oauth/outbound/google_drive/connect']"
     refute_select "a[href='/recording_studio_oauth/outbound/dropbox/connect']"
     refute_select "a[href='#']", text: "Connect"
+  end
+
+  test "connect posts to oauth then lands on the dummy fake provider page" do
+    with_csrf_protection do
+      post "/recording_studio_oauth/outbound/google_drive/connect", params: {
+        owner: "root",
+        root_recording_id: @root.id,
+        return_to: recording_studio_plugins.root_path
+      }
+
+      assert_response :redirect
+      location = response.redirect_url
+      refute_nil location
+      assert_includes location, "/fake_oauth/authorize"
+      refute_equal recording_studio_plugins.root_path, URI.parse(location).path
+
+      follow_redirect!
+
+      assert_response :success
+      assert_equal "/fake_oauth/authorize", request.path
+      assert_includes response.body, "Fake provider"
+      assert_select "form[action='/fake_oauth/continue']"
+    end
   end
 
   test "admin sees a connect action that posts to oauth when authorize url is https" do
