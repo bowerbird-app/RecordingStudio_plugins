@@ -109,6 +109,26 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "WordPress"
   end
 
+  test "staff can open /admin after switching to the Admin root" do
+    sign_in @staff
+    Current.actor = @staff
+    switch_to_root!(admin_root_recording)
+
+    get "/admin"
+
+    assert_response :success
+  end
+
+  test "staff get 403 on /admin from a workspace root" do
+    sign_in @staff
+    Current.actor = @staff
+    switch_to_root!(@workspace_root)
+
+    get "/admin"
+
+    assert_response :forbidden
+  end
+
   test "workspace admin and member cannot open the staff page" do
     sign_in @workspace_admin
     Current.actor = @workspace_admin

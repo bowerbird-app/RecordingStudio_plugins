@@ -25,13 +25,13 @@ bin/dev
 
 Run the commands above from the dummy app directory, not the repository root.
 
-Then open the app and sign in with the seeded site staff user `admin@admin.com`.
+Then open the app and sign in with the seeded site staff user `admin@admin.com`. The seeded staff password is in `test/dummy/db/seeds.rb`. Switch to the "Admin" root in the root switcher, then open `/admin` (Plugins section). The direct page `/recording_studio_plugins/admin/plugins` also works.
 
 ## Useful Routes
 
 - `/` - dummy app home page and template guidance
-- `/admin` - staff plugin names and pictures (site staff only)
-- `/recording_studio_plugins/admin/plugins` - the same editor on the Plugins engine
+- `/admin` - staff plugin names and pictures after switching to the "Admin" root (site staff only)
+- `/recording_studio_plugins/admin/plugins` - the same editor on the Plugins engine (also works without switching)
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` - dummy-only starter pages
