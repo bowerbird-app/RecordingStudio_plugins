@@ -79,7 +79,9 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
-    assert_includes response.body, "Plugin names and pictures"
+    assert_select "title", text: "Plugins"
+    assert_select "h1", text: "Plugins"
+    refute_includes response.body, "Plugin names and pictures"
     refute_includes response.body, "What people see in the directory. The wiring name stays put."
     refute_includes response.body, "Default name"
     refute_includes response.body, "flat-pack-sidebar-layout"
@@ -509,19 +511,18 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
   def assert_picture_file_picker
     assert_select "[data-controller='flat-pack--image-input']"
-    assert_select "label", text: "Picture"
-    assert_select "[data-controller='flat-pack--image-input'] label[for]" do |labels|
-      input_id = labels.first["for"]
-      assert_select "input##{input_id}[type='file'][name='appearances[chatgpt][picture]'][accept='image/*'][class*='sr-only']"
-    end
+    refute_select "label", text: "Picture"
+    assert_select "input[type='file'][name='appearances[chatgpt][picture]'][accept='image/*'][class*='sr-only'][aria-label='Picture']"
   end
 
   def assert_compact_picture_name_fields
     refute_select "[class*='md:grid-cols-2']"
-    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4"
-    assert_select "div.flex.w-fit.max-w-full.items-start.gap-4 div.w-72.max-w-full"
+    refute_select "label", text: "Display name"
+    assert_select "div.flex.w-full.max-w-full.items-start.gap-4"
+    assert_select "div.flex.w-full.max-w-full.items-start.gap-4 div.min-w-0.flex-1"
+    refute_select "div.w-72.max-w-full"
     assert_select "div.mt-6.w-fit"
-    assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT']"
+    assert_select "input[name='appearances[chatgpt][name]'][value='ChatGPT'][aria-label='Display name']"
   end
 
   def switch_to_root!(root_recording)

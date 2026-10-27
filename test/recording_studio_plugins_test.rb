@@ -212,8 +212,10 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes admin_edit, "FlatPack::ImageInput::Component"
     refute_includes admin_edit, "cols: 2"
     refute_includes admin_edit, "PageLayout"
-    assert_includes admin_edit, "flex w-fit max-w-full items-start gap-4"
-    assert_includes admin_edit, "w-72 max-w-full"
+    assert_includes admin_edit, "flex w-full max-w-full items-start gap-4"
+    assert_includes admin_edit, "min-w-0 flex-1"
+    refute_includes admin_edit, "w-72"
+    refute_includes admin_edit, "label: plugin_copy"
     assert_includes admin_edit, "mt-6 w-fit"
   end
 

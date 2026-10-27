@@ -37,7 +37,7 @@ en:
         title_html: You don't have access
         description: Ask someone to invite you to this workspace.
       admin:
-        title: Plugin names and pictures
+        title: Plugins
         back: Plugins
         save: Save
         display_name: Display name
