@@ -48,11 +48,8 @@ module RecordingStudioPlugins
     end
 
     def action?(can_edit:)
-      return false if user?
-      return false unless can_edit
-      return false if !root? && action_href.blank?
-      return false if status_failed? || (connected? && action_href.blank?)
-      return false if rejected_action_url?
+      return false if user? || !can_edit
+      return false if hide_action?
 
       true
     end
@@ -92,6 +89,10 @@ module RecordingStudioPlugins
     private
 
     attr_reader :plugin_context
+
+    def hide_action?
+      status_failed? || (action_href.blank? && (!root? || connected?)) || rejected_action_url?
+    end
 
     def connected?
       status_record&.connected?
