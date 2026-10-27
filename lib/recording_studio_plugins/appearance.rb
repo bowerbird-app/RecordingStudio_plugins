@@ -60,7 +60,8 @@ module RecordingStudioPlugins
     end
 
     def unwrap_recording(value)
-      return value if value.is_a?(RecordingStudio::Recording)
+      recording_class = RecordingStudio.const_get(:Recording) if RecordingStudio.const_defined?(:Recording)
+      return value if recording_class && value.is_a?(recording_class)
       return value.recording if value.respond_to?(:recording)
 
       nil
