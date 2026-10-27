@@ -165,6 +165,22 @@ class InboundDirectoryTest < Minitest::Test
     end
   end
 
+  def test_inbound_people_ignores_non_model_actor_type
+    rows = [{
+      actor_type: "String",
+      actor_id: "1",
+      role: "edit",
+      connected_at: Time.utc(2026, 1, 1),
+      last_used_at: nil,
+      app_name: "ChatGPT"
+    }]
+
+    people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
+
+    assert_nil RecordingStudioPlugins::InboundPeople.actor_class_for("String")
+    assert_equal "User", people.first[:name]
+  end
+
   def test_unknown_mcp_client_key_raises
     error = assert_raises(ArgumentError) do
       RecordingStudioPlugins.register_mcp_client(:not_a_client)

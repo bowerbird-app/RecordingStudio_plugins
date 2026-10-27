@@ -17,7 +17,8 @@ module RecordingStudioPlugins
     end
 
     def self.actor_class_for(type)
-      type.to_s.safe_constantize
+      klass = type.to_s.safe_constantize
+      klass if klass.is_a?(Class) && klass < ActiveRecord::Base
     end
 
     def initialize(rows)
