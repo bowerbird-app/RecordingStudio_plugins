@@ -23,6 +23,8 @@ RecordingStudio.configure do |config|
     "Page",
     "RecordingStudioSiteSettings::SiteSetting",
     "RecordingStudioAttachable::Attachment",
+    "RecordingStudioAttachable::Library",
+    "RecordingStudioAttachable::Placement",
     "RecordingStudioApi::AdminApi"
   ]
 

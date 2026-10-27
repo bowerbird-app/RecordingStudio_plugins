@@ -63,7 +63,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"'
     refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.18.0"'
     refute_includes gemfile, 'RecordingStudio_metrics", tag: "v0.6.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.9.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.320"'
     refute_includes gemfile, 'tag: "v0.1.213"'
@@ -131,7 +131,9 @@ class RecordingStudioPluginsTest < Minitest::Test
   end
 
   def test_engine_controllers_delegate_layout_and_do_not_hardcode_it
-    controller = File.read(File.expand_path("../app/controllers/recording_studio_plugins/application_controller.rb", __dir__))
+    controller = File.read(
+      File.expand_path("../app/controllers/recording_studio_plugins/application_controller.rb", __dir__)
+    )
     gem_root = File.expand_path("..", __dir__)
     index = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/index.html.erb", __dir__))
     show = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/show.html.erb", __dir__))
@@ -204,6 +206,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes initializer_source, '"Folder"'
     assert_includes initializer_source, '"Page"'
     assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
+    assert_includes initializer_source, "RecordingStudioAttachable::Library"
+    assert_includes initializer_source, "RecordingStudioAttachable::Placement"
     assert_includes initializer_source, "RecordingStudioSiteSettings::SiteSetting"
     assert_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
