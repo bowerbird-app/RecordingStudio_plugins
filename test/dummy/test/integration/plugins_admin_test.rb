@@ -151,6 +151,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     refute_includes response.body, "flat-pack-sidebar-layout"
+    refute_select "nav[aria-label='Plugins']"
     assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
   end
 
