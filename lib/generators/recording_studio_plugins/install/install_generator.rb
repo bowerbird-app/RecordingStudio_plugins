@@ -24,6 +24,10 @@ module RecordingStudioPlugins
         template "recording_studio_plugins_initializer.rb", "config/initializers/recording_studio_plugins.rb"
       end
 
+      def install_migrations
+        generate "recording_studio_plugins:migrations"
+      end
+
       def add_tailwind_source
         tailwind_css_path = Rails.root.join("app/assets/tailwind/application.css")
         return show_missing_tailwind_notice unless File.exist?(tailwind_css_path)

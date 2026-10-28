@@ -13,8 +13,10 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
 
   test "dummy app validates recordable declarations" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal [ "Workspace" ], RecordingStudio.root_recordable_types
+    assert_equal [ "AdminRoot", "Workspace" ], RecordingStudio.root_recordable_types.sort
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
+    assert_equal [ "AdminRoot" ],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioPlugins::PluginAppearance")
   end
 
   test "dummy app schema keeps accessible grants and excludes removed core tables" do
@@ -53,6 +55,13 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
     assert_equal 3, Workspace.count
+    assert_equal(
+      ["Client Workspace", "Private Workspace", "Studio Workspace"],
+      Workspace.where(name: ["Client Workspace", "Private Workspace", "Studio Workspace"]).order(:name).pluck(:name)
+    )
+    admin_root = AdminRoot.find_by!(name: "Admin")
+    admin_root_recording = RecordingStudio::Recording.find_by!(recordable: admin_root)
+    assert_nil admin_root_recording.parent_recording_id
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do

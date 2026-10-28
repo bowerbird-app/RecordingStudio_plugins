@@ -85,6 +85,18 @@ class RegistryTest < Minitest::Test
 
     assert_includes error.message, "https"
 
+    http = assert_raises(ArgumentError) do
+      register(:docs, owner: "my_app", setup_url: "http://example.com/docs")
+    end
+
+    assert_includes http.message, "https"
+
+    javascript = assert_raises(ArgumentError) do
+      register(:docs, owner: "my_app", setup_url: "javascript:alert(1)")
+    end
+
+    assert_includes javascript.message, "https"
+
     register(:docs, owner: "my_app", setup_url: "https://example.com/docs")
 
     assert_equal "https://example.com/docs", RecordingStudioPlugins.find(:docs).setup_url

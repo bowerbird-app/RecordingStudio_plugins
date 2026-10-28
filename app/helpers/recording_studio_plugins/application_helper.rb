@@ -2,6 +2,19 @@
 
 module RecordingStudioPlugins
   module ApplicationHelper
+    include PluginIcons
+
+    DIRECTORY_ROW_CLASSES = [
+      "flex items-center",
+      "rounded-[var(--radius-sm)]",
+      "py-[var(--list-item-padding-y)] px-[var(--list-item-padding-x)]",
+      "text-[var(--surface-content-color)]"
+    ].join(" ").freeze
+
+    def plugin_copy(key, default: nil, **interpolations)
+      RecordingStudio.t("recording_studio.plugins.#{key}", default: default, **interpolations)
+    end
+
     def plugin_badge(listing)
       return if listing.badge_style.nil?
 
@@ -23,12 +36,23 @@ module RecordingStudioPlugins
       tag.span(safe_join(parts, " "), class: "inline-flex items-center gap-2")
     end
 
-    def plugin_setup_link(listing)
+    def plugin_setup_button(listing)
       href = listing.setup_href
       return if href.blank?
 
-      render FlatPack::Link::Component.new(href: href, target: "_blank") do
-        plugin_copy("detail.setup")
+      render FlatPack::Button::Component.new(
+        text: listing.directory_status_text.presence || plugin_copy("status.connect"),
+        style: :secondary,
+        href: href,
+        target: "_blank"
+      )
+    end
+
+    def plugin_directory_row(trailing:, &)
+      tag.li(class: DIRECTORY_ROW_CLASSES, role: "listitem") do
+        leading = tag.div(class: "min-w-0 flex-1 flex items-center", &)
+        action = tag.span(trailing, class: "flex-shrink-0 ml-2") if trailing.present?
+        safe_join([leading, action].compact)
       end
     end
 
@@ -44,8 +68,8 @@ module RecordingStudioPlugins
       Array(people).map do |row|
         {
           name: row[:name],
+          email: row[:email].presence || "—",
           role: row[:role].to_s.humanize,
-          app: row[:app_name],
           connected_since: plugin_time(row[:connected_at]),
           last_used: plugin_time(row[:last_used_at])
         }
@@ -55,7 +79,10 @@ module RecordingStudioPlugins
     def plugin_time(value)
       return plugin_copy("detail.never") if value.blank?
 
-      I18n.l(value, format: :long)
+      exact = I18n.l(value, format: :long)
+      render FlatPack::Tooltip::Component.new(text: exact, placement: :top) do
+        tag.time("#{time_ago_in_words(value)} ago", datetime: value.iso8601, tabindex: 0, aria: { label: exact })
+      end
     end
 
     def plugin_action(listing, can_edit:, can_admin: false, directory: false)
@@ -91,8 +118,10 @@ module RecordingStudioPlugins
       text.to_s.split(/\n\n+/).map(&:strip).reject(&:empty?)
     end
 
-    def plugin_copy(key, default: nil)
-      RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
+    def plugin_admin_edit_cell(row)
+      render FlatPack::Link::Component.new(href: admin_plugin_edit_path(row[:key])) do
+        plugin_copy("admin.edit")
+      end
     end
   end
 end

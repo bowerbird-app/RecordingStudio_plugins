@@ -1,0 +1,43 @@
+<%
+  mount_path = RecordingStudioPlugins.configuration.mount_path.presence || "/recording_studio_plugins"
+  plugins_href = "#{mount_path}/"
+  admin_plugins_href = "#{mount_path}/admin/plugins"
+%>
+<%= render FlatPack::Sidebar::Component.new(side: :left) do |sidebar| %>
+  <% sidebar.header do %>
+    <%= render FlatPack::Sidebar::Header::Component.new(
+      brand_abbr: "PL",
+      title: "Plugins"
+    ) %>
+  <% end %>
+
+  <% sidebar.items do %>
+    <nav class="space-y-1 py-4" aria-label="Plugins">
+      <%= render FlatPack::Sidebar::Item::Component.new(
+        text: "Plugins",
+        href: plugins_href,
+        icon: :squares_2x2,
+        active: request.path == mount_path || request.path == plugins_href
+      ) %>
+
+      <% if dummy_admin_root? %>
+        <%= render FlatPack::Sidebar::SectionTitle::Component.new(title: "Admin") %>
+        <%= render FlatPack::Sidebar::Item::Component.new(
+          text: "Plugin names and pictures",
+          href: admin_plugins_href,
+          icon: :photo,
+          active: request.path.start_with?(admin_plugins_href)
+        ) %>
+      <% end %>
+    </nav>
+  <% end %>
+
+  <% sidebar_switcher = dummy_root_switch_dropdown(size: :sm) %>
+  <% if sidebar_switcher.present? %>
+    <% sidebar.footer do %>
+      <%= render FlatPack::Sidebar::Footer::Component.new do %>
+        <%= sidebar_switcher %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

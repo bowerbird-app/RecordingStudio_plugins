@@ -1,0 +1,48 @@
+<% content_for :title, @row[:name] %>
+<% flat_pack_page_nav(
+     round: true,
+     style: :default,
+     back_href: admin_plugins_path,
+     back_tooltip: plugin_copy("admin.back")
+   ) %>
+
+<%= form_with url: admin_plugin_path(@row[:key]), method: :patch, multipart: true do %>
+  <div class="flex w-full max-w-full items-start gap-4">
+    <% if plugin_staff_admin? && @row[:recording].present? %>
+      <%= render FlatPack::ImageInput::Component.new(
+        name: "appearances[#{@row[:key]}][picture]",
+        src: @row[:image_url],
+        alt: @row[:name],
+        shape: :square,
+        size: :xl,
+        accept: "image/*",
+        clearable: true,
+        remove_name: "appearances[#{@row[:key]}][remove_picture]",
+        input_attributes: { aria: { label: plugin_copy("admin.picture") } }
+      ) %>
+    <% elsif @row[:image_url].present? %>
+      <%= render FlatPack::Avatar::Component.new(
+        src: @row[:image_url],
+        size: :lg,
+        shape: :square,
+        alt: @row[:name]
+      ) %>
+    <% end %>
+
+    <div class="min-w-0 flex-1">
+      <%= render FlatPack::TextInput::Component.new(
+        name: "appearances[#{@row[:key]}][name]",
+        value: @row[:name],
+        aria: { label: plugin_copy("admin.display_name") }
+      ) %>
+    </div>
+  </div>
+
+  <div class="mt-6 w-fit">
+    <%= render FlatPack::Button::Component.new(
+      text: plugin_copy("admin.save"),
+      type: "submit",
+      style: :primary
+    ) %>
+  </div>
+<% end %>

@@ -87,6 +87,7 @@ module RecordingStudioPlugins
   Configuration.include ActorLabelConfig
   Configuration.include LayoutConfig
   Configuration.include ConfigSources
+  Configuration.include AdminAppearanceConfig
 
   module Override
     OVERRIDE_KEYS = %i[name description category position].freeze

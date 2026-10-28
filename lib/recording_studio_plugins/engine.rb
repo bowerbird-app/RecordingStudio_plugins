@@ -72,6 +72,13 @@ module RecordingStudioPlugins
       RecordingStudioPlugins.configuration.hooks.run(:after_initialize, self)
     end
 
+    initializer "recording_studio_plugins.admin_definitions" do
+      config.to_prepare do
+        RecordingStudioPlugins::PluginAppearance.declare_hierarchy!
+        RecordingStudioPlugins::Admin.register!
+      end
+    end
+
     # Apply model extensions when models are loaded
     initializer "recording_studio_plugins.apply_model_extensions" do
       config.to_prepare do

@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-10-27
+
+### Added
+- Staff-only Admin section for plugin display names and one picture per registered plugin. The page lives on the admin root (`section :plugins`). Site staff can open it only while the current root is that Admin root, Admin's `access_recording` is that same recording, and they have the Accessible role there, plus the section's site blast radius. Workspace admins, members, and staff still in a workspace root get the existing forbidden page.
+- `recording_studio_plugin_appearances` plus `recording_studio_plugins:migrations`. Each plugin key has a current appearance recording under the admin root. `plugin_key` is unique. `revise` writes a new appearance row and clears `plugin_key` on the previous snapshot. Attachable holds the optional picture (`max_file_count: 1`). Clearing the display name, or saving the registered name, stores no custom name and falls back to the registered name. Removing the picture falls back to no picture. The plugin key never changes.
+- Directory and inbound modal use the display name. A custom picture renders next to the name with alt text equal to that name. Those pages load appearance recordings and pictures in one map per request.
+- Appearance recordings are created when a site admin opens a plugin's edit page (so Attachable has a parent for the picture), when they save a name, or when they upload a picture. They are not created when staff open the staff list, and a view-only GET still does not create them.
+
+### Changed
+- Oauth Connect and Disconnect skip Turbo so the browser can follow the provider redirect.
+- **BREAKING:** depends on `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`.
+- **BREAKING:** `plugin_setup_link` is now `plugin_setup_button`. An inbound row with an https setup URL shows Connect, not a "How to connect" link.
+- Directory rows without a custom picture show a puzzle-piece placeholder next to the name, sized with the Connect button. The name sits centered in the row.
+- Directory omits "Not connected" and hides a connected count of zero.
+- Inbound Connect (ChatGPT, Grok Bot) still needs an https setup URL. Oauth Connect on Drive and Dropbox still posts to Oauth.
+- Dummy Drive and Dropbox use the real gems when credentials exist; test and blank credentials keep the fake clients. Connect auto-approves on the dummy authorize page and returns as Connected.
+- Inbound ChatGPT and Grok Bot rows use the Connect button label Connected when the current person is connected. The standalone Connected text next to the button is gone.
+- The inbound Who's connected modal uses the plugin name as the title for members. For admins the title is Who's connected to that plugin, with no extra heading inside. The people table columns are Email, Role, Connected since, and Last used. The Email column shows the person's email. The two time columns show time ago in words, with a FlatPack Tooltip for the exact time.
+
+### Removed
+- **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.
+- **BREAKING:** the directory no longer calls provider `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
+- **BREAKING:** locale key `directory.details` and the modal "More about this" link.
+- Dummy WordPress and Website embed plugins, and the doubled Grokbot registration.
+- **BREAKING:** locale keys `detail.people_html`, `detail.person`, and `detail.app`, and the people table App column. Use `detail.people_title_html` and `detail.email`.
+
+### Upgrade notes
+- **BREAKING:** this gem now hard-requires `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`. Pin Admin `v2.5.1` and Attachable `v0.22.0` on this stack. Do not move Admin to `2.6`/`2.7` here (those tags add Logs).
+- Run `bin/rails generate recording_studio_plugins:migrations` then `bin/rails db:migrate`.
+- Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`. Enable `section :plugins` on the admin root. Mount Admin and Attachable. Set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to the host's staff admin root. This gem does not default those. Point Admin `access_recording_resolver` and `site_admin_recording_resolver` at that same recording. Grant Accessible access on that root to site staff only.
+- Remove host routes, links, and overrides that used `plugin_path` or `plugins#show`. Rename `plugin_setup_link` to `plugin_setup_button`. Do not rely on the directory to call `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
+- Hosts that overrode directory or inbound modal markup should show the display name and the optional picture, a Connect button only for an https inbound `setup_url` (omit it when the URL is missing or not https), no "Not connected" copy, and no 0 connected count. Oauth Connect on root plugins should still render when the provider `authorize_url` is a path or non-https URL. Staff plugin edit is an Admin-root page: do not open it from a workspace root.
+- Hosts that overrode apostrophe copy should use the `_html` locale keys: `directory.description_html`, `empty.none.description_html`, `detail.people_title_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`, `admin.unconfigured.description_html`.
+- Dummy (and hosts copying its switcher) must list the Admin root in `available_roots` after workspaces. Admin 2.5.1 `/admin` is 403 unless the current root is that Admin root.
+
 ## [0.6.0] - 2026-10-27
 
 ### Added

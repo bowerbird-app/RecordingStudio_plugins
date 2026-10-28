@@ -3,12 +3,15 @@
 require "recording_studio"
 require "recording_studio_accessible"
 require "recording_studio_oauth"
+require "recording_studio_admin"
+require "recording_studio_attachable"
 require "flat_pack"
 require "recording_studio_plugins/version"
 require "recording_studio_plugins/actor_label"
 require "recording_studio_plugins/actor_label_config"
 require "recording_studio_plugins/layout_config"
 require "recording_studio_plugins/config_sources"
+require "recording_studio_plugins/admin_appearance_config"
 require "recording_studio_plugins/configuration"
 require "recording_studio_plugins/definition"
 require "recording_studio_plugins/registry"
@@ -22,6 +25,8 @@ require "recording_studio_plugins/oauth_adapter"
 require "recording_studio_plugins/mcp_client_status"
 require "recording_studio_plugins/inbound_people"
 require "recording_studio_plugins/oauth_directory"
+require "recording_studio_plugins/appearance"
+require "recording_studio_plugins/admin"
 require "recording_studio_plugins/engine"
 
 module RecordingStudioPlugins
@@ -107,6 +112,15 @@ module RecordingStudioPlugins
       end
 
       definition.override(values)
+    end
+
+    def admin_plugins_path(context = nil)
+      routes = context&.controller
+      if routes.respond_to?(:recording_studio_plugins)
+        routes.recording_studio_plugins.admin_plugins_path
+      else
+        Engine.routes.url_helpers.admin_plugins_path
+      end
     end
   end
 end

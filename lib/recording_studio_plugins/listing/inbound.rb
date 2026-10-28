@@ -5,15 +5,15 @@ module RecordingStudioPlugins
     module Inbound
       def directory_status_text
         return if status_failed? || !user?
-        return copy("status.connected") if connected?
+        return unless connected?
 
-        copy("status.not_connected")
+        copy("status.connected")
       end
 
       def people_connected_text
         return unless user?
 
-        status_record&.message
+        status_record&.message.presence
       end
 
       def setup_href

@@ -7,7 +7,10 @@ class BootTest < Minitest::Test
     spec = Gem::Specification.load(File.expand_path("../recording_studio_plugins.gemspec", __dir__))
     names = spec.runtime_dependencies.map(&:name).sort
 
-    assert_equal %w[flat_pack rails recording_studio recording_studio_accessible recording_studio_oauth], names
+    assert_equal %w[
+      flat_pack rails recording_studio recording_studio_accessible
+      recording_studio_admin recording_studio_attachable recording_studio_oauth
+    ].join(" ").split, names
   end
 
   def test_oauth_is_required_at_boot
@@ -15,6 +18,8 @@ class BootTest < Minitest::Test
     directory = File.read(File.expand_path("../lib/recording_studio_plugins/oauth_directory.rb", __dir__))
 
     assert_includes lib, 'require "recording_studio_oauth"'
+    assert_includes lib, 'require "recording_studio_admin"'
+    assert_includes lib, 'require "recording_studio_attachable"'
     refute_includes directory, "defined?(RecordingStudioOauth)"
   end
 
@@ -29,6 +34,7 @@ class BootTest < Minitest::Test
   def test_changelog_records_upgrade_notes_for_this_version
     changelog = File.read(File.expand_path("../CHANGELOG.md", __dir__))
 
+    assert_includes changelog, "## [0.7.0]"
     assert_includes changelog, "## [0.6.0]"
     assert_includes changelog, "recording_studio >= 6.1.0"
     assert_includes changelog, "recording_studio_oauth >= 0.19.0"

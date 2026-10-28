@@ -1,0 +1,27 @@
+<% content_for :title, plugin_copy("admin.title") %>
+<% flat_pack_page_nav(
+     round: true,
+     style: :default,
+     back_href: plugin_admin_back_href,
+     back_tooltip: plugin_copy("admin.back")
+   ) %>
+
+<% if @unconfigured %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: plugin_copy("admin.unconfigured.title_html"),
+    description: plugin_copy("admin.unconfigured.description_html"),
+    icon: :squares_2x2
+  ) %>
+<% elsif @rows.empty? %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: plugin_copy("admin.empty.title"),
+    description: plugin_copy("admin.empty.description"),
+    icon: :squares_2x2
+  ) %>
+<% else %>
+  <%= render FlatPack::Table::Component.new(data: @rows) do |table| %>
+    <% table.column(title: plugin_copy("admin.picture")) { |row| plugin_admin_picture_cell(row) } %>
+    <% table.column(title: plugin_copy("admin.display_name")) { |row| row[:name] } %>
+    <% table.column(title: plugin_copy("admin.edit")) { |row| plugin_admin_edit_cell(row) } %>
+  <% end %>
+<% end %>

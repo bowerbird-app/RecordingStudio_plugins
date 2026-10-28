@@ -25,15 +25,17 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     Current.actor = nil
   end
 
-  test "admin sees inbound rows with count and how to connect" do
+  test "admin sees inbound rows with count and connect" do
     get recording_studio_plugins.root_path
 
     assert_response :success
     assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
-    assert_select "a[href=?]", recording_studio_plugins.plugin_path(:chatgpt)
-    assert_select "a[href=?]", "https://example.com/how-to-connect-chatgpt", text: "How to connect"
-    assert_includes response.body, "Not connected"
-    assert_includes response.body, "0 people connected"
+    assert_select "a[href=?]", "https://chatgpt.com", text: "Connect"
+    assert_select "a[href=?]", "https://grok.com", text: "Connect"
+    refute_includes response.body, "How to connect"
+    refute_includes response.body, "More about this"
+    refute_includes response.body, "Not connected"
+    refute_includes response.body, "0 people connected"
     refute_select "form[action*='chatgpt']"
   end
 
@@ -53,10 +55,16 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     member_access = access_recording_for(@root, member)
     connect_chatgpt!(user: member, access_recording: member_access)
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who&#39;s connected"
+    refute_includes response.body, "Who's connected"
+    assert_select "th", text: "Email"
+    assert_select "th", text: "App", count: 0
+    assert_select "time[datetime][tabindex='0'][aria-label]", text: /\A.+ ago\z/
+    assert_select "[data-controller~='flat-pack--tooltip'] time"
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
     assert_includes response.body, @user.email
     assert_includes response.body, member.email
     refute_includes response.body, "dummy-access-token"
@@ -71,13 +79,13 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     sign_in viewer
     Current.actor = viewer
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
+    get recording_studio_plugins.root_path
 
     assert_response :success
     refute_includes response.body, "Who's connected"
     refute_includes response.body, @user.email
     refute_includes response.body, member.email
-    assert_includes response.body, "Not connected"
+    refute_includes response.body, "Not connected"
   end
 
   test "a person connected in one workspace is not connected in another" do
@@ -90,12 +98,17 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
     assert_includes chatgpt_row_text, "Connected"
     assert_includes chatgpt_row_text, "1 person connected"
+    assert_select "a[href=?]", "https://chatgpt.com", text: "Connected"
+    assert_select "a[href=?]", "https://grok.com", text: "Connect"
+    assert_equal 1, chatgpt_row_text.scan("Connected").size
 
     switch_to_root!(other_root)
 
     get recording_studio_plugins.root_path
-    assert_includes chatgpt_row_text, "Not connected"
+    refute_includes chatgpt_row_text, "Connected"
     refute_includes chatgpt_row_text, "1 person connected"
+    refute_includes chatgpt_row_text, "Not connected"
+    assert_select "a[href=?]", "https://chatgpt.com", text: "Connect"
   end
 
   test "admin directory shows the count and a lazy people frame without names" do
@@ -106,16 +119,28 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes chatgpt_row_text, "1 person connected"
     refute_includes response.body, @user.email
-    refute_includes response.body, "Who&#39;s connected"
-    refute_includes response.body, "Who's connected"
+    assert_includes response.body, "Who's connected to ChatGPT"
+    assert_includes response.body, "Who's connected to Grok Bot"
     assert_select "turbo-frame#plugin-chatgpt-people-frame[loading='lazy'][src=?]",
                   recording_studio_plugins.plugin_people_path(:chatgpt)
 
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who&#39;s connected"
+    assert_select "th", text: "Email"
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
     assert_includes response.body, @user.email
+  end
+
+  test "empty people list uses a real apostrophe" do
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
+
+    assert_response :success
+    refute_includes response.body, "Who's connected"
+    assert_includes response.body, "Nobody's connected through here yet."
+    refute_includes response.body, "&#39;"
+    refute_includes response.body, "&amp;#39;"
   end
 
   test "member directory has no count, people frame, or people list" do
@@ -132,7 +157,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
 
     assert_response :success
-    assert_includes chatgpt_row_text, "Not connected"
+    refute_includes chatgpt_row_text, "Not connected"
     refute_includes chatgpt_row_text, "people connected"
     refute_includes chatgpt_row_text, "person connected"
     refute_select "turbo-frame[src=?]", recording_studio_plugins.plugin_people_path(:chatgpt)
@@ -145,14 +170,33 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "email column shows the person's email not their name" do
+    User.class_eval do
+      def name
+        "Ada Lovelace"
+      end
+    end
+    connect_chatgpt!(user: @user, access_recording: @access)
+
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
+
+    assert_response :success
+    assert_select "th", text: "Email"
+    assert_select "td", text: @user.email
+    assert_select "td", text: "Ada Lovelace", count: 0
+    refute_includes response.body, "Ada Lovelace"
+  ensure
+    User.remove_method(:name) if User.method_defined?(:name)
+  end
+
   test "actor_label override is used on the people list" do
     connect_chatgpt!(user: @user, access_recording: @access)
     RecordingStudioPlugins.configuration.actor_label = ->(_actor) { "Workspace nickname" }
 
-    get recording_studio_plugins.plugin_path(:chatgpt)
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
 
-    assert_includes response.body, "Workspace nickname"
-    refute_includes response.body, @user.email
+    assert_includes response.body, @user.email
+    refute_includes response.body, "Workspace nickname"
   ensure
     RecordingStudioPlugins.configuration.actor_label = nil
   end

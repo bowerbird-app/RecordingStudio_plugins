@@ -1,6 +1,6 @@
 <%= render FlatPack::Modal::Component.new(
   id: plugin_inbound_modal_id(listing),
-  title: listing.name,
+  title: can_admin_plugins? ? plugin_copy("detail.people_title_html", plugin: listing.name) : listing.name,
   size: :lg
 ) do |modal| %>
   <% if can_admin_plugins? %>
@@ -8,11 +8,6 @@
       <%= turbo_frame_tag plugin_inbound_people_frame_id(listing),
             src: plugin_people_path(listing.key),
             loading: :lazy %>
-    <% end %>
-  <% end %>
-  <% modal.footer do %>
-    <%= render FlatPack::Link::Component.new(href: plugin_path(listing.key)) do %>
-      <%= plugin_copy("directory.details") %>
     <% end %>
   <% end %>
 <% end %>

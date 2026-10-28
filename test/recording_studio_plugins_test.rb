@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.6.0", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.7.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
@@ -17,6 +17,9 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.315"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.18"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.5.1"'
+    refute_includes gemspec, '"< 2.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", ">= 0.22.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_oauth", ">= 0.19.0"'
   end
 
@@ -54,9 +57,14 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes gemfile, "TEMPORARY"
     refute_includes gemfile, "cursor/inbound-plugin-key-e105"
     refute_includes gemfile, 'tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.5.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.14.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_GoogleDrive", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Dropbox", tag: "v0.4.1"'
+    refute_includes gemfile, "Temporary commit pins"
+    refute_includes gemfile, "4d3ef7dc6a9dde24a54bfcb6c7c1dbde31cbcaea"
+    refute_includes gemfile, "56cf5f78070994b162cdd57fd2dc5c2b5722c18f"
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.4.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.3", require: false'
@@ -107,6 +115,12 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes schema, 'create_table "recording_studio_access_rules"'
     assert_includes schema, "index_recording_studio_access_constraints_on_action"
     assert_includes schema, "index_recording_studio_access_rules_on_action"
+    assert_includes schema, 'create_table "recording_studio_plugin_appearances"'
+    appearance_index = 't.index ["plugin_key"], name: "index_recording_studio_plugin_appearances_on_plugin_key"'
+    assert_includes schema, "#{appearance_index}, unique: true"
+    assert_includes schema, 'create_table "admin_roots"'
+    assert_includes schema, 'create_table "active_storage_blobs"'
+    assert_includes schema, 'create_table "recording_studio_attachable_attachments"'
     constraint_migration = Dir.glob(
       File.expand_path("dummy/db/migrate/*_create_recording_studio_access_constraints.rb", __dir__)
     ).max
@@ -136,7 +150,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     )
     gem_root = File.expand_path("..", __dir__)
     index = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/index.html.erb", __dir__))
-    show = File.read(File.expand_path("../app/views/recording_studio_plugins/plugins/show.html.erb", __dir__))
+    routes = File.read(File.expand_path("../config/routes.rb", __dir__))
 
     assert_includes controller, "recording_studio_layout { RecordingStudioPlugins.configuration.layout }"
     refute_includes controller, "UsesDefaultLayout"
@@ -145,9 +159,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes index, "content_for :title"
     refute_includes index, "recording_studio_page_nav"
     refute_includes index, "FlatPack::PageTitle::Component"
-    assert_includes show, "flat_pack_page_nav"
-    refute_includes show, "recording_studio_page_nav"
-    refute_includes show, "page_nav_back_url"
+    refute_includes routes, "plugins#show"
+    refute File.exist?(File.expand_path("../app/views/recording_studio_plugins/plugins/show.html.erb", __dir__))
   end
 
   def test_dummy_app_uses_recording_studio_default_layout
@@ -160,6 +173,56 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
+  end
+
+  def test_dummy_blank_layout_uses_padded_page_layout_without_a_sidebar
+    blank = File.read(File.expand_path("dummy/app/views/layouts/recording_studio/blank.html.erb", __dir__))
+    default_layout = File.read(
+      File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
+    )
+    initializer = File.read(File.expand_path("dummy/config/initializers/recording_studio_plugins.rb", __dir__))
+
+    assert_includes blank, "FlatPack::PageLayout::Component.new(width: :default)"
+    refute_includes blank, "width: :full"
+    refute_includes blank, "SidebarLayout"
+    assert_includes default_layout, "FlatPack::PageLayout::Component.new(width: :default)"
+    assert_includes default_layout, "SidebarLayout"
+    assert_includes initializer, 'next "recording_studio/blank" if controller.controller_path == ' \
+                                 '"recording_studio_plugins/admin/appearances"'
+  end
+
+  def test_engine_plugin_views_use_layout_title_and_nav_not_page_padding
+    gem_root = File.expand_path("..", __dir__)
+    views = Dir[File.join(gem_root, "app/views/recording_studio_plugins/**/*.html.erb")]
+    refute_empty views
+
+    views.each do |view_path|
+      source = File.read(view_path)
+
+      refute_includes source, "PageLayout::Component"
+      refute_includes source, "width: :full"
+    end
+
+    index = File.read(File.join(gem_root, "app/views/recording_studio_plugins/plugins/index.html.erb"))
+    admin_index = File.read(File.join(gem_root, "app/views/recording_studio_plugins/admin/appearances/index.html.erb"))
+    admin_edit = File.read(File.join(gem_root, "app/views/recording_studio_plugins/admin/appearances/edit.html.erb"))
+
+    assert_includes index, "content_for :title"
+    assert_includes index, "content_for :subtitle"
+    refute_includes index, "flat_pack_page_nav"
+    assert_includes admin_index, "content_for :title"
+    assert_includes admin_index, "flat_pack_page_nav"
+    assert_includes admin_edit, "content_for :title"
+    assert_includes admin_edit, "flat_pack_page_nav"
+    assert_includes admin_edit, "FlatPack::ImageInput::Component"
+    refute_includes admin_edit, "cols: 2"
+    refute_includes admin_edit, "PageLayout"
+    assert_includes admin_edit, "flex w-full max-w-full items-start gap-4"
+    assert_includes admin_edit, "min-w-0 flex-1"
+    refute_includes admin_edit, "w-72"
+    refute_includes admin_edit, "label: plugin_copy(\"admin.picture\"),"
+    refute_includes admin_edit, "label: plugin_copy(\"admin.display_name\"),"
+    assert_includes admin_edit, "mt-6 w-fit"
   end
 
   def test_dummy_login_layout_keeps_flatpack_assets_without_tight_main_offset
@@ -194,6 +257,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     rake_task = File.read(File.expand_path("dummy/lib/tasks/tailwindcss.rake", __dir__))
     assert_includes rake_task, "FlatPack::Engine.root"
     assert_includes rake_task, "RecordingStudio::Engine.root"
+    assert_includes rake_task, "RecordingStudioAttachable::Engine.root"
+    assert_includes rake_task, "RecordingStudioAdmin::Engine.root"
     assert_includes rake_task, "tailwindcss:link_engine_sources"
   end
 
@@ -205,9 +270,11 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes initializer_source, '"Workspace"'
     assert_includes initializer_source, '"Folder"'
     assert_includes initializer_source, '"Page"'
+    assert_includes initializer_source, '"AdminRoot"'
+    assert_includes initializer_source, "RecordingStudioPlugins::PluginAppearance"
     assert_includes initializer_source, "RecordingStudioAttachable::Attachment"
-    assert_includes initializer_source, "RecordingStudioAttachable::Library"
-    assert_includes initializer_source, "RecordingStudioAttachable::Placement"
+    refute_includes initializer_source, "RecordingStudioAttachable::Library"
+    refute_includes initializer_source, "RecordingStudioAttachable::Placement"
     assert_includes initializer_source, "RecordingStudioSiteSettings::SiteSetting"
     assert_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
@@ -230,7 +297,12 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme_source, "/recording_studio"
     assert_includes readme_source, "redirects to `/`"
     refute_includes readme_source, "flat_pack_sidebar"
-    assert_includes readme_source, "Attachable Library and Placement"
+    assert_includes readme_source, "Admin root at `/admin`"
+    assert_includes readme_source, "test/dummy/db/seeds.rb"
+    assert_includes readme_source, 'Switch to the "Admin" root'
+    assert_includes readme_source, "PageLayout"
+    assert_includes readme_source, "width: :default"
+    refute_includes readme_source, "full-width"
   end
 
   def test_readme_covers_the_plugins_directory
@@ -245,10 +317,14 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "enabled_plugins"
     assert_includes readme, "kind: :root"
     assert_includes readme, "kind: :user"
+    assert_includes readme, "Plugin names and pictures"
+    assert_includes readme, "recording_studio_admin_for"
     assert_includes readme, "inbound_connection_status"
     assert_includes readme, "McpClientStatus"
     assert_includes readme, "setup_url"
     assert_includes readme, "Oauth is a hard dependency"
+    assert_includes readme, "v2.5.1"
+    assert_includes readme, "v0.22.0"
     assert_includes readme, ">= 6.1.0"
     assert_includes readme, ">= 0.19.0"
     assert_includes readme, "recording_studio_layout"

@@ -77,6 +77,45 @@ class OauthDirectoryTest < Minitest::Test
     end
   end
 
+  def test_missing_connects_even_when_authorize_url_is_not_https
+    @configuration.enabled_plugins = %i[google_drive]
+
+    %w[/fake_oauth/authorize http://example.com/oauth javascript:alert(1)].each do |authorize_url|
+      with_oauth_providers(
+        [{ key: :google_drive, kind: :root }],
+        workspace: :missing,
+        authorize_url: authorize_url
+      ) do
+        listing = RecordingStudioPlugins.listings_for(context: admin_context).first
+
+        assert listing.action?(can_edit: true), authorize_url
+        assert_equal "/recording_studio_oauth/outbound/google_drive/connect", listing.action_href
+      end
+    end
+  end
+
+  def test_connect_fails_loudly_if_outbound_provider_lookup_raises
+    @configuration.enabled_plugins = %i[google_drive]
+    status = ->(**_) { { workspace: :missing, personal: :missing } }
+    boom = lambda do |*_args|
+      raise "Oauth outbound provider lookup must not be required to show Connect"
+    end
+
+    RecordingStudioPlugins::OauthDirectory.stub(:admin?, method(:admin_actor?)) do
+      RecordingStudioOauth.stub(:outbound_providers, [{ key: :google_drive, kind: :root }]) do
+        RecordingStudioOauth::Outbound.stub(:provider, boom) do
+          RecordingStudioOauth.stub(:combined_connection_status, status) do
+            listing = RecordingStudioPlugins.listings_for(context: admin_context).first
+
+            assert listing.action?(can_edit: true)
+            assert_equal "Connect", listing.action_label
+            assert_equal "/recording_studio_oauth/outbound/google_drive/connect", listing.action_href
+          end
+        end
+      end
+    end
+  end
+
   def test_active_maps_to_connected_with_disconnect
     @configuration.enabled_plugins = %i[google_drive]
 
@@ -162,12 +201,24 @@ class OauthDirectoryTest < Minitest::Test
 
   private
 
-  def with_oauth_providers(providers, workspace:, connection_id: nil, &block)
+  def with_oauth_providers(
+    providers,
+    workspace:,
+    connection_id: nil,
+    authorize_url: "https://accounts.example.com/o/oauth2/auth",
+    &block
+  )
     status = ->(**_) { { workspace: workspace, personal: :missing } }
+    lookup = lambda do |key|
+      match = providers.find { |entry| (entry[:key] || entry["key"]).to_s == key.to_s }
+      Struct.new(:authorize_url).new(authorize_url) if match
+    end
     RecordingStudioPlugins::OauthDirectory.stub(:admin?, method(:admin_actor?)) do
       RecordingStudioOauth.stub(:outbound_providers, providers) do
-        RecordingStudioOauth.stub(:combined_connection_status, status) do
-          RecordingStudioOauth.stub(:connection_id_for, ->(**_) { connection_id }, &block)
+        RecordingStudioOauth::Outbound.stub(:provider, lookup) do
+          RecordingStudioOauth.stub(:combined_connection_status, status) do
+            RecordingStudioOauth.stub(:connection_id_for, ->(**_) { connection_id }, &block)
+          end
         end
       end
     end

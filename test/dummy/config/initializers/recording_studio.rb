@@ -15,16 +15,32 @@ unless defined?(RecordingStudio::UsesDefaultLayout)
   end
 end
 
+Rails.application.config.to_prepare do
+  dropdown_helper = RecordingStudioRootSwitchable::RootSwitchDropdownHelper if defined?(RecordingStudioRootSwitchable::RootSwitchDropdownHelper)
+  mounted = Rails.application.routes.mounted_helpers
+
+  if defined?(RecordingStudioPlugins::ApplicationController)
+    RecordingStudioPlugins::ApplicationController.helper(ApplicationHelper)
+    RecordingStudioPlugins::ApplicationController.helper(dropdown_helper) if dropdown_helper
+    RecordingStudioPlugins::ApplicationController.helper(mounted)
+  end
+
+  if defined?(RecordingStudioAdmin::ApplicationController)
+    RecordingStudioAdmin::ApplicationController.helper(dropdown_helper) if dropdown_helper
+    RecordingStudioAdmin::ApplicationController.helper(mounted)
+  end
+end
+
 RecordingStudio.configure do |config|
   # Registered delegated_type recordables (strings or classes)
   config.recordable_types = [
     "Workspace",
     "Folder",
     "Page",
+    "AdminRoot",
+    "RecordingStudioPlugins::PluginAppearance",
     "RecordingStudioSiteSettings::SiteSetting",
     "RecordingStudioAttachable::Attachment",
-    "RecordingStudioAttachable::Library",
-    "RecordingStudioAttachable::Placement",
     "RecordingStudioApi::AdminApi"
   ]
 

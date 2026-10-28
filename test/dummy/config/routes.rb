@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
   mount RecordingStudioPlugins::Engine, at: "/recording_studio_plugins"
   mount RecordingStudioOauth::Engine, at: "/recording_studio_oauth"
+  mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
+  mount RecordingStudioAccessible::Engine, at: "/admin/access"
+  recording_studio_admin_for :admin, at: "/admin", root_section: :plugins
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -25,6 +28,19 @@ Rails.application.routes.draw do
   get "docs/recordings_tree", to: "docs#recordings_tree", as: :docs_recordings_tree
   get "docs/gem_views", to: "docs#gem_views", as: :docs_gem_views
   get "docs/methods", to: "docs#methods", as: :docs_methods
+
+  get "fake_oauth/authorize",
+      to: "fake_oauth#authorize",
+      constraints: ->(req) { req.params[:client_id].to_s == FakeOauth::CLIENT_ID }
+  post "fake_oauth/token",
+       to: "fake_oauth#token",
+       constraints: ->(req) { req.params[:client_id].to_s == FakeOauth::CLIENT_ID }
+  post "fake_oauth/revoke",
+       to: "fake_oauth#revoke",
+       constraints: ->(req) { req.params[:client_id].to_s == FakeOauth::CLIENT_ID }
+  get "fake_oauth/authorize", to: "fake_dropbox_oauth#authorize"
+  post "fake_oauth/token", to: "fake_dropbox_oauth#token"
+  post "fake_oauth/revoke", to: "fake_dropbox_oauth#revoke"
 
   # Defines the root path route ("/")
   root "home#index"

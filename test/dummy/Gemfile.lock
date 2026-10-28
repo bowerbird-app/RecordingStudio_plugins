@@ -8,6 +8,26 @@ GIT
       rails (>= 8.1.0)
 
 GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_Dropbox.git
+  revision: fc3094184b65bfb8c1e9665b2fa1650c68a6f681
+  tag: v0.4.1
+  specs:
+    recording_studio_dropbox (0.4.1)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_oauth (>= 0.17.0, < 1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_GoogleDrive.git
+  revision: 64ac186feaf592339f47c7178f7d227b4e74013c
+  tag: v0.5.1
+  specs:
+    recording_studio_google_drive (0.5.1)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_oauth (>= 0.17.0, < 1.0)
+
+GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_Oauth.git
   revision: 138de2692aa5a7f889113a4f564f1cc5ada64771
   tag: v0.19.0
@@ -37,17 +57,14 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_admin.git
-  revision: 22ebcc771b7144c5929f8caee690de6a65145a65
-  tag: v2.7.0
+  revision: e21ace116a052b9b75ecad3466a014edeaea707a
+  tag: v2.5.1
   specs:
-    recording_studio_admin (2.7.0)
-      flat_pack (>= 0.1.315)
+    recording_studio_admin (2.5.1)
+      flat_pack (~> 0.1.254)
       rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
       recording_studio_accessible (~> 0.6)
-      recording_studio_logs (>= 0.4.1, < 1.0)
       recording_studio_trashable (~> 0.10)
-      view_component (>= 4.14, < 5)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
@@ -65,14 +82,14 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_attachable.git
-  revision: 0140c73d2cce6a5bdbdc8825ff496c42f8e260c3
-  tag: v0.15.0
+  revision: f25c30bc37301099b34a55f10fc0f5aff056f025
+  tag: v0.22.0
   specs:
-    recording_studio_attachable (0.15.0)
-      flat_pack (>= 0.1.213)
+    recording_studio_attachable (0.22.0)
+      flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
-      recording_studio_metrics (~> 0.2)
+      recording_studio_metrics (>= 0.3.0, < 1.0)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_cache.git
@@ -151,11 +168,13 @@ GIT
 PATH
   remote: ../..
   specs:
-    recording_studio_plugins (0.6.0)
+    recording_studio_plugins (0.7.0)
       flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
       recording_studio_accessible (>= 0.18)
+      recording_studio_admin (>= 2.5.1)
+      recording_studio_attachable (>= 0.22.0)
       recording_studio_oauth (>= 0.19.0)
 
 GEM
@@ -536,9 +555,10 @@ GEM
     unicode-emoji (4.3.0)
     uri (1.1.2)
     useragent (0.16.11)
-    view_component (4.19.0)
+    view_component (4.20.0)
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
+      prism (>= 1.0)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.3.0)
@@ -583,6 +603,8 @@ DEPENDENCIES
   recording_studio_api!
   recording_studio_attachable!
   recording_studio_cache!
+  recording_studio_dropbox!
+  recording_studio_google_drive!
   recording_studio_logs!
   recording_studio_metrics!
   recording_studio_oauth!
@@ -716,14 +738,16 @@ CHECKSUMS
   rdoc (8.1.0) sha256=befc37880a5cfd36dcb176c748b5fd5ee39dd3536a75e81824e4972ce230f60a
   recording_studio (6.1.0)
   recording_studio_accessible (0.22.0)
-  recording_studio_admin (2.7.0)
+  recording_studio_admin (2.5.1)
   recording_studio_api (0.14.0)
-  recording_studio_attachable (0.15.0)
+  recording_studio_attachable (0.22.0)
   recording_studio_cache (0.5.0)
+  recording_studio_dropbox (0.4.1)
+  recording_studio_google_drive (0.5.1)
   recording_studio_logs (0.4.1)
   recording_studio_metrics (0.5.0)
   recording_studio_oauth (0.19.0)
-  recording_studio_plugins (0.6.0)
+  recording_studio_plugins (0.7.0)
   recording_studio_root_switchable (0.8.0)
   recording_studio_site_settings (0.2.0)
   recording_studio_trashable (0.11.3)
@@ -769,7 +793,7 @@ CHECKSUMS
   unicode-emoji (4.3.0) sha256=11c02fa73290378c066bb0562cd4c87d8e1b706fbbe0059ca12746a4244de8ce
   uri (1.1.2) sha256=89292e98eabbef6248b0a0ed5e7e398e152f83f17560023a6d94a7f492b169fb
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
-  view_component (4.19.0) sha256=e75d3d5cf1f56c47118752436173e0d417d31ce79412919bc4232060257fe615
+  view_component (4.20.0) sha256=b720a646364487b57040a2b15dcb845ef86f9e65db6a9bf845374bab9fca2dd2
   warden (1.2.9) sha256=46684f885d35a69dbb883deabf85a222c8e427a957804719e143005df7a1efd0
   web-console (4.3.0) sha256=e13b71301cdfc2093f155b5aa3a622db80b4672d1f2f713119cc7ec7ac6a6da4
   websocket-driver (0.8.2) sha256=97c556b019bf3410b4961002ac501621e9322d3f8a7bc02161a09301cc4c4146

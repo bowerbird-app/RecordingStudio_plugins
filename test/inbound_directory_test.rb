@@ -81,8 +81,8 @@ class InboundDirectoryTest < Minitest::Test
     with_inbound_status(connected: false, connected_count: 0) do
       listing = RecordingStudioPlugins.listings_for(context: admin_context).first
 
-      assert_equal "Not connected", listing.directory_status_text
-      assert_equal "0 people connected", listing.people_connected_text
+      assert_nil listing.directory_status_text
+      assert_nil listing.people_connected_text
     end
   end
 
@@ -93,10 +93,23 @@ class InboundDirectoryTest < Minitest::Test
 
     assert_includes error.message, "https"
 
+    javascript = assert_raises(ArgumentError) do
+      RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "javascript:alert(1)")
+    end
+
+    assert_includes javascript.message, "https"
+
     RecordingStudioPlugins.register_mcp_client(:chatgpt, setup_url: "https://example.com/chatgpt")
     listing = listing_for(:chatgpt, connected: false, connected_count: nil)
 
     assert_equal "https://example.com/chatgpt", listing.setup_href
+  end
+
+  def test_missing_setup_url_has_no_connect_href
+    RecordingStudioPlugins.register_mcp_client(:chatgpt, owner: "test")
+    listing = listing_for(:chatgpt, connected: false, connected_count: nil)
+
+    assert_nil listing.setup_href
   end
 
   def test_status_does_not_carry_across_roots
@@ -122,7 +135,7 @@ class InboundDirectoryTest < Minitest::Test
       )
 
       assert_equal "Connected", listing_a.directory_status_text
-      assert_equal "Not connected", listing_b.directory_status_text
+      assert_nil listing_b.directory_status_text
     end
   end
 
@@ -142,6 +155,27 @@ class InboundDirectoryTest < Minitest::Test
       people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
 
       assert_equal "kit@example.com", people.first[:name]
+      assert_equal "kit@example.com", people.first[:email]
+    end
+  end
+
+  def test_inbound_people_carries_email_separately_from_name
+    register_clients
+    actor = Struct.new(:id, :name, :email).new("1", "Kit", "kit@example.com")
+    rows = [{
+      actor_type: "User",
+      actor_id: "1",
+      role: "edit",
+      connected_at: Time.utc(2026, 1, 1),
+      last_used_at: nil,
+      app_name: "ChatGPT"
+    }]
+
+    with_actor_class(actor) do
+      people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
+
+      assert_equal "Kit", people.first[:name]
+      assert_equal "kit@example.com", people.first[:email]
     end
   end
 
@@ -162,6 +196,7 @@ class InboundDirectoryTest < Minitest::Test
       people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
 
       assert_equal "Nickname", people.first[:name]
+      assert_equal "kit@example.com", people.first[:email]
     end
   end
 
@@ -179,6 +214,7 @@ class InboundDirectoryTest < Minitest::Test
 
     assert_nil RecordingStudioPlugins::InboundPeople.actor_class_for("String")
     assert_equal "User", people.first[:name]
+    assert_equal "", people.first[:email]
   end
 
   def test_directory_listings_do_not_load_inbound_people
