@@ -155,6 +155,27 @@ class InboundDirectoryTest < Minitest::Test
       people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
 
       assert_equal "kit@example.com", people.first[:name]
+      assert_equal "kit@example.com", people.first[:email]
+    end
+  end
+
+  def test_inbound_people_carries_email_separately_from_name
+    register_clients
+    actor = Struct.new(:id, :name, :email).new("1", "Kit", "kit@example.com")
+    rows = [{
+      actor_type: "User",
+      actor_id: "1",
+      role: "edit",
+      connected_at: Time.utc(2026, 1, 1),
+      last_used_at: nil,
+      app_name: "ChatGPT"
+    }]
+
+    with_actor_class(actor) do
+      people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
+
+      assert_equal "Kit", people.first[:name]
+      assert_equal "kit@example.com", people.first[:email]
     end
   end
 
@@ -175,6 +196,7 @@ class InboundDirectoryTest < Minitest::Test
       people = RecordingStudioPlugins::InboundPeople.new(rows).labeled
 
       assert_equal "Nickname", people.first[:name]
+      assert_equal "kit@example.com", people.first[:email]
     end
   end
 
@@ -192,6 +214,7 @@ class InboundDirectoryTest < Minitest::Test
 
     assert_nil RecordingStudioPlugins::InboundPeople.actor_class_for("String")
     assert_equal "User", people.first[:name]
+    assert_equal "", people.first[:email]
   end
 
   def test_directory_listings_do_not_load_inbound_people

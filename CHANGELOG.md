@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inbound Connect (ChatGPT, Grok Bot) still needs an https setup URL. Oauth Connect on Drive and Dropbox still posts to Oauth.
 - Dummy Drive and Dropbox use the real gems when credentials exist; test and blank credentials keep the fake clients. Connect auto-approves on the dummy authorize page and returns as Connected.
 - Inbound ChatGPT and Grok Bot rows use the Connect button label Connected when the current person is connected. The standalone Connected text next to the button is gone.
-- The inbound Who's connected modal uses the plugin name as the title for members. For admins the title is Who's connected to that plugin, with no extra heading inside. The people table columns are Email, Role, Connected since, and Last used. The two time columns show time ago in words, with a FlatPack Tooltip for the exact time.
+- The inbound Who's connected modal uses the plugin name as the title for members. For admins the title is Who's connected to that plugin, with no extra heading inside. The people table columns are Email, Role, Connected since, and Last used. The Email column shows the person's email. The two time columns show time ago in words, with a FlatPack Tooltip for the exact time.
 
 ### Removed
 - **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.

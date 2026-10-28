@@ -35,7 +35,7 @@ module RecordingStudioPlugins
 
     def labeled_row(row, records, label)
       actor = records.dig(row[:actor_type].to_s, row[:actor_id].to_s)
-      row.merge(name: label.call(actor))
+      row.merge(name: label.call(actor), email: actor.try(:email).to_s)
     end
 
     def records_by_type

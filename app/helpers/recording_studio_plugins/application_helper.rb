@@ -68,6 +68,7 @@ module RecordingStudioPlugins
       Array(people).map do |row|
         {
           name: row[:name],
+          email: row[:email].presence || "—",
           role: row[:role].to_s.humanize,
           connected_since: plugin_time(row[:connected_at]),
           last_used: plugin_time(row[:last_used_at])

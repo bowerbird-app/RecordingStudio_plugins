@@ -1,18 +1,21 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require File.expand_path("../app/helpers/recording_studio_plugins/application_helper.rb", __dir__)
 
 class CopyTest < Minitest::Test
   def test_plugin_copy_is_the_main_helper_and_does_not_unescape_or_mark_html_safe
-    helper = File.read(File.expand_path("../app/helpers/recording_studio_plugins/application_helper.rb", __dir__))
+    helper_source = File.read(File.expand_path("../app/helpers/recording_studio_plugins/application_helper.rb", __dir__))
     app_dir = File.expand_path("../app", __dir__)
     lib_dir = File.expand_path("../lib", __dir__)
+    helper = Class.new { include RecordingStudioPlugins::ApplicationHelper }.new
 
-    assert_includes helper, "def plugin_copy(key, default: nil, **interpolations)"
-    assert_includes helper,
+    assert_equal "Who's connected to ChatGPT",
+                 helper.plugin_copy("detail.people_title_html", plugin: "ChatGPT")
+    assert_includes helper_source,
                     "RecordingStudio.t(\"recording_studio.plugins.\#{key}\", default: default, **interpolations)"
-    refute_includes helper, "html_safe"
-    refute_includes helper, "unescapeHTML"
+    refute_includes helper_source, "html_safe"
+    refute_includes helper_source, "unescapeHTML"
     refute File.exist?(File.expand_path("../lib/recording_studio_plugins/copy.rb", __dir__))
     Dir.glob("#{app_dir}/**/*.{rb,erb}").each do |path|
       refute_includes File.read(path), "html_safe", "#{path} must not call html_safe"

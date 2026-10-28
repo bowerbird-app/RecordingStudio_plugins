@@ -2,7 +2,7 @@
   <p><%= plugin_copy("detail.people_empty_html") %></p>
 <% else %>
   <%= render FlatPack::Table::Component.new(data: plugin_people_rows(people)) do |table| %>
-    <% table.column(title: plugin_copy("detail.email")) { |row| row[:name] } %>
+    <% table.column(title: plugin_copy("detail.email")) { |row| row[:email] } %>
     <% table.column(title: plugin_copy("detail.role")) { |row| row[:role] } %>
     <% table.column(title: plugin_copy("detail.connected_since")) { |row| row[:connected_since] } %>
     <% table.column(title: plugin_copy("detail.last_used")) { |row| row[:last_used] } %>

@@ -170,14 +170,33 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "email column shows the person's email not their name" do
+    User.class_eval do
+      def name
+        "Ada Lovelace"
+      end
+    end
+    connect_chatgpt!(user: @user, access_recording: @access)
+
+    get recording_studio_plugins.plugin_people_path(:chatgpt)
+
+    assert_response :success
+    assert_select "th", text: "Email"
+    assert_select "td", text: @user.email
+    assert_select "td", text: "Ada Lovelace", count: 0
+    refute_includes response.body, "Ada Lovelace"
+  ensure
+    User.remove_method(:name) if User.method_defined?(:name)
+  end
+
   test "actor_label override is used on the people list" do
     connect_chatgpt!(user: @user, access_recording: @access)
     RecordingStudioPlugins.configuration.actor_label = ->(_actor) { "Workspace nickname" }
 
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
-    assert_includes response.body, "Workspace nickname"
-    refute_includes response.body, @user.email
+    assert_includes response.body, @user.email
+    refute_includes response.body, "Workspace nickname"
   ensure
     RecordingStudioPlugins.configuration.actor_label = nil
   end

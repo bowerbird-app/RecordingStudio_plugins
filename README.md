@@ -119,7 +119,7 @@ end
 
 Default `enabled_plugins` is empty. Nothing from Oauth outbound is listed until the host sets it. An enabled key that is not in `RecordingStudioOauth.outbound_providers` is skipped. Outbound providers with `kind: :root` appear for workspace admins. Inbound MCP clients are registered by the host (below), not through `enabled_plugins`.
 
-`actor_label` names people on an inbound plugin's modal. The default is `name`, then `email`, then `"User"`. Those people load in one query per actor type when an admin opens the modal, not when the directory lists cards.
+`actor_label` names people on an inbound plugin's modal. The default is `name`, then `email`, then `"User"`. The Email column shows the person's email, not that label. Those people load in one query per actor type when an admin opens the modal, not when the directory lists cards.
 
 The host still registers the provider with Oauth:
 
