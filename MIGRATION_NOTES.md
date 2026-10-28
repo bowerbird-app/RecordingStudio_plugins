@@ -9,7 +9,7 @@
 - Admin `>= 2.5.1` (dummy GitHub tag `v2.5.1`)
 - Attachable `>= 0.22.0` (dummy GitHub tag `v0.22.0`)
 - Accessible dummy tag `v0.22.0`, Trashable dummy tag `v0.11.3` (`require: false`), and Root Switchable dummy tag `v0.8.0`
-- FlatPack dummy tag `v0.1.320`
+- FlatPack dummy tag `v0.1.329`
 - Public RubyGems and GitHub access for dependency installation
 
 ## Verification

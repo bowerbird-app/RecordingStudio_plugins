@@ -34,6 +34,7 @@ class BootTest < Minitest::Test
   def test_changelog_records_upgrade_notes_for_this_version
     changelog = File.read(File.expand_path("../CHANGELOG.md", __dir__))
 
+    assert_includes changelog, "## [0.7.1]"
     assert_includes changelog, "## [0.7.0]"
     assert_includes changelog, "## [0.6.0]"
     assert_includes changelog, "recording_studio >= 6.1.0"

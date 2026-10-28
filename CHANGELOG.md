@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-10-28
+
+### Changed
+- The plugins directory lays plugins out with FlatPack Grid (`cols: 2`) and List. Each inbound name is a FlatPack Button (`style: :ghost`, `href:` is unused because the control opens the people modal). Connect still uses `href:` on Button.
+
+### Upgrade notes
+- Dummy and development Gemfiles pin FlatPack `v0.1.329`. Hosts that overrode `plugins/index` or `plugins/_inbound_listing` should match Grid plus List, and a ghost Button for the inbound name. FlatPack has no Stack component in this pin, so the connected-count line under the name stays a short paragraph.
+
 ## [0.7.0] - 2026-10-27
 
 ### Added

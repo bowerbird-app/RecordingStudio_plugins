@@ -204,7 +204,7 @@ Child recordings must be created with an explicit `parent_recording`.
 When Accessible is bundled, pin the dummy or host Gemfile to `v0.22.0`, pin
 `recording_studio_trashable` to `v0.11.0` with `require: false` (Accessible loads the
 query helpers only), run `bin/rails generate recording_studio_accessible:migrations`,
-migrate, and rebuild Tailwind after bumping FlatPack (`v0.1.320`). Accessible `0.11.0+`
+migrate, and rebuild Tailwind after bumping FlatPack (`v0.1.329`). Accessible `0.11.0+`
 stores access roles as strings (`view` / `edit` / `admin`); hosts upgrading past that
 release need the role-column migration. Accessible `0.14.0+` adds access constraint and
 access rule tables for optional action audiences; English hosts need no copy changes for
