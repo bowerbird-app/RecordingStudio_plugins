@@ -114,10 +114,6 @@ module RecordingStudioPlugins
       :primary
     end
 
-    def plugin_paragraphs(text)
-      text.to_s.split(/\n\n+/).map(&:strip).reject(&:empty?)
-    end
-
     def plugin_admin_edit_cell(row)
       render FlatPack::Link::Component.new(href: admin_plugin_edit_path(row[:key])) do
         plugin_copy("admin.edit")

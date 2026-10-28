@@ -19,10 +19,6 @@ module RecordingStudioPlugins
       map_workspace_status(combined.fetch(:workspace), root, actor)
     end
 
-    def about(_plugin_context)
-      KnownProviders.fetch(@key)&.fetch(:about, nil)
-    end
-
     private
 
     def map_workspace_status(workspace, root, actor)
