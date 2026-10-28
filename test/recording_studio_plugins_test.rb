@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.7.1", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.8.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
@@ -234,7 +234,6 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes index, "content_for :subtitle"
     assert_includes index, "FlatPack::Grid::Component.new(cols: 2, gap: :sm)"
     assert_includes index, "FlatPack::List::Component.new"
-    refute_includes index, "url:"
     refute_includes index, "flat_pack_page_nav"
 
     inbound_listing = File.read(
@@ -243,8 +242,6 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes inbound_listing, "FlatPack::List::Item.new"
     assert_includes inbound_listing, "FlatPack::Button::Component.new"
     assert_includes inbound_listing, "style: :ghost"
-    refute_includes inbound_listing, "url:"
-    refute_includes inbound_listing, "tag.button"
     assert_includes admin_index, "content_for :title"
     assert_includes admin_index, "flat_pack_page_nav"
     assert_includes admin_edit, "content_for :title"

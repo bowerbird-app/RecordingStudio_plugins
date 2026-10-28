@@ -34,7 +34,7 @@ class BootTest < Minitest::Test
   def test_changelog_records_upgrade_notes_for_this_version
     changelog = File.read(File.expand_path("../CHANGELOG.md", __dir__))
 
-    assert_includes changelog, "## [0.7.1]"
+    assert_includes changelog, "## [0.8.0]"
     assert_includes changelog, "## [0.7.0]"
     assert_includes changelog, "## [0.6.0]"
     assert_includes changelog, "recording_studio >= 6.1.0"
@@ -45,10 +45,10 @@ class BootTest < Minitest::Test
     assert_includes changelog, "There are no tables to migrate."
     assert_includes changelog, "**BREAKING:**"
     assert_includes changelog, "Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable)"
-    assert_includes changelog, "compare/v0.7.1...HEAD"
-    assert_includes changelog, "compare/v0.7.0...v0.7.1"
+    assert_includes changelog, "compare/v0.8.0...HEAD"
+    assert_includes changelog, "compare/v0.7.0...v0.8.0"
     footer = changelog.lines.last(20).join
     refute_includes footer, "https://github.com/bowerbird-app/recording_studio_plugins"
-    assert_includes footer, "https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.1...HEAD"
+    assert_includes footer, "https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.0...HEAD"
   end
 end

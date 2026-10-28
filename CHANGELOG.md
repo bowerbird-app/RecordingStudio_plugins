@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-28
+
 ### Changed
 - Cloud Agent environment name is `recording-studio-plugins`. CI Postgres uses `recording_studio_plugins_test`.
 - Directory actor and staff actor both resolve through `RecordingStudioPlugins::CurrentActor`.
+- The plugins directory lays plugins out with FlatPack Grid (`cols: 2`) and List. The inbound name is a ghost Button that opens the people modal. Connect still uses `href:` on Button.
 
 ### Removed
 - Tracked SimpleCov output under `coverage/` and `test/dummy/coverage/`. Those directories stay gitignored.
@@ -21,14 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gemspec description matches the README.
 
 ### Upgrade notes
-- Do not call `Listing#about`, `#setup_instructions`, `#usage_instructions`, or `#documentation_url`. Those methods are gone.
-
-## [0.7.1] - 2026-10-28
-
-### Changed
-- The plugins directory lays plugins out with FlatPack Grid (`cols: 2`) and List. Each inbound name is a FlatPack Button (`style: :ghost`, `href:` is unused because the control opens the people modal). Connect still uses `href:` on Button.
-
-### Upgrade notes
+- Do not call `Listing#about`, `#setup_instructions`, `#usage_instructions`, or `#documentation_url`. Those public methods were removed.
 - Dummy and development Gemfiles pin FlatPack `v0.1.329`. Hosts that overrode `plugins/index` or `plugins/_inbound_listing` should match Grid plus List, and a ghost Button for the inbound name. FlatPack has no Stack component in this pin, so the connected-count line under the name stays a short paragraph.
 
 ## [0.7.0] - 2026-10-27
@@ -240,8 +236,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.1...HEAD
-[0.7.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.0...v0.7.1
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.5.0
