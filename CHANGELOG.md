@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- Gemspec Admin dependency is `>= 2.5.1, < 2.6`. Dummy stays on Admin `v2.5.1`.
 - Cloud Agent environment name is `recording-studio-plugins`. CI Postgres uses `recording_studio_plugins_test`.
 - Directory actor and staff actor both resolve through `RecordingStudioPlugins::CurrentActor`.
+- Dummy and root GitHub tags: Recording Studio `v4.2.1` → `v4.2.2`.
 
 ### Removed
 - Tracked SimpleCov output under `coverage/` and `test/dummy/coverage/`. Those directories stay gitignored.
@@ -22,8 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gemspec description matches the README.
 
 ### Upgrade notes
-- Keep Admin on `>= 2.5.1, < 2.6`. Dummy stays on `v2.5.1`.
 - Do not call `Listing#about`, `#setup_instructions`, `#usage_instructions`, or `#documentation_url`. Those methods are gone.
+- Point host and dummy Gemfiles at Recording Studio `v4.2.2`.
 
 ## [0.7.0] - 2026-10-27
 

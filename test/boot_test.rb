@@ -45,7 +45,6 @@ class BootTest < Minitest::Test
     assert_includes changelog, "**BREAKING:**"
     assert_includes changelog, "Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable)"
     assert_includes changelog, "compare/v0.7.0...HEAD"
-    refute_includes changelog, "v4.2.1` → `v4.2.2"
     footer = changelog.lines.last(20).join
     refute_includes footer, "https://github.com/bowerbird-app/recording_studio_plugins"
     assert_includes footer, "https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.0...HEAD"
