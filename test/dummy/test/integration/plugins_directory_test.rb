@@ -562,10 +562,6 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
         calls[:status] += 1
         RecordingStudioPlugins::Status.new(state: :connected)
       end
-      define_singleton_method(:about) { |_context| calls[:about] += 1; "About counted" }
-      define_singleton_method(:setup_instructions) { |_context| calls[:setup_instructions] += 1; "Connect counted" }
-      define_singleton_method(:usage_instructions) { |_context| calls[:usage_instructions] += 1; "Use counted" }
-      define_singleton_method(:documentation_url) { |_context| calls[:documentation_url] += 1; "https://example.com/counted" }
     end
   end
 end

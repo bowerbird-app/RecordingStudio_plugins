@@ -8,8 +8,10 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Bowerbird"]
   spec.homepage    = "https://github.com/bowerbird-app/RecordingStudio_plugins"
   spec.summary     = "A directory of integrations for Recording Studio"
-  spec.description = "Gems and host apps register plugins. People browse them, read how to connect " \
-                     "and use each one, and see a status the owning gem reports."
+  spec.description = "Gems and host apps register plugins in Ruby. People browse them in the directory " \
+                     "and see a status the owning gem reports. This gem does not connect, authorize, " \
+                     "import, or monitor an integration. Site staff can set a public display name and " \
+                     "one picture per plugin; those are the only facts this gem stores."
   spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 
@@ -28,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", "~> 8.1.0"
   spec.add_dependency "recording_studio", ">= 6.1.0"
   spec.add_dependency "recording_studio_accessible", ">= 0.18"
-  spec.add_dependency "recording_studio_admin", ">= 2.5.1"
+  spec.add_dependency "recording_studio_admin", ">= 2.5.1", "< 2.6"
   spec.add_dependency "recording_studio_attachable", ">= 0.22.0"
   spec.add_dependency "recording_studio_oauth", ">= 0.19.0"
 end

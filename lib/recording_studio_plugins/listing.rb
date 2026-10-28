@@ -66,26 +66,6 @@ module RecordingStudioPlugins
       SafeUrl.external?(action_href)
     end
 
-    def about
-      text_for(:about)
-    end
-
-    def setup_instructions
-      text_for(:setup_instructions)
-    end
-
-    def usage_instructions
-      text_for(:usage_instructions)
-    end
-
-    def documentation_url
-      SafeUrl.allowed(text_for(:documentation_url))
-    end
-
-    def documentation_external?
-      SafeUrl.external?(documentation_url)
-    end
-
     private
 
     attr_reader :plugin_context
@@ -125,13 +105,6 @@ module RecordingStudioPlugins
       return @status_result if defined?(@status_result)
 
       @status_result = plugin_context.call_provider(definition, :status)
-    end
-
-    def text_for(method_name)
-      result = plugin_context.call_provider(definition, method_name)
-      return if result.nil? || result == :missing || result == :raised
-
-      result.to_s
     end
 
     def copy(key, default: nil)
