@@ -34,11 +34,34 @@ class RecordingStudioPluginsTest < Minitest::Test
     path = File.expand_path("../.cursor/environment.json", __dir__)
     json = JSON.parse(File.read(path))
 
-    assert_equal "recording-studio-gem-template", json["name"]
+    assert_equal "recording-studio-plugins", json["name"]
     assert_equal ".cursor/install.sh", json["install"]
     assert_equal ".cursor/start.sh", json["start"]
     refute json.key?("snapshot"), "snapshot pins a Personal build and skips install"
     refute json.key?("agentCanUpdateSnapshot")
+  end
+
+  def test_coverage_directories_stay_gitignored
+    gitignore = File.read(File.expand_path("../.gitignore", __dir__))
+
+    assert_includes gitignore, "coverage/"
+    assert_includes gitignore, "test/dummy/coverage/"
+  end
+
+  def test_ci_postgres_uses_plugins_test_database
+    ci = File.read(File.expand_path("../.github/workflows/ci.yml", __dir__))
+
+    assert_includes ci, "POSTGRES_DB: recording_studio_plugins_test"
+    assert_includes ci, "localhost:5432/recording_studio_plugins_test"
+    refute_includes ci, "gem_template_test"
+  end
+
+  def test_template_leftovers_are_gone
+    root = File.expand_path("..", __dir__)
+
+    refute File.exist?(File.join(root, "docs/gem_template"))
+    refute File.exist?(File.join(root, "test/dummy/.github/workflows/ci.yml"))
+    refute File.exist?(File.join(root, "test/dummy/app/javascript/controllers/hello_controller.js"))
   end
 
   def test_cursor_install_still_fetches_skills

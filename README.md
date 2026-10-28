@@ -53,16 +53,12 @@ Default categories are `ai_agents`, `storage`, `social`, `websites`, `automation
 
 ## Provider
 
-A provider is any object that responds to some of these methods. Every method is optional. The controller passes a `RecordingStudioPlugins::Context` and the provider does not read `Current`. The directory calls `available?` and `status`. It does not call `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
+A provider is any object that responds to some of these methods. Every method is optional. The controller passes a `RecordingStudioPlugins::Context` and the provider does not read `Current`. The directory calls `available?` and `status`.
 
 | Method | Returns | When missing |
 |---|---|---|
 | `available?(context)` | `true` or `false` | listed |
 | `status(context)` | `nil` or `RecordingStudioPlugins::Status` | no status and no action button |
-| `about(context)` | plain text or `nil` | unused by the directory |
-| `setup_instructions(context)` | plain text or `nil` | unused by the directory |
-| `usage_instructions(context)` | plain text or `nil` | unused by the directory |
-| `documentation_url(context)` | URL string or `nil` | unused by the directory |
 
 ```ruby
 RecordingStudioPlugins::Context.new(actor:, root_recording:, request:)

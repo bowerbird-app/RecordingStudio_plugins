@@ -19,10 +19,6 @@ module RecordingStudioPlugins
       map_status(payload)
     end
 
-    def about(_plugin_context)
-      KnownProviders.fetch(@key)&.fetch(:about, nil)
-    end
-
     private
 
     def map_status(payload)

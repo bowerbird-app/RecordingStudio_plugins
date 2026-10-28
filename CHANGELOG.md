@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Cloud Agent environment name is `recording-studio-plugins`. CI Postgres uses `recording_studio_plugins_test`.
+- Directory actor and staff actor both resolve through `RecordingStudioPlugins::CurrentActor`.
+
+### Removed
+- Tracked SimpleCov output under `coverage/` and `test/dummy/coverage/`. Those directories stay gitignored.
+- Template leftovers: `docs/gem_template/`, dummy `test/dummy/.github/workflows/ci.yml`, unused `hello_controller.js`.
+- Unused provider copy: `Listing#about`, `#setup_instructions`, `#usage_instructions`, `#documentation_url`, OauthAdapter and McpClientStatus `about`, KnownProviders `:about`, and `plugin_paragraphs`.
+
+### Fixed
+- Unreleased compare points at `v0.7.0...HEAD`. Changelog GitHub URLs use `RecordingStudio_plugins`.
+- Gemspec description matches the README.
+
+### Upgrade notes
+- Do not call `Listing#about`, `#setup_instructions`, `#usage_instructions`, or `#documentation_url`. Those methods are gone.
+
 ## [0.7.1] - 2026-10-28
 
 ### Changed
@@ -222,15 +240,17 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_plugins/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.3.0
-[0.2.3]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.3
-[0.2.2]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.2
-[0.2.1]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.1
-[0.2.0]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.2.0
-[0.1.2]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.1.2
-[0.1.1]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.1.1
-[0.1.0]: https://github.com/bowerbird-app/recording_studio_plugins/releases/tag/v0.1.0
+[0.2.3]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.2.3
+[0.2.2]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.2.2
+[0.2.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.2.1
+[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.2.0
+[0.1.2]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.1.2
+[0.1.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.1.1
+[0.1.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.1.0

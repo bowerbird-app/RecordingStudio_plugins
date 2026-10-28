@@ -43,11 +43,7 @@ module RecordingStudioPlugins
     end
 
     def directory_actor
-      if defined?(Current) && Current.respond_to?(:actor) && Current.actor
-        Current.actor
-      elsif respond_to?(:current_user)
-        current_user
-      end
+      CurrentActor.resolve(self)
     end
 
     def plugin_context

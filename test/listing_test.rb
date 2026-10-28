@@ -122,14 +122,10 @@ class ListingTest < Minitest::Test
       listing.listed?
       listing.badge_style
       listing.action?(can_edit: true)
-      listing.about
-      listing.setup_instructions
-      listing.usage_instructions
-      listing.documentation_url
     end
 
     assert_equal(
-      { available?: 1, status: 1, about: 1, setup_instructions: 1, usage_instructions: 1, documentation_url: 1 },
+      { available?: 1, status: 1 },
       @calls
     )
   end
@@ -142,18 +138,6 @@ class ListingTest < Minitest::Test
 
     refute listing.action?(can_edit: true)
     assert_nil listing.action_href
-  end
-
-  def test_provider_text_is_returned_as_a_plain_string
-    provider = Class.new do
-      def self.about(_context)
-        "<script>alert(1)</script>"
-      end
-    end
-    listing = listing_for(provider: provider)
-
-    assert_equal "<script>alert(1)</script>", listing.about
-    refute listing.about.html_safe?
   end
 
   private
@@ -193,22 +177,6 @@ class ListingTest < Minitest::Test
       define_singleton_method(:status) do |_context|
         calls[:status] += 1
         RecordingStudioPlugins::Status.new(state: :connected)
-      end
-      define_singleton_method(:about) do |_context|
-        calls[:about] += 1
-        "About"
-      end
-      define_singleton_method(:setup_instructions) do |_context|
-        calls[:setup_instructions] += 1
-        "Connect"
-      end
-      define_singleton_method(:usage_instructions) do |_context|
-        calls[:usage_instructions] += 1
-        "Use"
-      end
-      define_singleton_method(:documentation_url) do |_context|
-        calls[:documentation_url] += 1
-        "https://example.com/docs"
       end
     end
   end
