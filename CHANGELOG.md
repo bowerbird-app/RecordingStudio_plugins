@@ -14,18 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Appearance recordings are created when a site admin opens a plugin's edit page (so Attachable has a parent for the picture), when they save a name, or when they upload a picture. They are not created when staff open the staff list, and a view-only GET still does not create them.
 
 ### Changed
-- Oauth Connect and Disconnect forms skip Turbo (`data-turbo="false"`) so the browser can follow the provider redirect off-site.
-- **BREAKING:** this gem now depends on `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`. Dummy and development GitHub tags stay on Admin `v2.5.1` (newest Admin without Logs) and Attachable `v0.22.0`. Logs `v0.4.1` stays because API `v0.14.0` still needs it.
-- **BREAKING:** helper `plugin_setup_link` is now `plugin_setup_button`. An inbound row with an https `setup_url` shows a Connect button that opens that URL, not a "How to connect" link.
-- Dummy root switching lists workspace roots first, then the Admin root, so a workspace stays the default and staff can switch to Admin before opening `/admin`. Dummy screens use a dummy-only sidebar.
-- Plugin appearance names and pictures are cached in `ActiveSupport::CurrentAttributes` for the current request or job. They are not stored on `Thread.current`.
-- Directory rows without a custom picture show a puzzle-piece placeholder next to the name. The placeholder and picture are the same height as the Connect button (`Avatar` `md`), and the name (plus any connected count) sits vertically centered in the row.
-- Directory omits "Not connected" (`directory_status_text`) and hides a 0 connected count (`people_connected_text`).
-- A Connect button for inbound plugins (ChatGPT, Grok Bot) still requires an https `setup_url`. Oauth Connect/Reconnect on root plugins post to Oauth regardless of that provider's `authorize_url` scheme. Dummy ChatGPT and Grok Bot Connect open `https://chatgpt.com` and `https://grok.com`.
-- Dummy staff plugin table and edit pages use a dummy-only blank layout (no sidebar) with the same padded Flatpack `PageLayout` `width: :default` as the dummy default layout and Oauth admin screens. The table heading is Plugins. The table shows picture, display name, and Edit. The edit page prefills display name, keeps picture and display name in one compact row (name fills the remaining width, no visible Picture or Display name labels), and keeps Save auto-width on the left. Saving the registered name (or a blank name) does not store a custom name. Dummy Google Drive and Dropbox Connect post to Oauth, auto-approve on the dummy authorize endpoint, exchange a code, and return to the directory as Connected.
-- Dummy includes `recording_studio_google_drive` and `recording_studio_dropbox` (temporary commit pins until those gems' recording_studio widening PRs merge and are tagged). Development uses the real gems when credentials exist; test and blank credentials keep the fake clients. `recording_studio_mcp` v0.23.1 does not resolve on this dummy stack.
-- `recording_studio_plugin_appearances.plugin_key` is unique. Creating a name or picture under concurrency finds the existing row instead of inserting a second one. A name revise clears `plugin_key` on the previous snapshot so the unique index and Recording Studio snapshots can coexist. Attachments stay on the same recording.
-- Locale keys with apostrophes use `_html` so `RecordingStudio.t` can render them without escaping (`directory.description_html`, `empty.none.description_html`, `detail.people_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`, `admin.unconfigured.description_html`).
+- Oauth Connect and Disconnect skip Turbo so the browser can follow the provider redirect.
+- **BREAKING:** `plugin_setup_link` is now `plugin_setup_button`. An inbound row with an https setup URL shows Connect, not a "How to connect" link.
+- Directory rows without a custom picture show a puzzle-piece placeholder next to the name, sized with the Connect button. The name sits centered in the row.
+- Directory omits "Not connected" and hides a connected count of zero.
+- Inbound Connect (ChatGPT, Grok Bot) still needs an https setup URL. Oauth Connect on Drive and Dropbox still posts to Oauth.
+- Dummy Drive and Dropbox use the real gems when credentials exist; test and blank credentials keep the fake clients. Connect auto-approves on the dummy authorize page and returns as Connected.
 
 ### Removed
 - **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.

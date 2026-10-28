@@ -60,6 +60,11 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.5.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.14.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_GoogleDrive", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Dropbox", tag: "v0.4.1"'
+    refute_includes gemfile, "Temporary commit pins"
+    refute_includes gemfile, "4d3ef7dc6a9dde24a54bfcb6c7c1dbde31cbcaea"
+    refute_includes gemfile, "56cf5f78070994b162cdd57fd2dc5c2b5722c18f"
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.4.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.3", require: false'

@@ -12,16 +12,8 @@ gem "recording_studio_oauth", github: "bowerbird-app/RecordingStudio_Oauth", tag
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.5.1"
 gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.14.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.0"
-# Temporary commit pins until the widening PRs merge and are tagged:
-# Google Drive PR #7 (cursor/widen-recording-studio-gemspec-debd) and
-# Dropbox PR #6 (cursor/widen-recording-studio-gemspec-77c2) widen
-# recording_studio to >= 4.2, < 7 so they resolve against dummy 6.1.0.
-gem "recording_studio_google_drive",
-    github: "bowerbird-app/RecordingStudio_GoogleDrive",
-    ref: "4d3ef7dc6a9dde24a54bfcb6c7c1dbde31cbcaea"
-gem "recording_studio_dropbox",
-    github: "bowerbird-app/RecordingStudio_Dropbox",
-    ref: "56cf5f78070994b162cdd57fd2dc5c2b5722c18f"
+gem "recording_studio_google_drive", github: "bowerbird-app/RecordingStudio_GoogleDrive", tag: "v0.5.1"
+gem "recording_studio_dropbox", github: "bowerbird-app/RecordingStudio_Dropbox", tag: "v0.4.1"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.4.1"
 gem "recording_studio_site_settings", github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.2.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.3", require: false
