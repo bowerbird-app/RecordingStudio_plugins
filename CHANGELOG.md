@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Cloud Agent environment name is `recording-studio-plugins`. CI Postgres uses `recording_studio_plugins_test`.
 - Directory actor and staff actor both resolve through `RecordingStudioPlugins::CurrentActor`.
-- Dummy and root GitHub tags: Recording Studio `v4.2.1` → `v4.2.2`.
 
 ### Removed
 - Tracked SimpleCov output under `coverage/` and `test/dummy/coverage/`. Those directories stay gitignored.
@@ -23,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrade notes
 - Do not call `Listing#about`, `#setup_instructions`, `#usage_instructions`, or `#documentation_url`. Those methods are gone.
-- Point host and dummy Gemfiles at Recording Studio `v4.2.2`.
 
 ## [0.7.0] - 2026-10-27
 
@@ -123,6 +121,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the first plugins release. Add the gem, mount `RecordingStudioPlugins::Engine`, and register plugins.
 - There are no tables to migrate.
 - The directory does not connect, authorize, or store integration credentials. Owning gems report status through a provider.
+
+## [Unreleased]
+
+### Changed
+- Dummy and root GitHub tags: Recording Studio `v4.2.1` → `v4.2.2`.
+
+### Upgrade notes
+- Point host and dummy Gemfiles at Recording Studio `v4.2.2`.
 
 ## [0.2.3] - 2026-10-01
 
