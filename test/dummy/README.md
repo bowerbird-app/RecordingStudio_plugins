@@ -8,7 +8,7 @@ This Rails app exists to validate the Recording Studio addon template in a real 
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded folder and page recordables
 - Recording Studio default layout with a dummy left sidebar, the root switcher in the sidebar footer and signed-in top nav, FlatPack assets, and Tailwind source scanning
-- Attachable Attachment in `recordable_types`; dummy override of Root Switchable's switch page for Flatpack 0.1.320; dummy maps Admin 2.5.1 `recording_studio_page_nav` onto `flat_pack_page_nav`
+- Attachable Attachment in `recordable_types`; dummy override of Root Switchable's switch page for Flatpack 0.1.329; dummy maps Admin 2.5.1 `recording_studio_page_nav` onto `flat_pack_page_nav`
 - Admin root at `/admin` for staff plugin names and pictures (`section :plugins`)
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 - Dummy registers ChatGPT and Grok Bot with `RecordingStudioPlugins.register_mcp_client`

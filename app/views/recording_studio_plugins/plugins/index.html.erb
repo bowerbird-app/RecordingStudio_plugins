@@ -8,11 +8,13 @@
     icon: :squares_2x2
   ) %>
 <% else %>
-  <ul class="grid grid-cols-1 md:grid-cols-2 gap-3" role="list">
+  <%= render FlatPack::Grid::Component.new(cols: 2, gap: :sm) do %>
     <% @listings.each do |listing| %>
-      <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
+      <%= render FlatPack::List::Component.new do %>
+        <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
+      <% end %>
     <% end %>
-  </ul>
+  <% end %>
   <% @listings.select(&:user?).each do |listing| %>
     <%= render "inbound_modal", listing: listing %>
   <% end %>

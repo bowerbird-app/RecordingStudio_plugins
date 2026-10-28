@@ -1,21 +1,17 @@
 <% trailing = capture do %>
-  <span class="inline-flex items-center gap-2">
-    <%= plugin_setup_button(listing) %>
-  </span>
+  <%= plugin_setup_button(listing) %>
 <% end %>
 
-<%= plugin_directory_row(trailing: trailing) do %>
-  <span class="inline-flex items-center gap-2">
-    <%= plugin_image(listing) %>
-    <span>
-      <%= tag.button listing.name,
-            type: "button",
-            class: "bg-transparent p-0 text-left text-[var(--surface-content-color)]",
-            data: { modal_id: plugin_inbound_modal_id(listing) },
-            aria: { haspopup: "dialog", controls: plugin_inbound_modal_id(listing) } %>
-      <% if can_admin_plugins? && listing.people_connected_text.present? %>
-        <p class="text-sm text-[var(--surface-muted-content-color)]"><%= listing.people_connected_text %></p>
-      <% end %>
-    </span>
-  </span>
+<%= render FlatPack::List::Item.new(leading: plugin_image(listing), trailing: trailing) do %>
+  <%= render FlatPack::Button::Component.new(
+        text: listing.name,
+        style: :ghost,
+        align: :start,
+        type: "button",
+        data: { modal_id: plugin_inbound_modal_id(listing) },
+        aria: { haspopup: "dialog", controls: plugin_inbound_modal_id(listing) }
+      ) %>
+  <% if can_admin_plugins? && listing.people_connected_text.present? %>
+    <p class="text-sm text-[var(--surface-muted-content-color)]"><%= listing.people_connected_text %></p>
+  <% end %>
 <% end %>
