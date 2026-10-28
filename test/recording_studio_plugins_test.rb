@@ -214,7 +214,9 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes index, "url:"
     refute_includes index, "flat_pack_page_nav"
 
-    inbound_listing = File.read(File.join(gem_root, "app/views/recording_studio_plugins/plugins/_inbound_listing.html.erb"))
+    inbound_listing = File.read(
+      File.join(gem_root, "app/views/recording_studio_plugins/plugins/_inbound_listing.html.erb")
+    )
     assert_includes inbound_listing, "FlatPack::List::Item.new"
     assert_includes inbound_listing, "FlatPack::Button::Component.new"
     assert_includes inbound_listing, "style: :ghost"
