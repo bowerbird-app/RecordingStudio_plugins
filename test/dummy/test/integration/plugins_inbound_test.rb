@@ -58,7 +58,11 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who's connected"
+    refute_includes response.body, "Who's connected"
+    assert_select "th", text: "Email"
+    assert_select "th", text: "App", count: 0
+    assert_select "time[datetime][tabindex='0'][aria-label]", text: /\A.+ ago\z/
+    assert_select "[data-controller~='flat-pack--tooltip'] time"
     refute_includes response.body, "&#39;"
     refute_includes response.body, "&amp;#39;"
     assert_includes response.body, @user.email
@@ -94,6 +98,9 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.root_path
     assert_includes chatgpt_row_text, "Connected"
     assert_includes chatgpt_row_text, "1 person connected"
+    assert_select "a[href=?]", "https://chatgpt.com", text: "Connected"
+    assert_select "a[href=?]", "https://grok.com", text: "Connect"
+    assert_equal 1, chatgpt_row_text.scan("Connected").size
 
     switch_to_root!(other_root)
 
@@ -101,6 +108,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     refute_includes chatgpt_row_text, "Connected"
     refute_includes chatgpt_row_text, "1 person connected"
     refute_includes chatgpt_row_text, "Not connected"
+    assert_select "a[href=?]", "https://chatgpt.com", text: "Connect"
   end
 
   test "admin directory shows the count and a lazy people frame without names" do
@@ -111,14 +119,15 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes chatgpt_row_text, "1 person connected"
     refute_includes response.body, @user.email
-    refute_includes response.body, "Who's connected"
+    assert_includes response.body, "Who's connected to ChatGPT"
+    assert_includes response.body, "Who's connected to Grok Bot"
     assert_select "turbo-frame#plugin-chatgpt-people-frame[loading='lazy'][src=?]",
                   recording_studio_plugins.plugin_people_path(:chatgpt)
 
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who's connected"
+    assert_select "th", text: "Email"
     refute_includes response.body, "&#39;"
     refute_includes response.body, "&amp;#39;"
     assert_includes response.body, @user.email
@@ -128,7 +137,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     get recording_studio_plugins.plugin_people_path(:chatgpt)
 
     assert_response :success
-    assert_includes response.body, "Who's connected"
+    refute_includes response.body, "Who's connected"
     assert_includes response.body, "Nobody's connected through here yet."
     refute_includes response.body, "&#39;"
     refute_includes response.body, "&amp;#39;"

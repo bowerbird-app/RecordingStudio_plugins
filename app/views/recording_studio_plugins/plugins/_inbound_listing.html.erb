@@ -1,8 +1,5 @@
 <% trailing = capture do %>
   <span class="inline-flex items-center gap-2">
-    <% if listing.directory_status_text.present? %>
-      <%= tag.span(listing.directory_status_text) %>
-    <% end %>
     <%= plugin_setup_button(listing) %>
   </span>
 <% end %>

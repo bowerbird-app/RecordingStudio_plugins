@@ -13,11 +13,10 @@ en:
         setup: How to connect
         usage: How to use
         documentation: Documentation
-        people_html: Who's connected
+        people_title_html: "Who's connected to %{plugin}"
         people_empty_html: Nobody's connected through here yet.
-        person: Name
+        email: Email
         role: Role
-        app: App
         connected_since: Connected since
         last_used: Last used
         never: Never

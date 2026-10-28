@@ -1,6 +1,6 @@
 <%= render FlatPack::Modal::Component.new(
   id: plugin_inbound_modal_id(listing),
-  title: listing.name,
+  title: can_admin_plugins? ? plugin_copy("detail.people_title_html", plugin: listing.name) : listing.name,
   size: :lg
 ) do |modal| %>
   <% if can_admin_plugins? %>

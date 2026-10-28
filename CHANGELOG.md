@@ -21,12 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Directory omits "Not connected" and hides a connected count of zero.
 - Inbound Connect (ChatGPT, Grok Bot) still needs an https setup URL. Oauth Connect on Drive and Dropbox still posts to Oauth.
 - Dummy Drive and Dropbox use the real gems when credentials exist; test and blank credentials keep the fake clients. Connect auto-approves on the dummy authorize page and returns as Connected.
+- Inbound ChatGPT and Grok Bot rows use the Connect button label Connected when the current person is connected. The standalone Connected text next to the button is gone.
+- The inbound Who's connected modal uses the plugin name as the title for members. For admins the title is Who's connected to that plugin, with no extra heading inside. The people table columns are Email, Role, Connected since, and Last used. The two time columns show time ago in words, with a FlatPack Tooltip for the exact time.
 
 ### Removed
 - **BREAKING:** public route `GET /recording_studio_plugins/:key` (`plugin_path`), `PluginsController#show`, and its view. There is no plugin detail page.
 - **BREAKING:** the directory no longer calls provider `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
 - **BREAKING:** locale key `directory.details` and the modal "More about this" link.
 - Dummy WordPress and Website embed plugins, and the doubled Grokbot registration.
+- **BREAKING:** locale keys `detail.people_html`, `detail.person`, and `detail.app`, and the people table App column. Use `detail.people_title_html` and `detail.email`.
 
 ### Upgrade notes
 - **BREAKING:** this gem now hard-requires `recording_studio_admin >= 2.5.1` and `recording_studio_attachable >= 0.22.0`. Pin Admin `v2.5.1` and Attachable `v0.22.0` on this stack. Do not move Admin to `2.6`/`2.7` here (those tags add Logs).
@@ -34,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `RecordingStudioPlugins::PluginAppearance` to `recordable_types`. Enable `section :plugins` on the admin root. Mount Admin and Attachable. Set `config.admin_root_types` and `config.admin_root_name` (or `config.admin_recording_resolver`) to the host's staff admin root. This gem does not default those. Point Admin `access_recording_resolver` and `site_admin_recording_resolver` at that same recording. Grant Accessible access on that root to site staff only.
 - Remove host routes, links, and overrides that used `plugin_path` or `plugins#show`. Rename `plugin_setup_link` to `plugin_setup_button`. Do not rely on the directory to call `about`, `setup_instructions`, `usage_instructions`, or `documentation_url`.
 - Hosts that overrode directory or inbound modal markup should show the display name and the optional picture, a Connect button only for an https inbound `setup_url` (omit it when the URL is missing or not https), no "Not connected" copy, and no 0 connected count. Oauth Connect on root plugins should still render when the provider `authorize_url` is a path or non-https URL. Staff plugin edit is an Admin-root page: do not open it from a workspace root.
-- Hosts that overrode apostrophe copy should use the `_html` locale keys: `directory.description_html`, `empty.none.description_html`, `detail.people_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`, `admin.unconfigured.description_html`.
+- Hosts that overrode apostrophe copy should use the `_html` locale keys: `directory.description_html`, `empty.none.description_html`, `detail.people_title_html`, `detail.people_empty_html`, `forbidden.title_html`, `admin.unconfigured.title_html`, `admin.unconfigured.description_html`.
 - Dummy (and hosts copying its switcher) must list the Admin root in `available_roots` after workspaces. Admin 2.5.1 `/admin` is 403 unless the current root is that Admin root.
 
 ## [0.6.0] - 2026-10-27

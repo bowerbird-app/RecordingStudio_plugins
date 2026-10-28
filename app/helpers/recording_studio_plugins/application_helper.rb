@@ -11,8 +11,8 @@ module RecordingStudioPlugins
       "text-[var(--surface-content-color)]"
     ].join(" ").freeze
 
-    def plugin_copy(key, default: nil)
-      RecordingStudio.t("recording_studio.plugins.#{key}", default: default)
+    def plugin_copy(key, default: nil, **interpolations)
+      RecordingStudio.t("recording_studio.plugins.#{key}", default: default, **interpolations)
     end
 
     def plugin_badge(listing)
@@ -41,7 +41,7 @@ module RecordingStudioPlugins
       return if href.blank?
 
       render FlatPack::Button::Component.new(
-        text: plugin_copy("status.connect"),
+        text: listing.directory_status_text.presence || plugin_copy("status.connect"),
         style: :secondary,
         href: href,
         target: "_blank"
@@ -69,7 +69,6 @@ module RecordingStudioPlugins
         {
           name: row[:name],
           role: row[:role].to_s.humanize,
-          app: row[:app_name],
           connected_since: plugin_time(row[:connected_at]),
           last_used: plugin_time(row[:last_used_at])
         }
@@ -79,7 +78,10 @@ module RecordingStudioPlugins
     def plugin_time(value)
       return plugin_copy("detail.never") if value.blank?
 
-      I18n.l(value, format: :long)
+      exact = I18n.l(value, format: :long)
+      render FlatPack::Tooltip::Component.new(text: exact, placement: :top) do
+        tag.time("#{time_ago_in_words(value)} ago", datetime: value.iso8601, tabindex: 0, aria: { label: exact })
+      end
     end
 
     def plugin_action(listing, can_edit:, can_admin: false, directory: false)
