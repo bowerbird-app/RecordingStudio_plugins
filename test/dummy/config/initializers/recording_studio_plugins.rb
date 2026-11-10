@@ -29,11 +29,17 @@ RecordingStudioPlugins.register_mcp_client(
   owner: "dummy"
 )
 
-# Extra workspace plugin so an admin dashboard row exceeds CARD_LIMIT and can show Show more.
+# Extra workspace plugins so an admin dashboard row exceeds CARD_LIMIT and can show Show more.
+# Each exposes a dummy Connect POST so the directory row is not actionless.
 module DummyOverflowPlugin
-  module Provider
-    def self.status(_context)
-      RecordingStudioPlugins::Status.new
+  def self.provider(key)
+    Class.new do
+      define_singleton_method(:status) do |_context|
+        RecordingStudioPlugins::Status.new(
+          action_label: "Connect",
+          action_url: "/dummy_plugins/#{key}/connect"
+        )
+      end
     end
   end
 end
@@ -49,7 +55,7 @@ end
     description: "Dummy workspace plugin used to overflow the dashboard card row.",
     category: :storage,
     icon: "puzzle-piece",
-    provider: DummyOverflowPlugin::Provider,
+    provider: DummyOverflowPlugin.provider(key),
     position: position,
     owner: "dummy",
     kind: :root

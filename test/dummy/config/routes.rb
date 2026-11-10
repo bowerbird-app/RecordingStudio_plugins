@@ -42,6 +42,8 @@ Rails.application.routes.draw do
   post "fake_oauth/token", to: "fake_dropbox_oauth#token"
   post "fake_oauth/revoke", to: "fake_dropbox_oauth#revoke"
 
+  post "dummy_plugins/:key/connect", to: "dummy_plugins#connect", as: :dummy_plugin_connect
+
   get "dashboards/:id", to: "dashboards#show", as: :dashboard
 
   # Defines the root path route ("/")

@@ -11,7 +11,7 @@ This Rails app exists to validate the Recording Studio addon template in a real 
 - Attachable Attachment in `recordable_types`; dummy override of Root Switchable's switch page for Flatpack 0.1.329; dummy maps Admin 2.5.1 `recording_studio_page_nav` onto `flat_pack_page_nav`
 - Admin root at `/admin` for staff plugin names and pictures (`section :plugins`)
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
-- Dummy registers ChatGPT and Grok Bot with `RecordingStudioPlugins.register_mcp_client`, plus dummy Calendar, Notes, and Linear workspace plugins so the dashboard row can overflow and show Show more
+- Dummy registers ChatGPT and Grok Bot with `RecordingStudioPlugins.register_mcp_client`, plus dummy Calendar, Notes, and Linear workspace plugins so the dashboard row can overflow and show Show more. Those extras POST Connect to `/dummy_plugins/:key/connect` and redirect back to the directory.
 - Dummy dashboard at `/dashboards/plugins` uses Dashboard's row `action:` (Show more) when more than four unconnected plugins remain
 - Dummy Google Drive and Dropbox use the `recording_studio_google_drive` and `recording_studio_dropbox` gems (the same wiring as the Attachable dummy). Tests keep the fake Oauth clients. In development, real OAuth is used when credentials are present.
 - Dummy-only `/docs/*` pages for gem-specific onboarding

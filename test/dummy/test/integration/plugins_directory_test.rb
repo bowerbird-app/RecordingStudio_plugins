@@ -64,6 +64,9 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "a[href='https://grok.com'][target='_blank']", text: "Connect"
     assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
     assert_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
+    assert_select "form[action='/dummy_plugins/calendar/connect']"
+    assert_select "form[action='/dummy_plugins/notes/connect']"
+    assert_select "form[action='/dummy_plugins/linear/connect']"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"

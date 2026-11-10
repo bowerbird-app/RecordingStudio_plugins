@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Dummy and development Gemfiles pin Recording Studio Dashboard `v0.2.1`, Recording Studio `v6.3.0`, and Flatpack `v0.1.341` so the dummy dashboard can boot. Admin stays on `v2.5.1`. Runtime gemspec floors are unchanged.
 - The plugins directory still uses FlatPack Grid `cols: 2`. All plugin rows sit in one `with_item(span: 1)`, so they occupy column 1 and column 2 stays empty.
+- Inbound directory names use the same `plugin_directory_row` as workspace plugins. The name is a plain modal-trigger button (not a ghost FlatPack Button) so type size and left edge match Drive/Dropbox. That misalignment predates this PR: inbound names were a ghost Button in `List::Item` `leading:`.
+- Dummy Calendar, Notes, and Linear workspace plugins expose a Connect POST (`/dummy_plugins/:key/connect`) so their directory rows are not actionless.
 
 ### Upgrade notes
 - This gem still does not depend on `recording_studio_dashboard`. Hosts that want the widget add Dashboard themselves (`v0.2.1`), then place `:installable_plugins` on a dashboard:
@@ -37,6 +39,7 @@ end
 - Rebuild Tailwind so Dashboard and the new card row classes are included. Dummy links `RecordingStudioDashboard::Engine.root` under `vendor/engines/recording_studio_dashboard` and sources that path plus `lib/recording_studio_plugins/dashboard/**/*.rb`.
 - Dummy and development locks now use Recording Studio `v6.3.0` and Flatpack `v0.1.341`. Hosts can keep older pins if they already satisfy Dashboard's `recording_studio ~> 6.2` and `flat_pack >= 0.1.331`. Do not raise this gem's gemspec floors for Dashboard.
 - Copy lives under `recording_studio.plugins.dashboard.*`.
+- Hosts that overrode `plugins/_inbound_listing` should match `plugin_directory_row` (icon + unpadded name button) so inbound names align with workspace plugin names.
 
 ## [0.8.1] - 2026-11-05
 
