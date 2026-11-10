@@ -77,7 +77,7 @@ Each provider call is rescued and logged. If `available?` raises, the plugin is 
 
 ## Display
 
-The directory is a two-column list of items. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Inbound MCP client names open a modal that uses the same display name.
+The directory page uses FlatPack Grid `cols: 2` and puts every plugin row in column 1 (`with_item(span: 1)`), so column 2 is empty. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Inbound MCP client names open a modal that uses the same display name.
 
 - On the directory, a missing Oauth connection is a Connect button that posts to Oauth. An active connection is a secondary Connected button that still posts Disconnect to Oauth. Dummy Google Drive and Dropbox use `/fake_oauth/authorize` and a dummy-only fake provider page so Connect has a working landing page.
 - `state: :connected` shows a green badge reading "Connected".

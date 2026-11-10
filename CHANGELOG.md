@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Dummy and development Gemfiles pin Recording Studio Dashboard `v0.2.1`, Recording Studio `v6.3.0`, and Flatpack `v0.1.341` so the dummy dashboard can boot. Admin stays on `v2.5.1`. Runtime gemspec floors are unchanged.
+- The plugins directory still uses FlatPack Grid `cols: 2`. All plugin rows sit in one `with_item(span: 1)`, so they occupy column 1 and column 2 stays empty.
 
 ### Upgrade notes
 - This gem still does not depend on `recording_studio_dashboard`. Hosts that want the widget add Dashboard themselves (`v0.2.1`), then place `:installable_plugins` on a dashboard:

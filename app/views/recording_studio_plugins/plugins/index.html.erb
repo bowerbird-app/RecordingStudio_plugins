@@ -8,10 +8,12 @@
     icon: :squares_2x2
   ) %>
 <% else %>
-  <%= render FlatPack::Grid::Component.new(cols: 2, gap: :sm) do %>
-    <% @listings.each do |listing| %>
-      <%= render FlatPack::List::Component.new do %>
-        <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
+  <%= render FlatPack::Grid::Component.new(cols: 2, gap: :sm) do |grid| %>
+    <% grid.with_item(span: 1) do %>
+      <% @listings.each do |listing| %>
+        <%= render FlatPack::List::Component.new do %>
+          <%= render listing.user? ? "inbound_listing" : "listing", listing: listing %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>

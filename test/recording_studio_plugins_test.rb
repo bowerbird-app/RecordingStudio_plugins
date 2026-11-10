@@ -234,6 +234,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes index, "content_for :title"
     assert_includes index, "content_for :subtitle"
     assert_includes index, "FlatPack::Grid::Component.new(cols: 2, gap: :sm)"
+    assert_includes index, "with_item(span: 1)"
     assert_includes index, "FlatPack::List::Component.new"
     refute_includes index, "flat_pack_page_nav"
 
