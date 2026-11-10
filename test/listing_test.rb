@@ -44,6 +44,7 @@ class ListingTest < Minitest::Test
 
     assert_equal :success, listing.badge_style
     assert_equal "Connected", listing.badge_text
+    assert listing.connected?
     refute listing.action?(can_edit: true)
   end
 

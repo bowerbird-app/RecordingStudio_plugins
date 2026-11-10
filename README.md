@@ -77,7 +77,7 @@ Each provider call is rescued and logged. If `available?` raises, the plugin is 
 
 ## Display
 
-The directory is a two-column list of items. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Inbound MCP client names open a modal that uses the same display name.
+The directory page uses FlatPack Grid `cols: 2` and puts every plugin row in column 1 (`with_item(span: 1)`), so column 2 is empty. Each row is the display name on the left, and the status plus action on the right. When staff have set a picture, a small image sits next to the name (alt text is the display name). There is no search box or category filter. Inbound MCP client names open a modal that uses the same display name.
 
 - On the directory, a missing Oauth connection is a Connect button that posts to Oauth. An active connection is a secondary Connected button that still posts Disconnect to Oauth. Dummy Google Drive and Dropbox use `/fake_oauth/authorize` and a dummy-only fake provider page so Connect has a working landing page.
 - `state: :connected` shows a green badge reading "Connected".
@@ -153,18 +153,39 @@ This gem does not display or log tokens.
 
 Copy ships under `recording_studio.plugins.*` through `RecordingStudio::Translation.register_shipped_english`, so a host can override it.
 
+## Dashboard widget
+
+This gem does not depend on Recording Studio Dashboard. When that gem is loaded, Plugins registers `:installable_plugins` once. The host still places the widget on a dashboard:
+
+```ruby
+RecordingStudioDashboard.register(:home) do
+  row :installable_plugins,
+      title: RecordingStudioPlugins::Dashboard::InstallablePlugins.row_title,
+      action: {
+        label: RecordingStudioPlugins::Dashboard::InstallablePlugins.show_more_label,
+        url: RecordingStudioPlugins::Dashboard::InstallablePlugins.directory_href
+      } do
+    widget :installable_plugins, span: 12
+  end
+end
+```
+
+The widget reuses `RecordingStudioPlugins.listings_for`. It shows plugins the current person can still connect, with the same visibility as the directory. Each card is the display name plus the staff picture (or the puzzle-piece placeholder). Root plugin cards go to the directory. Inbound cards with an https setup URL use that Connect URL. The row caps at four cards and marks the preparation truncated when more exist, which is how Dashboard 0.2.1 shows the row's Show more action. When everything visible is already connected, or nothing is listed, the widget keeps its width and shows "Nothing to connect right now." Permission matches directory `:view` access. A raise in that check hides only this widget.
+
+Dummy mounts the widget at `/dashboards/plugins`.
+
 ## Who owns what
 
 | Gem | Owns |
 |---|---|
-| Recording Studio Plugins | Registry, directory page, staff names and pictures, status display, display names for known Oauth providers and inbound MCP clients |
+| Recording Studio Plugins | Registry, directory page, staff names and pictures, status display, display names for known Oauth providers and inbound MCP clients, optional Dashboard widget |
 | Recording Studio Attachable | Google Drive and Dropbox picking, import, and their OAuth. Tokens live in the Rails session, not on the workspace. |
 | Recording Studio OAuth | Outbound provider registry, inbound plugin lookup, connection status, Connect and Disconnect routes, tokens |
 | Recording Studio MCP | Remote MCP HTTP adapter over the OAuth grant. No installation or usage signal. |
 | Recording Studio Accessible | Roles (`view`, `edit`, `admin`) and `authorized?` |
 | Flatpack | UI components |
 
-This gem depends on Rails, Recording Studio `>= 6.1.0`, `recording_studio_accessible`, Admin `>= 2.5.1`, Attachable `>= 0.22.0`, Oauth `>= 0.19.0`, and Flatpack `>= 0.1.315`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Dummy and development Gemfiles pin Recording Studio `v6.1.0`, Oauth `v0.19.0`, Flatpack `v0.1.329`, Accessible `v0.22.0`, Admin `v2.5.1`, API `v0.14.0`, Attachable `v0.22.0`, Cache `v0.5.0`, Logs `v0.4.1` (API still needs it), Metrics `v0.5.0`, Site Settings `v0.2.0`, Trashable `v0.11.3`, and Root Switchable `v0.8.0`. Sibling gems that still declare Recording Studio below 6 need `test/support/widen_recording_studio_requirement.rb` before `bundle install`. Dummy lists Attachable Attachment, an AdminRoot, and PluginAppearance, and points plugin appearances at that AdminRoot.
+This gem depends on Rails, Recording Studio `>= 6.1.0`, `recording_studio_accessible`, Admin `>= 2.5.1`, Attachable `>= 0.22.0`, Oauth `>= 0.19.0`, and Flatpack `>= 0.1.315`. Oauth is hard: a host that adds Plugins also pulls Oauth's stack (Admin, API, Cache, Metrics, Site Settings, Trashable). Dummy and development Gemfiles pin Recording Studio `v6.3.0`, Oauth `v0.19.0`, Flatpack `v0.1.341`, Accessible `v0.22.0`, Admin `v2.5.1`, API `v0.14.0`, Attachable `v0.22.0`, Cache `v0.5.0`, Logs `v0.4.1` (API still needs it), Metrics `v0.5.0`, Site Settings `v0.2.0`, Trashable `v0.11.3`, Root Switchable `v0.8.0`, and Recording Studio Dashboard `v0.2.1` (dummy only, not a runtime dependency). Sibling gems that still declare Recording Studio below 6 need `test/support/widen_recording_studio_requirement.rb` before `bundle install`. Dummy lists Attachable Attachment, an AdminRoot, and PluginAppearance, and points plugin appearances at that AdminRoot.
 
 ## Another gem registering
 

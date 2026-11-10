@@ -41,6 +41,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
     refute_select "[data-fp-page-layout-width='full']"
     assert_select "div[class*='grid'][class*='grid-cols-1'][class*='md:grid-cols-2']"
+    assert_select ".fp-grid__item[class*='col-span-1']", count: 1
     assert_select "ul[role='list'][class*='flat-pack-list']"
     assert_select "li[role='listitem']"
     assert_select "button[data-modal-id=?]", "plugin-chatgpt-people", text: "ChatGPT"
@@ -63,6 +64,9 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "a[href='https://grok.com'][target='_blank']", text: "Connect"
     assert_select "form[action='/recording_studio_oauth/outbound/google_drive/connect']"
     assert_select "form[action='/recording_studio_oauth/outbound/dropbox/connect']"
+    assert_select "form[action='/dummy_plugins/calendar/connect']"
+    assert_select "form[action='/dummy_plugins/notes/connect']"
+    assert_select "form[action='/dummy_plugins/linear/connect']"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
@@ -207,6 +211,8 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "ChatGPT"
     assert_includes response.body, "Grok Bot"
+    assert_select "div[class*='grid'][class*='md:grid-cols-2']"
+    assert_select ".fp-grid__item[class*='col-span-1']", count: 1
     refute_includes response.body, "Not connected"
     refute_includes response.body, "people connected"
     refute_includes response.body, "Google Drive"

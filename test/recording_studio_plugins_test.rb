@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.8.1", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.9.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
@@ -74,7 +74,8 @@ class RecordingStudioPluginsTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, "widen_recording_studio_requirement"
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.2.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.22.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.19.0"'
     refute_includes gemfile, "TEMPORARY"
@@ -96,7 +97,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     refute_includes gemfile, 'RecordingStudio_metrics", tag: "v0.6.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.329"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     refute_includes gemfile, 'tag: "v0.1.213"'
     refute_includes gemfile, 'tag: "v4.7.0"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -233,15 +234,18 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes index, "content_for :title"
     assert_includes index, "content_for :subtitle"
     assert_includes index, "FlatPack::Grid::Component.new(cols: 2, gap: :sm)"
+    assert_includes index, "with_item(span: 1)"
     assert_includes index, "FlatPack::List::Component.new"
     refute_includes index, "flat_pack_page_nav"
 
     inbound_listing = File.read(
       File.join(gem_root, "app/views/recording_studio_plugins/plugins/_inbound_listing.html.erb")
     )
-    assert_includes inbound_listing, "FlatPack::List::Item.new"
-    assert_includes inbound_listing, "FlatPack::Button::Component.new"
-    assert_includes inbound_listing, "style: :ghost"
+    assert_includes inbound_listing, "plugin_directory_row"
+    assert_includes inbound_listing, "tag.button"
+    assert_includes inbound_listing, "data: { modal_id: plugin_inbound_modal_id(listing) }"
+    refute_includes inbound_listing, "FlatPack::List::Item.new"
+    refute_includes inbound_listing, "style: :ghost"
     assert_includes admin_index, "content_for :title"
     assert_includes admin_index, "flat_pack_page_nav"
     assert_includes admin_edit, "content_for :title"

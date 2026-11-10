@@ -4,6 +4,10 @@ en:
       directory:
         title: Plugins
         description_html: See what you can connect, and what's already set up.
+      dashboard:
+        row_title: Plugins
+        show_more: Show more
+        empty: Nothing to connect right now.
       empty:
         none:
           title: Nothing here yet
