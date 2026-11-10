@@ -4,7 +4,11 @@ require "test_helper"
 require "recording_studio_plugins/dashboard/installable_plugins"
 
 class InstallablePluginsWidgetTest < Minitest::Test
-  FakePreparation = Struct.new(:state, :data, :message, keyword_init: true)
+  FakePreparation = Struct.new(:state, :data, :message, :truncated, keyword_init: true) do
+    def truncated?
+      truncated
+    end
+  end
 
   def setup
     RecordingStudioPlugins.clear!
@@ -40,18 +44,49 @@ class InstallablePluginsWidgetTest < Minitest::Test
     register_plugin(:dropbox, connected: true, kind: :root)
     register_plugin(:chatgpt, connected: false, kind: :user)
 
-    admin_cards = with_directory_visibility do
-      RecordingStudioPlugins::Dashboard::InstallablePlugins.prepare(admin_context, {}).data
+    admin_result = with_directory_visibility do
+      RecordingStudioPlugins::Dashboard::InstallablePlugins.prepare(admin_context, {})
     end
-    member_cards = with_directory_visibility do
-      RecordingStudioPlugins::Dashboard::InstallablePlugins.prepare(member_context, {}).data
+    member_result = with_directory_visibility do
+      RecordingStudioPlugins::Dashboard::InstallablePlugins.prepare(member_context, {})
     end
+    admin_cards = admin_result.data
+    member_cards = member_result.data
 
     assert_equal %i[chatgpt drive], admin_cards.map(&:key).sort
     assert_equal %i[chatgpt], member_cards.map(&:key)
     assert_equal "sample chatgpt", admin_cards.find { |card| card.key == :chatgpt }.name
     assert_equal "/recording_studio_plugins/", admin_cards.find { |card| card.key == :drive }.href
     refute admin_cards.find { |card| card.key == :drive }.external
+    refute admin_result.truncated?
+    refute member_result.truncated?
+  end
+
+  def test_prepare_caps_the_row_and_marks_truncated_when_more_remain
+    (RecordingStudioPlugins::Dashboard::InstallablePlugins::CARD_LIMIT + 1).times do |index|
+      register_plugin(:"plugin_#{index}", connected: false, kind: :root, position: index)
+    end
+
+    result = with_directory_visibility do
+      RecordingStudioPlugins::Dashboard::InstallablePlugins.prepare(admin_context, {})
+    end
+
+    assert_equal :content, result.state
+    assert result.truncated?
+    assert_equal RecordingStudioPlugins::Dashboard::InstallablePlugins::CARD_LIMIT, result.data.size
+  end
+
+  def test_prepare_is_not_truncated_at_the_card_limit
+    RecordingStudioPlugins::Dashboard::InstallablePlugins::CARD_LIMIT.times do |index|
+      register_plugin(:"plugin_#{index}", connected: false, kind: :root, position: index)
+    end
+
+    result = with_directory_visibility do
+      RecordingStudioPlugins::Dashboard::InstallablePlugins.prepare(admin_context, {})
+    end
+
+    refute result.truncated?
+    assert_equal RecordingStudioPlugins::Dashboard::InstallablePlugins::CARD_LIMIT, result.data.size
   end
 
   def test_inbound_cards_use_the_directory_connect_href
@@ -108,8 +143,8 @@ class InstallablePluginsWidgetTest < Minitest::Test
     preparation.define_singleton_method(:empty) do |message: nil|
       FakePreparation.new(state: :empty, data: nil, message: message)
     end
-    preparation.define_singleton_method(:content) do |data|
-      FakePreparation.new(state: :content, data: data, message: nil)
+    preparation.define_singleton_method(:content) do |data = nil, truncated: false, **|
+      FakePreparation.new(state: :content, data: data, message: nil, truncated: truncated)
     end
     dashboard.const_set(:Preparation, preparation) unless dashboard.const_defined?(:Preparation, false)
   end
@@ -120,7 +155,7 @@ class InstallablePluginsWidgetTest < Minitest::Test
     Object.send(:remove_const, :RecordingStudioDashboard) if defined?(::RecordingStudioDashboard)
   end
 
-  def register_plugin(key, connected:, kind: :user)
+  def register_plugin(key, connected:, kind: :user, position: 1)
     RecordingStudioPlugins.register(
       key,
       name: "sample #{key}",
@@ -128,7 +163,7 @@ class InstallablePluginsWidgetTest < Minitest::Test
       category: :storage,
       icon: "puzzle-piece",
       provider: status_provider(connected),
-      position: 1,
+      position: position,
       owner: "test",
       kind: kind
     )

@@ -159,13 +159,18 @@ This gem does not depend on Recording Studio Dashboard. When that gem is loaded,
 
 ```ruby
 RecordingStudioDashboard.register(:home) do
-  row :installable_plugins, title: "Plugins you can connect" do
+  row :installable_plugins,
+      title: RecordingStudioPlugins::Dashboard::InstallablePlugins.row_title,
+      action: {
+        label: RecordingStudioPlugins::Dashboard::InstallablePlugins.show_more_label,
+        url: RecordingStudioPlugins::Dashboard::InstallablePlugins.directory_href
+      } do
     widget :installable_plugins, span: 12
   end
 end
 ```
 
-The widget reuses `RecordingStudioPlugins.listings_for`. It shows plugins the current person can still connect, with the same visibility as the directory. Each card is the display name plus the staff picture (or the puzzle-piece placeholder). Root plugin cards go to the directory. Inbound cards with an https setup URL use that Connect URL. When everything visible is already connected, or nothing is listed, the widget keeps its width and shows "Nothing to connect right now." Permission matches directory `:view` access. A raise in that check hides only this widget.
+The widget reuses `RecordingStudioPlugins.listings_for`. It shows plugins the current person can still connect, with the same visibility as the directory. Each card is the display name plus the staff picture (or the puzzle-piece placeholder). Root plugin cards go to the directory. Inbound cards with an https setup URL use that Connect URL. The row caps at four cards and marks the preparation truncated when more exist, which is how Dashboard 0.2.1 shows the row's Show more action. When everything visible is already connected, or nothing is listed, the widget keeps its width and shows "Nothing to connect right now." Permission matches directory `:view` access. A raise in that check hides only this widget.
 
 Dummy mounts the widget at `/dashboards/plugins`.
 

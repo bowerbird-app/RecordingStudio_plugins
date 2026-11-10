@@ -42,11 +42,14 @@ class PluginsDashboardTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-dashboard=plugins] [data-dashboard-row=installable_plugins]"
     assert_select "[data-dashboard-placement=installable_plugins][data-dashboard-state=content]"
-    assert_includes response.body, "Plugins you can connect"
+    assert_select "[data-dashboard-row=installable_plugins]", text: /Plugins/
+    assert_select "[data-dashboard-row=installable_plugins] a[href='/recording_studio_plugins/']",
+                  text: "Show more"
     assert_includes response.body, "Google Drive"
     assert_includes response.body, "Dropbox"
     assert_includes response.body, "ChatGPT"
     assert_includes response.body, "Grok Bot"
+    refute_includes css_select("[data-dashboard-placement=installable_plugins]").text, "Calendar"
     assert_select "[data-dashboard-placement=installable_plugins] a[href='/recording_studio_plugins/']",
                   minimum: 2
     assert_select "[data-dashboard-placement=installable_plugins] a[href='https://chatgpt.com']", text: "ChatGPT"
@@ -65,6 +68,8 @@ class PluginsDashboardTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Grok Bot"
     refute_includes response.body, "Google Drive"
     refute_includes response.body, "Dropbox"
+    refute_includes response.body, "Calendar"
+    assert_select "[data-dashboard-row=installable_plugins] a", text: "Show more", count: 0
   end
 
   test "empty state renders when nothing is left to connect" do
@@ -77,6 +82,7 @@ class PluginsDashboardTest < ActionDispatch::IntegrationTest
     assert_select "[data-dashboard-placement=installable_plugins][data-dashboard-state=empty]"
     assert_includes response.body, "Nothing to connect right now."
     refute_includes response.body, "Google Drive"
+    assert_select "[data-dashboard-row=installable_plugins] a", text: "Show more", count: 0
   ensure
     RecordingStudioPlugins.configuration.hidden_keys = []
   end
@@ -94,7 +100,7 @@ class PluginsDashboardTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-dashboard-placement=installable_plugins]", count: 0
-    refute_includes response.body, "Plugins you can connect"
+    assert_select "[data-dashboard-row=installable_plugins]", count: 0
   end
 
   private

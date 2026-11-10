@@ -3,6 +3,7 @@
 module RecordingStudioPlugins
   module Dashboard
     module InstallablePlugins
+      CARD_LIMIT = 4
       CardItem = Data.define(:key, :name, :image_url, :href, :external)
 
       class << self
@@ -10,7 +11,10 @@ module RecordingStudioPlugins
           cards = card_items(context)
           return ::RecordingStudioDashboard::Preparation.empty(message: empty_message) if cards.empty?
 
-          ::RecordingStudioDashboard::Preparation.content(cards)
+          ::RecordingStudioDashboard::Preparation.content(
+            cards.first(CARD_LIMIT),
+            truncated: cards.size > CARD_LIMIT
+          )
         end
 
         def visible?(context)
@@ -29,8 +33,22 @@ module RecordingStudioPlugins
           copy("dashboard.empty")
         end
 
+        def row_title
+          copy("dashboard.row_title")
+        end
+
+        def show_more_label
+          copy("dashboard.show_more")
+        end
+
         def card_items(context)
           listings_for(context).reject(&:connected?).map { |listing| card_item(listing) }
+        end
+
+        def directory_href
+          path = RecordingStudioPlugins.configuration.mount_path.to_s
+          path = "/recording_studio_plugins" if path.empty?
+          path.end_with?("/") ? path : "#{path}/"
         end
 
         private
@@ -56,12 +74,6 @@ module RecordingStudioPlugins
             href: href,
             external: listing.setup_href.present?
           )
-        end
-
-        def directory_href
-          path = RecordingStudioPlugins.configuration.mount_path.to_s
-          path = "/recording_studio_plugins" if path.empty?
-          path.end_with?("/") ? path : "#{path}/"
         end
 
         def read(context, name)

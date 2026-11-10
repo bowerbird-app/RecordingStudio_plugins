@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] - 2026-11-10
 
 ### Added
-- Optional Recording Studio Dashboard widget `:installable_plugins`. It lists plugins the current person can still connect, using the same `listings_for` rules as the directory (workspace plugins for admins, inbound MCP clients for members by their own status). Cards show the display name and staff picture, or the puzzle-piece placeholder. Each card links to the directory, or to the existing inbound Connect URL. The widget registers only when `RecordingStudioDashboard` is loaded, and registration is idempotent.
+- Optional Recording Studio Dashboard widget `:installable_plugins`. It lists plugins the current person can still connect, using the same `listings_for` rules as the directory (workspace plugins for admins, inbound MCP clients for members by their own status). Cards show the display name and staff picture, or the puzzle-piece placeholder. Each card links to the directory, or to the existing inbound Connect URL. The row shows at most four cards and returns `truncated: true` when more remain, so a host row `action:` (Show more) can link to the directory. The widget registers only when `RecordingStudioDashboard` is loaded, and registration is idempotent.
 
 ### Changed
 - Dummy and development Gemfiles pin Recording Studio Dashboard `v0.2.1`, Recording Studio `v6.3.0`, and Flatpack `v0.1.341` so the dummy dashboard can boot. Admin stays on `v2.5.1`. Runtime gemspec floors are unchanged.
@@ -20,11 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ```ruby
 RecordingStudioDashboard.register(:home) do
-  row :installable_plugins, title: "Plugins you can connect" do
+  row :installable_plugins,
+      title: RecordingStudioPlugins::Dashboard::InstallablePlugins.row_title,
+      action: {
+        label: RecordingStudioPlugins::Dashboard::InstallablePlugins.show_more_label,
+        url: RecordingStudioPlugins::Dashboard::InstallablePlugins.directory_href
+      } do
     widget :installable_plugins, span: 12
   end
 end
 ```
+
+- Dashboard 0.2.1 keeps a row `action:` only when `prepare` returns `Preparation.content(..., truncated: true)`. This gem does that when unconnected plugins exceed four. Empty and short lists hide Show more. Do not add a custom more-link inside the widget.
 
 - Rebuild Tailwind so Dashboard and the new card row classes are included. Dummy links `RecordingStudioDashboard::Engine.root` under `vendor/engines/recording_studio_dashboard` and sources that path plus `lib/recording_studio_plugins/dashboard/**/*.rb`.
 - Dummy and development locks now use Recording Studio `v6.3.0` and Flatpack `v0.1.341`. Hosts can keep older pins if they already satisfy Dashboard's `recording_studio ~> 6.2` and `flat_pack >= 0.1.331`. Do not raise this gem's gemspec floors for Dashboard.
