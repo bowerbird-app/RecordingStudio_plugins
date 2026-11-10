@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-10
+
+### Added
+- Optional Recording Studio Dashboard widget `:installable_plugins`. It lists plugins the current person can still connect, using the same `listings_for` rules as the directory (workspace plugins for admins, inbound MCP clients for members by their own status). Cards show the display name and staff picture, or the puzzle-piece placeholder. Each card links to the directory, or to the existing inbound Connect URL. The widget registers only when `RecordingStudioDashboard` is loaded, and registration is idempotent.
+
+### Changed
+- Dummy and development Gemfiles pin Recording Studio Dashboard `v0.2.1`, Recording Studio `v6.3.0`, and Flatpack `v0.1.341` so the dummy dashboard can boot. Admin stays on `v2.5.1`. Runtime gemspec floors are unchanged.
+
+### Upgrade notes
+- This gem still does not depend on `recording_studio_dashboard`. Hosts that want the widget add Dashboard themselves (`v0.2.1`), then place `:installable_plugins` on a dashboard:
+
+```ruby
+RecordingStudioDashboard.register(:home) do
+  row :installable_plugins, title: "Plugins you can connect" do
+    widget :installable_plugins, span: 12
+  end
+end
+```
+
+- Rebuild Tailwind so Dashboard and the new card row classes are included. Dummy links `RecordingStudioDashboard::Engine.root` under `vendor/engines/recording_studio_dashboard` and sources that path plus `lib/recording_studio_plugins/dashboard/**/*.rb`.
+- Dummy and development locks now use Recording Studio `v6.3.0` and Flatpack `v0.1.341`. Hosts can keep older pins if they already satisfy Dashboard's `recording_studio ~> 6.2` and `flat_pack >= 0.1.331`. Do not raise this gem's gemspec floors for Dashboard.
+- Copy lives under `recording_studio.plugins.dashboard.*`.
+
 ## [0.8.1] - 2026-11-05
 
 ### Changed
@@ -241,7 +264,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/releases/tag/v0.7.0

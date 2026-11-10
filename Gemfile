@@ -8,9 +8,10 @@ require_relative "test/support/widen_recording_studio_requirement"
 gemspec
 
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.329"
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.22.0"
+gem "recording_studio_dashboard", github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.2.1"
 gem "recording_studio_oauth", github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.19.0"
 # Required by oauth >= 0.19.0 (GitHub-only; not on RubyGems).
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.5.1"

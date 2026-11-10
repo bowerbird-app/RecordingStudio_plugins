@@ -28,6 +28,7 @@ require "recording_studio_plugins/inbound_people"
 require "recording_studio_plugins/oauth_directory"
 require "recording_studio_plugins/appearance"
 require "recording_studio_plugins/admin"
+require "recording_studio_plugins/dashboard"
 require "recording_studio_plugins/engine"
 
 module RecordingStudioPlugins

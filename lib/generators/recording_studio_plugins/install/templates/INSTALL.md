@@ -15,3 +15,4 @@ Next steps:
 6. Give people access to a workspace. The directory checks `authorized?` for `:view`. Action links on registered plugins check `:edit`. Root plugins from Oauth are listed only for workspace admins (`:admin`). Inbound MCP clients are visible to everyone with view access.
 7. Set `config.enabled_plugins` to the Oauth provider keys this host should list (default is none). Register those providers with Oauth from the provider gem, or they will not appear.
 8. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.
+9. Optional: add Recording Studio Dashboard and place widget `:installable_plugins` on a dashboard. This gem registers the widget when Dashboard is loaded. Rebuild Tailwind after you add it.

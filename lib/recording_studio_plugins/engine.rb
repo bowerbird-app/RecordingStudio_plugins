@@ -72,6 +72,10 @@ module RecordingStudioPlugins
       RecordingStudioPlugins.configuration.hooks.run(:after_initialize, self)
     end
 
+    initializer "recording_studio_plugins.dashboard", before: :load_config_initializers do
+      RecordingStudioPlugins::Dashboard.register!
+    end
+
     initializer "recording_studio_plugins.admin_definitions" do
       config.to_prepare do
         RecordingStudioPlugins::PluginAppearance.declare_hierarchy!

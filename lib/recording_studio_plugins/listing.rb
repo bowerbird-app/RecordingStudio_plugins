@@ -66,16 +66,16 @@ module RecordingStudioPlugins
       SafeUrl.external?(action_href)
     end
 
+    def connected?
+      status_record&.connected?
+    end
+
     private
 
     attr_reader :plugin_context
 
     def hide_action?
       status_failed? || (action_href.blank? && (!root? || connected?)) || rejected_action_url?
-    end
-
-    def connected?
-      status_record&.connected?
     end
 
     def attention?
