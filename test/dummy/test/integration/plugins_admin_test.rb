@@ -88,7 +88,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "dummy_sidebar"
     assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
     refute_select "[data-fp-page-layout-width='full']"
-    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
+    assert_select "[data-controller='flat-pack--button-dropdown']"
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     RecordingStudioPlugins.all.each do |definition|
       assert_includes response.body, RecordingStudioPlugins::Appearance.display_name(definition)
@@ -158,14 +158,14 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "nav[aria-label='Plugins'] a[href='/recording_studio_plugins/admin/plugins']", count: 1
-    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
+    assert_select "[data-controller='flat-pack--button-dropdown']"
 
     get recording_studio_plugins.admin_plugins_path
 
     assert_response :success
     refute_includes response.body, "flat-pack-sidebar-layout"
     refute_select "nav[aria-label='Plugins']"
-    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
+    assert_select "[data-controller='flat-pack--button-dropdown']"
   end
 
   test "staff get 403 on /admin from a workspace root" do
@@ -506,7 +506,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     refute_select "[data-fp-page-layout-width=full]"
     refute_includes response.body, "flat-pack-sidebar-layout"
     refute_includes response.body, "dummy_sidebar"
-    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
+    assert_select "[data-controller='flat-pack--button-dropdown']"
   end
 
   def assert_picture_file_picker
@@ -526,6 +526,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
   end
 
   def switch_to_root!(root_recording)
+    grant_view_on_current_switch_root!(Current.actor)
     patch recording_studio_root_switchable.root_switch_path(scope: "all_workspaces"), params: {
       root_switch: {
         root_recording_id: root_recording.id,

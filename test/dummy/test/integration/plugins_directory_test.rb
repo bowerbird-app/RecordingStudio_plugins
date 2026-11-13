@@ -71,7 +71,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "a[href*='category=']", count: 0
     assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
     assert_includes response.body, @root.recordable.name
-    assert_select "[data-controller='recording-studio-root-switchable--root-switch-dropdown']"
+    assert_select "[data-controller='flat-pack--button-dropdown']"
     assert_select ".fp-page-layout[data-fp-page-layout-width=default]"
     refute_select "[data-fp-page-layout-width=full]"
     assert_directory_apostrophes
@@ -553,6 +553,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
   end
 
   def switch_to_root!(root_recording)
+    grant_view_on_current_switch_root!(Current.actor)
     patch recording_studio_root_switchable.root_switch_path(scope: "all_workspaces"), params: {
       root_switch: {
         root_recording_id: root_recording.id,

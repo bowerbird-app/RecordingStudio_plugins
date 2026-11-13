@@ -1,178 +1,210 @@
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio.git
-  revision: 6acc0377fa4c940a2ff7222bbcbdc3ee6d59c591
-  tag: v6.3.0
+  revision: 481dfd1f32703bd23a38c4cfd1faf171df42b430
+  tag: v6.7.0
   specs:
-    recording_studio (6.3.0)
+    recording_studio (6.7.0)
       flat_pack (>= 0.1.315)
-      rails (>= 8.1.0)
+      rails (>= 8.1.4.1)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_Dropbox.git
-  revision: fc3094184b65bfb8c1e9665b2fa1650c68a6f681
-  tag: v0.4.1
+  revision: 7b4b2ba1004ef76523ed2c01e1fed9f382def2ce
+  tag: v0.5.0
   specs:
-    recording_studio_dropbox (0.4.1)
+    recording_studio_dropbox (0.5.0)
       rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
+      recording_studio (>= 4.2, < 7)
       recording_studio_oauth (>= 0.17.0, < 1.0)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_GoogleDrive.git
-  revision: 64ac186feaf592339f47c7178f7d227b4e74013c
-  tag: v0.5.1
+  revision: 8f68d758bd33e9abae1422a085f0de315cf0cde1
+  tag: v0.6.0
   specs:
-    recording_studio_google_drive (0.5.1)
+    recording_studio_google_drive (0.6.0)
       rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
+      recording_studio (>= 6.1, < 7)
       recording_studio_oauth (>= 0.17.0, < 1.0)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_Oauth.git
-  revision: 138de2692aa5a7f889113a4f564f1cc5ada64771
-  tag: v0.19.0
+  revision: 4de2d5f534530f63ffe2d44cb1db4e596f803856
+  tag: v0.21.8
   specs:
-    recording_studio_oauth (0.19.0)
-      flat_pack (>= 0.1.315)
+    recording_studio_oauth (0.21.8)
+      flat_pack (>= 0.1.341)
       rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-      recording_studio_accessible (~> 0.11)
-      recording_studio_admin (~> 2.0)
-      recording_studio_api (>= 0.5.2, < 0.17)
-      recording_studio_cache (~> 0.5)
+      recording_studio (~> 6.0)
+      recording_studio_accessible (>= 0.18, < 1.0)
+      recording_studio_admin (>= 2.0, < 3.0)
+      recording_studio_api (>= 0.5.2, < 1.0)
+      recording_studio_cache (>= 0.5, < 1.0)
       recording_studio_metrics (>= 0.3, < 1.0)
-      recording_studio_site_settings (~> 0.2)
-      recording_studio_trashable (~> 0.10)
+      recording_studio_site_settings (>= 0.2, < 1.0)
+      recording_studio_trashable (>= 0.10, < 1.0)
       view_component (>= 4.14, < 5)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_accessible.git
-  revision: be0fe762c86ef871711c01de87bc0a7f4df7cc22
-  tag: v0.22.0
+  revision: 97b935ecd1f6147e20ce0c0d1efb7366a93f018b
+  tag: v0.32.0
   specs:
-    recording_studio_accessible (0.22.0)
+    recording_studio_accessible (0.32.0)
       rails (~> 8.1.0)
       recording_studio (~> 6.1, >= 6.1.0)
       recording_studio_trashable (~> 0.10)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_admin.git
-  revision: e21ace116a052b9b75ecad3466a014edeaea707a
-  tag: v2.5.1
+  revision: d6aba422c1398cf7d315e4dec6b4f9bbfa645a13
+  tag: v2.13.0
   specs:
-    recording_studio_admin (2.5.1)
-      flat_pack (~> 0.1.254)
+    recording_studio_admin (2.13.0)
+      flat_pack (>= 0.1.341)
       rails (~> 8.1.0)
+      recording_studio (>= 6.3.0, < 7)
       recording_studio_accessible (~> 0.6)
+      recording_studio_logs (>= 0.4.1, < 1.0)
       recording_studio_trashable (~> 0.10)
+      view_component (>= 4.14, < 5)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
-  revision: 5fdacf1682f55e1bc10652cd6f55a16ee75d4f15
-  tag: v0.14.0
+  revision: 46877d99cb7456a77c99a2b2393584942175bd3b
+  tag: v0.23.1
   specs:
-    recording_studio_api (0.14.0)
+    recording_studio_api (0.23.1)
+      flat_pack (>= 0.1.341)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
       recording_studio_accessible (~> 0.11)
-      recording_studio_logs (~> 0.4.1)
-      recording_studio_metrics (>= 0.3.0, < 0.6)
+      recording_studio_logs (>= 0.4.1, < 1.0)
+      recording_studio_metrics (>= 0.3.0, < 1.0)
+      recording_studio_moveable (~> 4.0)
       recording_studio_trashable (~> 0.10)
       redis (~> 5.3)
+      view_component (>= 4.14, < 5)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_attachable.git
-  revision: f25c30bc37301099b34a55f10fc0f5aff056f025
-  tag: v0.22.0
+  revision: 82edaff1cf6a8ec1a401ece52995af5ae64f6193
+  tag: v0.23.0
   specs:
-    recording_studio_attachable (0.22.0)
+    recording_studio_attachable (0.23.0)
+      flat_pack (>= 0.1.315)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_api (~> 0.23)
+      recording_studio_metrics (>= 0.3.0, < 1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_cache.git
+  revision: 0d8676b02a351f91e3522024bb0dd75e2a153bde
+  tag: v0.6.3
+  specs:
+    recording_studio_cache (0.6.3)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_dashboard.git
+  revision: 4f13080cdb55b8bfbf7dca59d7d5069adbc2ae4f
+  tag: v0.4.1
+  specs:
+    recording_studio_dashboard (0.4.1)
+      flat_pack (>= 0.1.331, < 1.0)
+      rails (~> 8.1.0)
+      recording_studio (~> 6.0, >= 6.2)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_icons.git
+  revision: 697bc12cdd776971678be08d60ed5d4db0f8c2b5
+  tag: v0.2.1
+  specs:
+    recording_studio_icons (0.2.1)
+      rails (>= 8.1.0)
+      recording_studio (>= 6.3.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_logs.git
+  revision: 47d70f2c1d72cdc9bbb9ce7f63d98835347ce449
+  tag: v0.7.4
+  specs:
+    recording_studio_logs (0.7.4)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_metrics (>= 0.6.1, < 1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_metrics.git
+  revision: 4521e585007f19c8c2fb10e513988fd5546c6230
+  tag: v0.8.0
+  specs:
+    recording_studio_metrics (0.8.0)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
+  revision: 8fac42eae770d04938957b3225ebc617ab04617e
+  tag: v4.1.1
+  specs:
+    recording_studio_moveable (4.1.1)
+      flat_pack (>= 0.1.331)
+      rails (>= 8.1.0, < 9.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_accessible (~> 0.6)
+      recording_studio_icons (>= 0.1.0)
+      view_component (>= 4.14, < 5)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_root_switchable.git
+  revision: d2763fe506878a320d0f6f534d4ab72afc62fab2
+  tag: v0.15.0
+  specs:
+    recording_studio_root_switchable (0.15.0)
+      flat_pack (>= 0.1.341)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.3.0, < 7)
+      recording_studio_accessible (~> 0.18)
+      recording_studio_cache (~> 0.5)
+      recording_studio_metrics (>= 0.3.0, < 1.0)
+      view_component (>= 4.14, < 5)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_site_settings.git
+  revision: 606256e9af04bc0941b441daa99e06eb687a9ec9
+  tag: v0.5.6
+  specs:
+    recording_studio_site_settings (0.5.6)
+      flat_pack (>= 0.1.144)
+      rails (~> 8.1.0)
+      recording_studio (>= 6.1.0)
+      recording_studio_accessible (~> 0.18)
+      recording_studio_admin (~> 2.0)
+      recording_studio_attachable (~> 0.5)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
+  revision: cbd24858202d6ad3ca76cb49803ef82adf0f78a7
+  tag: v0.14.0
+  specs:
+    recording_studio_trashable (0.14.0)
       flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
       recording_studio_metrics (>= 0.3.0, < 1.0)
 
 GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_cache.git
-  revision: ffadfbd2a804104e1146c835aaf1bdb8068596ff
-  tag: v0.5.0
-  specs:
-    recording_studio_cache (0.5.0)
-      rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_dashboard.git
-  revision: c390a9be0ecd330281e66fbbb4bc2e18fc85c733
-  tag: v0.2.1
-  specs:
-    recording_studio_dashboard (0.2.1)
-      flat_pack (>= 0.1.331, < 0.2)
-      rails (~> 8.1.0)
-      recording_studio (~> 6.2)
-
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_logs.git
-  revision: 6f612ceba651b285f4452583617d5d5b866f3e56
-  tag: v0.4.1
-  specs:
-    recording_studio_logs (0.4.1)
-      rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_metrics.git
-  revision: b3ff62dbee7e4e1107e3e41cdae7b2481893ca51
-  tag: v0.5.0
-  specs:
-    recording_studio_metrics (0.5.0)
-      rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_root_switchable.git
-  revision: 6f4ebe13d8021cc2097d4d93ab89d0dfb03e2c8c
-  tag: v0.8.0
-  specs:
-    recording_studio_root_switchable (0.8.0)
-      flat_pack
-      rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-      recording_studio_accessible (~> 0.13)
-      recording_studio_metrics (~> 0.2)
-
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_site_settings.git
-  revision: f116e327badc21f3026dcb6b81444ea8fceba962
-  tag: v0.2.0
-  specs:
-    recording_studio_site_settings (0.2.0)
-      flat_pack (>= 0.1.144)
-      rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-      recording_studio_accessible (~> 0.11)
-      recording_studio_admin (~> 2.0)
-      recording_studio_attachable (~> 0.5)
-
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
-  revision: 24efae9ca7c776fe6b95dd3863ac4a506d475d9f
-  tag: v0.11.3
-  specs:
-    recording_studio_trashable (0.11.3)
-      flat_pack (>= 0.1.74)
-      rails (~> 8.1.0)
-      recording_studio (>= 6.1.0)
-      recording_studio_metrics (>= 0.3.0, < 1.0)
-
-GIT
   remote: https://github.com/bowerbird-app/flatpack.git
-  revision: 374c9b7f7130057954df596597ff75f139c72b50
-  tag: v0.1.341
+  revision: 9e1225b2d5bb423a14b57bde755f0a1e8513d4da
+  tag: v0.1.357
   specs:
-    flat_pack (0.1.341)
+    flat_pack (0.1.357)
       pagy (~> 9.0)
       rails (>= 7.1, < 9)
-      tailwind_merge (~> 0.13)
+      tailwind_merge (>= 0.13, < 2)
       view_component (>= 4.14, < 5)
 
 PATH
@@ -321,7 +353,7 @@ GEM
       activesupport (>= 6.0.0)
       railties (>= 6.0.0)
     io-console (0.9.5)
-    irb (1.18.0)
+    irb (1.19.0)
       pp (>= 0.6.0)
       prism (>= 1.3.0)
       rdoc (>= 4.0.0)
@@ -355,10 +387,10 @@ GEM
       net-smtp
     marcel (1.2.1)
     mini_mime (1.1.5)
-    minitest (6.0.6)
+    minitest (6.1.0)
       drb (~> 2.0)
-      prism (~> 1.5)
-    msgpack (1.8.5)
+      prism (>= 1.5, < 3)
+    msgpack (1.8.7)
     net-imap (0.6.8)
       date
       net-protocol
@@ -366,13 +398,13 @@ GEM
       net-protocol
     net-protocol (0.4.0)
       timeout
-    net-scp (4.1.2)
+    net-scp (4.2.2)
       net-ssh (>= 2.6.5, < 9.0.0)
-    net-sftp (4.0.2)
+    net-sftp (4.1.1)
       net-ssh (>= 5.0.0, < 9.0.0)
     net-smtp (0.5.2)
       net-protocol
-    net-ssh (7.3.8)
+    net-ssh (7.3.10)
       logger
     nio4r (2.7.5)
     nokogiri (1.19.7-aarch64-linux-gnu)
@@ -408,12 +440,19 @@ GEM
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.1)
-    prism (1.9.0)
+    prism (2.1.0-aarch64-linux-gnu)
+    prism (2.1.0-aarch64-linux-musl)
+    prism (2.1.0-arm-linux-gnu)
+    prism (2.1.0-arm-linux-musl)
+    prism (2.1.0-arm64-darwin)
+    prism (2.1.0-x86_64-darwin)
+    prism (2.1.0-x86_64-linux-gnu)
+    prism (2.1.0-x86_64-linux-musl)
     propshaft (1.3.2)
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
       rack
-    puma (8.0.2)
+    puma (8.0.3)
       nio4r (~> 2.0)
     raabro (1.5.0)
     racc (1.8.1)
@@ -476,7 +515,7 @@ GEM
     responders (3.2.1)
       actionpack (>= 7.0)
       railties (>= 7.0)
-    rubocop (1.92.1)
+    rubocop (1.92.2)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -487,9 +526,9 @@ GEM
       rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.50.0)
+    rubocop-ast (1.51.0)
       parser (>= 3.3.7.2)
-      prism (~> 1.7)
+      prism (>= 1.7)
     rubocop-performance (1.27.0)
       lint_roller (~> 1.1)
       rubocop (>= 1.89.0, < 2.0)
@@ -519,7 +558,7 @@ GEM
       activejob (>= 7.2)
       activerecord (>= 7.2)
       railties (>= 7.2)
-    solid_queue (1.7.0)
+    solid_queue (1.7.2)
       activejob (>= 7.1)
       activerecord (>= 7.1)
       concurrent-ruby (>= 1.3.1)
@@ -535,18 +574,18 @@ GEM
       ostruct
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
-    tailwind_merge (0.16.0)
+    tailwind_merge (1.5.6)
       sin_lru_redux (~> 2.5)
     tailwindcss-rails (4.7.0)
       railties (>= 7.0.0)
       tailwindcss-ruby (~> 4.0)
-    tailwindcss-ruby (4.3.3)
-    tailwindcss-ruby (4.3.3-aarch64-linux-gnu)
-    tailwindcss-ruby (4.3.3-aarch64-linux-musl)
-    tailwindcss-ruby (4.3.3-arm64-darwin)
-    tailwindcss-ruby (4.3.3-x86_64-darwin)
-    tailwindcss-ruby (4.3.3-x86_64-linux-gnu)
-    tailwindcss-ruby (4.3.3-x86_64-linux-musl)
+    tailwindcss-ruby (4.3.4)
+    tailwindcss-ruby (4.3.4-aarch64-linux-gnu)
+    tailwindcss-ruby (4.3.4-aarch64-linux-musl)
+    tailwindcss-ruby (4.3.4-arm64-darwin)
+    tailwindcss-ruby (4.3.4-x86_64-darwin)
+    tailwindcss-ruby (4.3.4-x86_64-linux-gnu)
+    tailwindcss-ruby (4.3.4-x86_64-linux-musl)
     thor (1.5.0)
     thruster (0.1.27)
     thruster (0.1.27-aarch64-linux)
@@ -565,7 +604,7 @@ GEM
     unicode-emoji (4.3.0)
     uri (1.1.2)
     useragent (0.16.11)
-    view_component (4.20.0)
+    view_component (4.24.0)
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
       prism (>= 1.0)
@@ -616,8 +655,10 @@ DEPENDENCIES
   recording_studio_dashboard!
   recording_studio_dropbox!
   recording_studio_google_drive!
+  recording_studio_icons!
   recording_studio_logs!
   recording_studio_metrics!
+  recording_studio_moveable!
   recording_studio_oauth!
   recording_studio_plugins!
   recording_studio_root_switchable!
@@ -680,14 +721,14 @@ CHECKSUMS
   ffi (1.17.4-x86_64-darwin) sha256=aa70390523cf3235096cf64962b709b4cfbd5c082a2cb2ae714eb0fe2ccda496
   ffi (1.17.4-x86_64-linux-gnu) sha256=9d3db14c2eae074b382fa9c083fe95aec6e0a1451da249eab096c34002bc752d
   ffi (1.17.4-x86_64-linux-musl) sha256=3fdf9888483de005f8ef8d1cf2d3b20d86626af206cbf780f6a6a12439a9c49e
-  flat_pack (0.1.341)
+  flat_pack (0.1.357)
   fugit (1.14.0) sha256=e311a9cc85a54bb67649df45060e721282a1e2c8ebad40e41874a3a7d576f37e
   globalid (1.4.0) sha256=037f12fbf1d9d7a014d501c2d5c77356fd4ddd96d7a7991d6700bba96706f427
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   image_processing (2.2.0) sha256=e0cb9892a4395ac2b7bb2fac5c6f5bc63361f2f18ed08773e21fce5b111c6974
   importmap-rails (2.2.3) sha256=7101be2a4dc97cf1558fb8f573a718404c5f6bcfe94f304bf1f39e444feeb16a
   io-console (0.9.5) sha256=83dd9bbf4c4680416629245b39cd4212eb5f4d9a4ea91804870c1f6b846414d5
-  irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3
+  irb (1.19.0) sha256=55ee56acbdd6c9fe06a2e6909f46a24e5c41f45f16906bab04e8049cf46f1d27
   jbuilder (2.15.1) sha256=2430bec28fb0cebacb5875b1009cf9d8bc3c303ccb810c4c8b062a4b51457637
   json (3.1.0) sha256=3ce7ccf8fde58960177a3a756c31f292a4c1e1dedee884547096a5b0604e3bd8
   kamal (2.12.0) sha256=c51d1ab085e515470f98d0c0f043637122b5ebf76e8b610cb1fbbed0b7f9b8fa
@@ -698,15 +739,15 @@ CHECKSUMS
   mail (2.9.1) sha256=06574eca475253d6c18145dd70af80d0eb970182d55053497c5f4d797ea160e8
   marcel (1.2.1) sha256=1678e9360e32f9eafa917c80029e2f6d10b2715c66a4b87b6d0da9b9cd1f859f
   mini_mime (1.1.5) sha256=8681b7e2e4215f2a159f9400b5816d85e9d8c6c6b491e96a12797e798f8bccef
-  minitest (6.0.6) sha256=153ea36d1d987a62942382b61075745042a2b3123b1cd48f4c3675af9cc7d6f1
-  msgpack (1.8.5) sha256=97419eaa7b35dfe3e462c0e6c1a3dfdcbfc8756605c09e46e4c6daef127517ba
+  minitest (6.1.0) sha256=ff373595aa8888631e8a5463986a76b3845346ae6d7fa46e139c1633d418076e
+  msgpack (1.8.7) sha256=dfefec761b5f9047e6e8d95d2c7f8af4b3725d984a01942adc533aa819a2df33
   net-imap (0.6.8) sha256=eb30bb62227b64a3af6b518b04b2375113d69f68f15de59b0193b07d98acf6d9
   net-pop (0.1.2) sha256=848b4e982013c15b2f0382792268763b748cce91c9e91e36b0f27ed26420dff3
   net-protocol (0.4.0) sha256=f9f90c8c6f64794a45160bf422177a336db12809de3beeeaa26b88fcd2e8c853
-  net-scp (4.1.2) sha256=bc550fdc22b4a8f25b8bbf3fc6b41d0ee00692e4f78d2cb7726c35ebfa664aa0
-  net-sftp (4.0.2) sha256=83cc067fb2875e593f956af0c2a819e565f4fdd503cc2387104f920d3833f85b
+  net-scp (4.2.2) sha256=af26fa536fb1fe5a3e77e0095d00685eca58fa49c28968f4fabc52fea21d35a2
+  net-sftp (4.1.1) sha256=dc2019e59e3e3552943b576f14cb0201ec55823935b967e10dcda169b04e4573
   net-smtp (0.5.2) sha256=35103cc04d6b2d94632f9928ede07483c24b70b9c0db1f231fea43909b678f3c
-  net-ssh (7.3.8) sha256=16bb1fccc4d9a580decdeea8ddb98e8544df29b7e6ac8cb94d4b379cfe4bee9f
+  net-ssh (7.3.10) sha256=8b54591acc8f9dbb63cd906add66a816c302f950cf92137b14155e809abea472
   nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
   nokogiri (1.19.7-aarch64-linux-gnu) sha256=8f5e15d299602456406e1f03a9f3456cceb33a0722811e818d2ee2214eb4c84a
   nokogiri (1.19.7-aarch64-linux-musl) sha256=efe0c3602e6e54521bc21c681930ce5568e2d11203de17400710b2b3ca2e4cb4
@@ -730,9 +771,16 @@ CHECKSUMS
   pg (1.7.0-x86_64-linux-musl) sha256=0c9bc93b6e0aca2a5b07daef00b7ec4f9882bfe21ef3872b4371f8ecffe1f1e1
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
   prettyprint (0.2.1) sha256=d555d57ea6d7cf001d4774b693546a6bd88bec1e778ddffb5c60b68ceec4b7d4
-  prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
+  prism (2.1.0-aarch64-linux-gnu) sha256=808dddc72def68e1a0463689414c97e0ba211938eddbab05387a4844aa2b3ec2
+  prism (2.1.0-aarch64-linux-musl) sha256=dd1a0732620c1e575dabb07a297a62911fabd72f8e20ce850b522a866f877930
+  prism (2.1.0-arm-linux-gnu) sha256=96b2426b9dbab05448c4add735619929042be3cd7e871ff186468121b62bcfa8
+  prism (2.1.0-arm-linux-musl) sha256=00ef918e42a3dc98f11a461bf473586a3424b0f78bee8a4e43b5a65a5f5e2cd0
+  prism (2.1.0-arm64-darwin) sha256=2d0c2e3e011cfd89c041940907d3ff3def379d7b0f2ba158d1d42238e8ad8afc
+  prism (2.1.0-x86_64-darwin) sha256=6c645d8e6afc742956c7518220ce5106367727c4d9980ac9ab386d55004ddab4
+  prism (2.1.0-x86_64-linux-gnu) sha256=b2b647afce09551e650b8bb3e2fc91d7d73d392a09534ca307ec0d619c33bfd4
+  prism (2.1.0-x86_64-linux-musl) sha256=249f45981726923e259b927902246219fa25ad10a76f43849c9aee1a3d3ec5b8
   propshaft (1.3.2) sha256=1d56a3e56a92c21bfc29caf07406b5386b00d4c47ddf357cf989a5a234b1389e
-  puma (8.0.2) sha256=c8ed871dfbbe66448ea9ffd46692342d9804d4071522b52b5331b7b6e7b686fb
+  puma (8.0.3) sha256=6383a60bbc3d9495b2e453d93e60cefa817f7e854a302a5013f31fd9f514a5f3
   raabro (1.5.0) sha256=3f998a7bc84f9c84df3ab580634d2e0a5bda4f0841168d56035f529c9877440a
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
   rack (3.2.8) sha256=1fecc85e463ebc7a2a945fff829ffcd549babeb1556384796fad946c28dc4ec7
@@ -747,29 +795,31 @@ CHECKSUMS
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
   rbs (4.2.0) sha256=51f7b886dcc05bc09e10b901daa6a81829f6adc03101d6ca9ea4aac6103e0674
   rdoc (8.1.0) sha256=befc37880a5cfd36dcb176c748b5fd5ee39dd3536a75e81824e4972ce230f60a
-  recording_studio (6.3.0)
-  recording_studio_accessible (0.22.0)
-  recording_studio_admin (2.5.1)
-  recording_studio_api (0.14.0)
-  recording_studio_attachable (0.22.0)
-  recording_studio_cache (0.5.0)
-  recording_studio_dashboard (0.2.1)
-  recording_studio_dropbox (0.4.1)
-  recording_studio_google_drive (0.5.1)
-  recording_studio_logs (0.4.1)
-  recording_studio_metrics (0.5.0)
-  recording_studio_oauth (0.19.0)
+  recording_studio (6.7.0)
+  recording_studio_accessible (0.32.0)
+  recording_studio_admin (2.13.0)
+  recording_studio_api (0.23.1)
+  recording_studio_attachable (0.23.0)
+  recording_studio_cache (0.6.3)
+  recording_studio_dashboard (0.4.1)
+  recording_studio_dropbox (0.5.0)
+  recording_studio_google_drive (0.6.0)
+  recording_studio_icons (0.2.1)
+  recording_studio_logs (0.7.4)
+  recording_studio_metrics (0.8.0)
+  recording_studio_moveable (4.1.1)
+  recording_studio_oauth (0.21.8)
   recording_studio_plugins (0.9.0)
-  recording_studio_root_switchable (0.8.0)
-  recording_studio_site_settings (0.2.0)
-  recording_studio_trashable (0.11.3)
+  recording_studio_root_switchable (0.15.0)
+  recording_studio_site_settings (0.5.6)
+  recording_studio_trashable (0.14.0)
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
   redis-client (0.31.0) sha256=6820cb2a21e6795a823141f50fd25e655de2b8dc8ff833b43509a27b0263fd75
   regexp_parser (2.13.1) sha256=5aedb6b7c35688f51e86eef17a15374dfd287c83f4ca644b2c5f3ec50a33b44b
   reline (0.7.0) sha256=5b012d8e55dbf9d450f12bde2cf7d15ff546ae80b3f8f3b30e570d431815583d
   responders (3.2.1) sha256=c2772970cbda654c0e772d852e5a851e82cd8e96f5fa958650861ba75b8ffa84
-  rubocop (1.92.1) sha256=a905381a5344215a79abcfe80f6c94366447e6a55347c9a525b5a24990e33f62
-  rubocop-ast (1.50.0) sha256=b9ca88300da0803ee222ad20cdb30494c0a784eed06fdc35d254b06d662788db
+  rubocop (1.92.2) sha256=14fb31eed143a0dc6f78186c550c1715e81cd38f59d05d1165050e445c1f5382
+  rubocop-ast (1.51.0) sha256=0ec311e36b191b3872d909078a35274e962ae97dbce64be6812d145ca59acfcb
   rubocop-performance (1.27.0) sha256=eeeb1374d062a368ee1c787b70eb0b0cc4b184cb1f8565f424760946146d61ce
   rubocop-rails (2.38.0) sha256=6e2b7c532efa95e3050371bec20b8f5b025662acead8bc70ee31f0e3e6fa2f06
   rubocop-rails-omakase (1.1.0) sha256=2af73ac8ee5852de2919abbd2618af9c15c19b512c4cfc1f9a5d3b6ef009109d
@@ -779,18 +829,18 @@ CHECKSUMS
   sin_lru_redux (2.5.3) sha256=d9bcc184537cb0781cccfb283a18d36c5b820cf811b2637b398b55e98f4cecbd
   solid_cable (4.1.0) sha256=828e3d509207b82b4f05f4e9c85f696994710679b52d511aa7f97ebd212d3226
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
-  solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
+  solid_queue (1.7.2) sha256=a22685e1d2ee14ce7b4e5d4592c9d8e837951884c51555609dee58679ed03325
   sshkit (1.25.1) sha256=be3f10b9d6eb0b44d5eaba3f7cbe41bc6bb894bce4339688ac20124391455b78
   stimulus-rails (1.3.4) sha256=765676ffa1f33af64ce026d26b48e8ffb2e0b94e0f50e9119e11d6107d67cb06
-  tailwind_merge (0.16.0) sha256=e2a2b26aaef57ae6af6d0e98380bbcbf324ce4e9778cd56df8e837c30e66005c
+  tailwind_merge (1.5.6) sha256=bf9b492446af3caafb4a4976465153eb800f6b4df2538974dee0e4acc5457530
   tailwindcss-rails (4.7.0) sha256=9b09bd677d7cd226fc8ff3f7d2d91c6dc6c3da75dd74dc4cab5f94711f69ba41
-  tailwindcss-ruby (4.3.3) sha256=ee0a64030749862deb501acab4c4aaf5adbee13865746a33299d46d7b5d0952a
-  tailwindcss-ruby (4.3.3-aarch64-linux-gnu) sha256=c86d6dd3eccc85fe0d792a832b06f2bf3c0a7a83b399308aeb9d8f5725f42a6a
-  tailwindcss-ruby (4.3.3-aarch64-linux-musl) sha256=72b77ca9edea82383dd09510ab520a122e3cb9f9864ca5b38e27698098d2b899
-  tailwindcss-ruby (4.3.3-arm64-darwin) sha256=776c51fc734aac64bde0c253eadd2ed2e610b2ba0d8e760501fe7cbec55fd6cf
-  tailwindcss-ruby (4.3.3-x86_64-darwin) sha256=483011e5d3792cf5ef4afdfb04c1d95daccf42c30cdb6fe53b77520954e7b922
-  tailwindcss-ruby (4.3.3-x86_64-linux-gnu) sha256=2337017ff8b02698480eae1e9637cf01faa0e4824db89d067a13c5a5ee38c9b2
-  tailwindcss-ruby (4.3.3-x86_64-linux-musl) sha256=27d478c417bcf73828e5b544744c5bdfd5b5cb54f1a266fc4f185281c32efe6c
+  tailwindcss-ruby (4.3.4) sha256=9efb1c084c43cb53578b708f66c3f541616d49f094b1c4881691b4f332356b55
+  tailwindcss-ruby (4.3.4-aarch64-linux-gnu) sha256=09c647d5434b4be5c76ee607c1f52817f70f10c44bcfd9241ceeeaf783057d6b
+  tailwindcss-ruby (4.3.4-aarch64-linux-musl) sha256=4495aa1a28613661dbe3a23612e28a3f8cb6ef747c16139e12d7c19ac3f38b71
+  tailwindcss-ruby (4.3.4-arm64-darwin) sha256=8165d282ed3246b96cca271b097cd03412b2359c54169532e9697230c882ea96
+  tailwindcss-ruby (4.3.4-x86_64-darwin) sha256=1d0c718597ae57988ceda20e72abfe42e7bf948b44e1d5b6966f0af18810fe70
+  tailwindcss-ruby (4.3.4-x86_64-linux-gnu) sha256=d6654344039ef34114e100c7abbfbecf213956a18676801e3c92d3d98c00fc56
+  tailwindcss-ruby (4.3.4-x86_64-linux-musl) sha256=fca0843ab85b0c79f608a82210551b65940c991abc8d7a7f7b3276b42530e012
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73
   thruster (0.1.27) sha256=5fd3855192bb4e8d13db69ae5f70d39f2dfd88fe0394fa372104996edf0bb599
   thruster (0.1.27-aarch64-linux) sha256=c50789f2dcd4dfa072c4719f99c38dea5d47ebb60ad0cc1fd1996b2266ecfd22
@@ -805,7 +855,7 @@ CHECKSUMS
   unicode-emoji (4.3.0) sha256=11c02fa73290378c066bb0562cd4c87d8e1b706fbbe0059ca12746a4244de8ce
   uri (1.1.2) sha256=89292e98eabbef6248b0a0ed5e7e398e152f83f17560023a6d94a7f492b169fb
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
-  view_component (4.20.0) sha256=b720a646364487b57040a2b15dcb845ef86f9e65db6a9bf845374bab9fca2dd2
+  view_component (4.24.0) sha256=03d47405cd63ea5c7154332b122cc24c50382b55e8f94eb2a269ce8ad73ae98a
   warden (1.2.9) sha256=46684f885d35a69dbb883deabf85a222c8e427a957804719e143005df7a1efd0
   web-console (4.3.0) sha256=e13b71301cdfc2093f155b5aa3a622db80b4672d1f2f713119cc7ec7ac6a6da4
   websocket-driver (0.8.2) sha256=97c556b019bf3410b4961002ac501621e9322d3f8a7bc02161a09301cc4c4146
