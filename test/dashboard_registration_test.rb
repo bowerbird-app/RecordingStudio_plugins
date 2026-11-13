@@ -76,11 +76,11 @@ class DashboardRegistrationTest < Minitest::Test
     refute_includes engine, "RecordingStudioDashboard.reset!"
   end
 
-  def test_dummy_pins_dashboard_v0_2_1
+  def test_dummy_pins_dashboard_v0_4_1
     dummy_gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
     root_gemfile = File.read(File.expand_path("../Gemfile", __dir__))
 
-    pin = 'gem "recording_studio_dashboard", github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.2.1"'
+    pin = 'gem "recording_studio_dashboard", github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.4.1"'
     assert_includes dummy_gemfile, pin
     assert_includes root_gemfile, pin
   end

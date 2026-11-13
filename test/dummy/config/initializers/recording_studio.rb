@@ -53,6 +53,10 @@ RecordingStudio.configure do |config|
   # Actor resolver for events when no actor is explicitly supplied
   config.actor = -> { Current.actor }
 
+  # Recording Studio 6.5+ refuses writes unless the host sets authorize_write.
+  # The dummy records pages and plugin appearances with and without Current.actor.
+  config.allow_unauthorized_writes = true
+
   # Emit ActiveSupport::Notifications events
   config.event_notifications_enabled = true
 

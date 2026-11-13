@@ -73,31 +73,33 @@ class RecordingStudioPluginsTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, "widen_recording_studio_requirement"
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.2.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.22.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.19.0"'
+    refute_includes gemfile, "widen_recording_studio_requirement"
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.4.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.32.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.21.8"'
     refute_includes gemfile, "TEMPORARY"
     refute_includes gemfile, "cursor/inbound-plugin-key-e105"
     refute_includes gemfile, 'tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.14.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_GoogleDrive", tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Dropbox", tag: "v0.4.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.23.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_GoogleDrive", tag: "v0.6.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Dropbox", tag: "v0.5.0"'
     refute_includes gemfile, "Temporary commit pins"
     refute_includes gemfile, "4d3ef7dc6a9dde24a54bfcb6c7c1dbde31cbcaea"
     refute_includes gemfile, "56cf5f78070994b162cdd57fd2dc5c2b5722c18f"
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.4.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.3", require: false'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.5.6"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.14.0", require: false'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.8.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"'
     refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.18.0"'
     refute_includes gemfile, 'RecordingStudio_metrics", tag: "v0.6.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.3"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.357"'
     refute_includes gemfile, 'tag: "v0.1.213"'
     refute_includes gemfile, 'tag: "v4.7.0"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -359,12 +361,12 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "McpClientStatus"
     assert_includes readme, "setup_url"
     assert_includes readme, "Oauth is a hard dependency"
-    assert_includes readme, "v2.5.1"
-    assert_includes readme, "v0.22.0"
+    assert_includes readme, "v2.13.0"
+    assert_includes readme, "v0.32.0"
     assert_includes readme, ">= 6.1.0"
     assert_includes readme, ">= 0.19.0"
     assert_includes readme, "recording_studio_layout"
-    assert_includes readme, "Admin, API, Cache, Metrics, Site Settings, Trashable"
+    assert_includes readme, "Admin, API, Cache, Logs, Metrics, Moveable, Icons, Site Settings, Trashable"
     assert_includes readme, "Recording Studio MCP"
     assert_includes readme, "to_prepare"
     assert_includes readme, "pattern, not shipped code"

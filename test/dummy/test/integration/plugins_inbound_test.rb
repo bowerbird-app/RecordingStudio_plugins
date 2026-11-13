@@ -265,6 +265,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
   end
 
   def switch_to_root!(root_recording)
+    grant_view_on_current_switch_root!(Current.actor)
     patch recording_studio_root_switchable.root_switch_path(scope: "all_workspaces"), params: {
       root_switch: {
         root_recording_id: root_recording.id,
