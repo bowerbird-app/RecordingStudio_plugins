@@ -4,17 +4,17 @@ require "test_helper"
 
 class RecordingStudioPluginsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.0", ::RecordingStudioPlugins::VERSION
+    assert_equal "0.10.0", ::RecordingStudioPlugins::VERSION
   end
 
   def test_engine_exists
     assert_kind_of Class, ::RecordingStudioPlugins::Engine
   end
 
-  def test_gemspec_pins_recording_studio_6_1
+  def test_gemspec_pins_recording_studio_6_14
     gemspec = File.read(File.expand_path("../recording_studio_plugins.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.14.0"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.315"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.18"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.5.1"'
@@ -74,7 +74,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     refute_includes gemfile, "widen_recording_studio_requirement"
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.14.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_dashboard", tag: "v0.4.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.32.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.21.8"'
@@ -363,7 +363,7 @@ class RecordingStudioPluginsTest < Minitest::Test
     assert_includes readme, "Oauth is a hard dependency"
     assert_includes readme, "v2.13.0"
     assert_includes readme, "v0.32.0"
-    assert_includes readme, ">= 6.1.0"
+    assert_includes readme, ">= 6.14.0"
     assert_includes readme, ">= 0.19.0"
     assert_includes readme, "recording_studio_layout"
     assert_includes readme, "Admin, API, Cache, Logs, Metrics, Moveable, Icons, Site Settings, Trashable"

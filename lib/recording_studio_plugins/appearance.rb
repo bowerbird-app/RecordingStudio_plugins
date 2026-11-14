@@ -142,11 +142,7 @@ module RecordingStudioPlugins
       end
 
       def kept(relation)
-        if RecordingStudio::Recording.respond_to?(:recording_studio_trashable_kept_sql)
-          relation.where(RecordingStudio::Recording.recording_studio_trashable_kept_sql)
-        else
-          relation
-        end
+        relation.where(RecordingStudio.kept_sql(relation.klass.table_name))
       end
     end
   end

@@ -33,9 +33,7 @@ module RecordingStudioPlugins
         root = find_configured_admin_root
         next unless root
 
-        RecordingStudio::Recording.where(
-          RecordingStudio::Recording.recording_studio_trashable_kept_sql
-        ).find_by(recordable: root)
+        RecordingStudio::Recording.kept.find_by(recordable: root)
       end
     end
 

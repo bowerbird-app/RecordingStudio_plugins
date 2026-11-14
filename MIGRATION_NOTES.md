@@ -4,7 +4,7 @@
 
 - Ruby 3.3 or newer
 - Rails 8.1 or newer
-- Recording Studio 6.1 (`>= 6.1.0` in the gemspec; dummy GitHub tag `v6.7.0`)
+- Recording Studio 6.14 (`>= 6.14.0` in the gemspec; dummy GitHub tag `v6.14.0`)
 - Oauth `>= 0.19.0` (dummy GitHub tag `v0.21.8`)
 - Admin `>= 2.5.1` (dummy GitHub tag `v2.13.0`)
 - Attachable `>= 0.22.0` (dummy GitHub tag `v0.23.0`)
