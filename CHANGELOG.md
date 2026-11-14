@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-14
+
+### Changed
+- **BREAKING:** requires `recording_studio >= 6.14.0`. Plugin appearance lookups and the default admin-root resolver read kept recordings through `RecordingStudio::Recording.kept` and `RecordingStudio.kept_sql`. The `recording_studio_trashable_kept_sql` call and the `respond_to?` guard around it are gone.
+- Dummy and development Gemfiles pin Recording Studio `v6.14.0` and Trashable `v0.16.0` (`require: false`). This gem does not depend on Trashable. Trashable 0.16.0 registers the `trashed_at` filter on `Recording.kept`.
+
+### Upgrade notes
+- Move hosts that are still below Recording Studio 6.14.0 up to 6.14.0 or newer before installing this version. Install Recording Studio's `add_root_recording_id_to_recording_studio_events` migration. Events need `root_recording_id`.
+- Install Trashable `v0.16.0` so `Recording.kept` hides trashed rows. This gem does not declare that dependency. Hosts that stay on an older Trashable still boot, and these lookups do not filter `trashed_at` until that filter is registered.
+- The dummy defines `Recording.recording_studio_trashable_kept_sql` as `RecordingStudio.kept_sql` so the pinned Accessible, Admin, and API gems still boot. That method is not part of this gem.
+
 ## [0.9.0] - 2026-11-10
 
 ### Added
@@ -275,7 +286,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.7.0...v0.8.0

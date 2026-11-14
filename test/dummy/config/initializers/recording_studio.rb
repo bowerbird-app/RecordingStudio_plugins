@@ -15,6 +15,14 @@ unless defined?(RecordingStudio::UsesDefaultLayout)
   end
 end
 
+# Pinned Accessible, Admin, and API still call this method. Trashable 0.16.0 removed it.
+# kept_sql is the replacement, including the trashed_at filter Trashable registers.
+Rails.application.config.to_prepare do
+  RecordingStudio::Recording.define_singleton_method(:recording_studio_trashable_kept_sql) do |table = "recording_studio_recordings"|
+    RecordingStudio.kept_sql(table)
+  end
+end
+
 Rails.application.config.to_prepare do
   dropdown_helper = RecordingStudioRootSwitchable::RootSwitchDropdownHelper if defined?(RecordingStudioRootSwitchable::RootSwitchDropdownHelper)
   mounted = Rails.application.routes.mounted_helpers

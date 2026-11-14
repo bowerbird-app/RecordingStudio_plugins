@@ -260,6 +260,54 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     tempfile&.close!
   end
 
+  test "appearance lookup and the default admin root honor a kept filter" do
+    sign_in @staff
+    Current.actor = @staff
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press Chat", actor: @staff)
+    RecordingStudioPlugins::Appearance.reset_index!
+    recording = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    root = AdminRoot.find_by!(name: "Admin")
+
+    assert recording
+    assert RecordingStudio::Recording.unscoped.exists?(recordable: root)
+
+    RecordingStudio.register_recording_filter(
+      :plugins_appearance_kept_probe,
+      sql: ->(table) { "#{table}.id IS NULL" }
+    ) { |recordings| recordings.none }
+
+    RecordingStudioPlugins::Appearance.reset_index!
+    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_nil RecordingStudioPlugins::Appearance.image_recording(:chatgpt)
+
+    config = RecordingStudioPlugins::Configuration.new
+    config.admin_root_types = ["AdminRoot"]
+    config.admin_root_name = "Admin"
+    assert_nil config.admin_recording_resolver.call
+  ensure
+    RecordingStudio.unregister_recording_filter(:plugins_appearance_kept_probe)
+    RecordingStudioPlugins::Appearance.reset_index!
+  end
+
+  test "a trashed appearance recording is left out of the kept lookup" do
+    sign_in @staff
+    Current.actor = @staff
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press Chat", actor: @staff)
+    RecordingStudioPlugins::Appearance.reset_index!
+    recording = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+
+    assert recording
+
+    recording.update_columns(trashed_at: Time.current)
+    RecordingStudioPlugins::Appearance.reset_index!
+
+    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_equal "ChatGPT", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
+  ensure
+    recording&.update_columns(trashed_at: nil)
+    RecordingStudioPlugins::Appearance.reset_index!
+  end
+
   test "appearance lookup returns the recording for that plugin key" do
     sign_in @staff
     Current.actor = @staff
