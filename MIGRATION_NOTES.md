@@ -8,7 +8,7 @@
 - Oauth `>= 0.19.0` (dummy GitHub tag `v0.21.8`)
 - Admin `>= 2.5.1` (dummy GitHub tag `v2.13.0`)
 - Attachable `>= 0.22.0` (dummy GitHub tag `v0.23.0`)
-- Accessible dummy tag `v0.32.0`, Trashable dummy tag `v0.14.0` (`require: false`), and Root Switchable dummy tag `v0.15.0`
+- Accessible dummy tag `v0.32.0`, Trashable dummy tag `v0.16.0` (`require: false`), and Root Switchable dummy tag `v0.15.0`
 - FlatPack dummy tag `v0.1.357`
 - Recording Studio Dashboard dummy tag `v0.4.1` (not a gemspec dependency)
 - Public RubyGems and GitHub access for dependency installation

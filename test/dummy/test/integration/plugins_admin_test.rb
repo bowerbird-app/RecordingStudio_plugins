@@ -289,6 +289,25 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     RecordingStudioPlugins::Appearance.reset_index!
   end
 
+  test "a trashed appearance recording is left out of the kept lookup" do
+    sign_in @staff
+    Current.actor = @staff
+    RecordingStudioPlugins::Appearance.update_name!(:chatgpt, name: "Press Chat", actor: @staff)
+    RecordingStudioPlugins::Appearance.reset_index!
+    recording = RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+
+    assert recording
+
+    recording.update_columns(trashed_at: Time.current)
+    RecordingStudioPlugins::Appearance.reset_index!
+
+    assert_nil RecordingStudioPlugins::Appearance.recording_for(:chatgpt)
+    assert_equal "ChatGPT", RecordingStudioPlugins::Appearance.display_name(RecordingStudioPlugins.find(:chatgpt))
+  ensure
+    recording&.update_columns(trashed_at: nil)
+    RecordingStudioPlugins::Appearance.reset_index!
+  end
+
   test "appearance lookup returns the recording for that plugin key" do
     sign_in @staff
     Current.actor = @staff

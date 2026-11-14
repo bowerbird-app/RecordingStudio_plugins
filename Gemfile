@@ -20,7 +20,7 @@ gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics",
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"
 gem "recording_studio_oauth", github: "bowerbird-app/RecordingStudio_Oauth", tag: "v0.21.8"
 gem "recording_studio_site_settings", github: "bowerbird-app/RecordingStudio_site_settings", tag: "v0.5.6"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.14.0", require: false
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.16.0", require: false
 
 gem "devise"
 gem "puma"
