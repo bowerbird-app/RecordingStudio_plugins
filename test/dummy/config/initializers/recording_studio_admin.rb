@@ -10,7 +10,6 @@ RecordingStudioAdmin.configure do |config|
 
     RecordingStudio::Recording.kept.find_by(recordable: admin_root)
   end
-  config.site_admin_recording_resolver = config.access_recording_resolver
 end
 
 Rails.application.config.to_prepare do

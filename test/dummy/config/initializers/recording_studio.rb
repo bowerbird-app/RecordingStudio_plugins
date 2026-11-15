@@ -15,14 +15,6 @@ unless defined?(RecordingStudio::UsesDefaultLayout)
   end
 end
 
-# Pinned Accessible, Admin, and API still call this method. Trashable 0.16.0 removed it.
-# kept_sql is the replacement, including the trashed_at filter Trashable registers.
-Rails.application.config.to_prepare do
-  RecordingStudio::Recording.define_singleton_method(:recording_studio_trashable_kept_sql) do |table = "recording_studio_recordings"|
-    RecordingStudio.kept_sql(table)
-  end
-end
-
 Rails.application.config.to_prepare do
   dropdown_helper = RecordingStudioRootSwitchable::RootSwitchDropdownHelper if defined?(RecordingStudioRootSwitchable::RootSwitchDropdownHelper)
   mounted = Rails.application.routes.mounted_helpers
@@ -61,8 +53,10 @@ RecordingStudio.configure do |config|
   # Actor resolver for events when no actor is explicitly supplied
   config.actor = -> { Current.actor }
 
-  # Recording Studio 6.5+ refuses writes unless the host sets authorize_write.
+  # Recording Studio 7 denies a write when authorize_write is missing.
   # The dummy records pages and plugin appearances with and without Current.actor.
+  # A nil actor still needs allow_unauthorized_writes; the callback only allows the write.
+  config.authorize_write = ->(**) { true }
   config.allow_unauthorized_writes = true
 
   # Emit ActiveSupport::Notifications events

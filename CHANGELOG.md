@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-15
+
+### Changed
+- **BREAKING:** requires `recording_studio >= 7.0`, `< 8.0`, `recording_studio_oauth >= 0.22.0`, `< 1.0`, `recording_studio_attachable >= 0.28.0`, `< 1.0`, `recording_studio_accessible >= 0.44.0`, `< 1.0`, and `recording_studio_admin >= 2.16.0`.
+- Dummy and development Gemfiles pin Recording Studio `v7.0.0`, Oauth `v0.22.0`, Attachable `v0.28.0`, Accessible `v0.44.0`, Admin `v2.16.0`, API `v0.24.0`, Logs `v0.8.0`, Root Switchable `v0.16.0`, Site Settings `v0.6.0`, Moveable `v5.0.0`, Trashable `v0.17.0`, Metrics `v0.9.0`, Cache `v0.6.3`, FlatPack `v0.1.376`, and Icons `v0.2.1`. Dashboard moves to `v0.5.0`. Dummy Google Drive moves to `v0.6.1` and Dropbox to `v0.5.1`. Those three tags are the releases that accept Recording Studio 7.
+- Roots are created with `create_root_recording!(recordable, actor:)`. `root_recording_for` only finds an existing root.
+- The dummy `authorize_write` callback allows every write. `allow_unauthorized_writes` stays on so a write can omit `Current.actor`.
+- The dummy no longer defines `Recording.recording_studio_trashable_kept_sql`. Trashable 0.17 removed that method. Kept rows use `RecordingStudio::Recording.kept` and `RecordingStudio.kept_sql`.
+- Admin 2.16 dropped `site_admin_recording_resolver`. The dummy sets `access_recording_resolver` only. Plugin staff pages read `context.access_recording`.
+- Accessible `admin_root_resolver` must return that same admin root. The plugins section uses site blast radius, and Accessible 0.44 allows that radius only for the resolved admin root.
+- Dummy locks pin Puma `>= 8.1.0` and msgpack `>= 1.8.7`.
+
+### Upgrade notes
+- Move hosts to Recording Studio 7.0 or newer, below 8.0, before installing this version. Install Oauth 0.22, Attachable 0.28, Accessible 0.44, and Admin 2.16 at the same time.
+- Create roots with `RecordingStudio.create_root_recording!(recordable, actor:)`. `root_recording_for` returns the existing root or nil.
+- Set `config.authorize_write`. Recording Studio 7 denies a write when that callback is missing and `allow_unauthorized_writes` is false. A nil actor still needs `allow_unauthorized_writes`.
+- Drop `config.site_admin_recording_resolver`. Point Admin `access_recording_resolver` and Accessible `admin_root_resolver` at the staff admin root. The plugins section's site blast radius stays closed until Accessible resolves that root.
+- Do not call `Recording.recording_studio_trashable_kept_sql`. Use `RecordingStudio::Recording.kept` or `RecordingStudio.kept_sql`.
+- Install Recording Studio's `add_root_recording_id_to_recording_studio_events` migration when the host has not already. Events need `root_recording_id`.
+- Raise Puma to 8.1.0 and msgpack to 1.8.7 or newer.
+- Dashboard `v0.4.1`, Google Drive `v0.6.0`, and Dropbox `v0.5.0` do not accept Recording Studio 7. Use Dashboard `v0.5.0`, Google Drive `v0.6.1`, and Dropbox `v0.5.1`.
+
 ## [0.10.0] - 2026-11-14
 
 ### Changed
@@ -286,7 +308,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/bowerbird-app/RecordingStudio_plugins/compare/v0.8.0...v0.8.1
