@@ -19,7 +19,7 @@ class PluginsDashboardTest < ActionDispatch::IntegrationTest
       password_confirmation: "Password123!"
     )
     workspace = Workspace.create!(name: "A Dashboard Workspace #{SecureRandom.hex(3)}")
-    @root = RecordingStudio.root_recording_for(workspace)
+    @root = RecordingStudio.create_root_recording!(workspace, actor: Current.actor)
     Current.actor = @admin
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @root, actor: @admin)
     RecordingStudioAccessible.grant_access(

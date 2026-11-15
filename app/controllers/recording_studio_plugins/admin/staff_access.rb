@@ -60,7 +60,7 @@ module RecordingStudioPlugins
       end
 
       def plugin_admin_root_recording(context)
-        context.site_admin_recording.presence || Appearance.admin_recording
+        context.access_recording.presence || Appearance.admin_recording
       end
 
       def admin_root_is_current?(context, recording)

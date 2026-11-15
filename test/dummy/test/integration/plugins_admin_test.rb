@@ -19,7 +19,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     @member = create_user("member")
     grant_staff!(@staff)
     workspace = Workspace.create!(name: "Z Admin Plugins #{SecureRandom.hex(3)}")
-    @workspace_root = RecordingStudio.root_recording_for(workspace)
+    @workspace_root = RecordingStudio.create_root_recording!(workspace, actor: Current.actor)
     Current.actor = @workspace_admin
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @workspace_root, actor: @workspace_admin)
     RecordingStudioAccessible.grant_access(
@@ -546,7 +546,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
 
   def admin_root_recording
     admin_root = AdminRoot.find_or_create_by!(name: "Admin")
-    RecordingStudio.root_recording_for(admin_root)
+    RecordingStudio.create_root_recording!(admin_root, actor: Current.actor)
   end
 
   def assert_padded_page_without_sidebar

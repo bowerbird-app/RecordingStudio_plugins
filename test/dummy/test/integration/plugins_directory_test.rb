@@ -17,7 +17,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     # Seed data is committed before the suite, and the dummy root switcher
     # defaults to the first workspace by name. This name stays first.
     workspace = Workspace.create!(name: "A Plugins Workspace #{SecureRandom.hex(3)}")
-    @root = RecordingStudio.root_recording_for(workspace)
+    @root = RecordingStudio.create_root_recording!(workspace, actor: Current.actor)
     Current.actor = @user
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @root, actor: @user)
     sign_in @user

@@ -14,7 +14,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
       password_confirmation: "Password123!"
     )
     workspace = Workspace.create!(name: "A Inbound Workspace #{SecureRandom.hex(3)}")
-    @root = RecordingStudio.root_recording_for(workspace)
+    @root = RecordingStudio.create_root_recording!(workspace, actor: Current.actor)
     Current.actor = @user
     RecordingStudioAccessible.bootstrap_owner_access!(recording: @root, actor: @user)
     @access = access_recording_for(@root, @user)
@@ -92,7 +92,7 @@ class PluginsInboundTest < ActionDispatch::IntegrationTest
     connect_chatgpt!(user: @user, access_recording: @access)
 
     other_workspace = Workspace.create!(name: "B Inbound Workspace #{SecureRandom.hex(3)}")
-    other_root = RecordingStudio.root_recording_for(other_workspace)
+    other_root = RecordingStudio.create_root_recording!(other_workspace, actor: Current.actor)
     RecordingStudioAccessible.bootstrap_owner_access!(recording: other_root, actor: @user)
 
     get recording_studio_plugins.root_path
