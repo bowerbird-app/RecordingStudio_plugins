@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Dummy and development Gemfiles pin the latest GitHub release of each Recording Studio addon and Flatpack. Recording Studio `v7.3.0`, Oauth `v0.25.0`, Accessible `v0.45.1`, Admin `v2.18.0`, API `v1.2.1`, Attachable `v0.31.0`, Cache `v0.7.0`, Icons `v0.4.0`, Moveable `v6.0.0`, Trashable `v1.0.1`, and Flatpack `v0.1.377`. Dashboard stays `v0.5.0`, Logs `v0.8.0`, Metrics `v0.9.0`, Site Settings `v0.6.0`, and Root Switchable `v0.16.0`. Dummy Google Drive is `v0.7.0` and Dropbox is `v0.6.0`. Gemspec floors are unchanged.
+
 ## [0.11.0] - 2026-11-15
 
 ### Changed
