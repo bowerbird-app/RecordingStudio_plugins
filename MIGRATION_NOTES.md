@@ -6,7 +6,7 @@
 - Rails 8.1 or newer
 - Recording Studio 7 (`>= 7.0`, `< 8.0` in the gemspec; dummy GitHub tag `v7.8.0`)
 - Oauth `>= 0.22.0`, `< 1.0` (dummy GitHub tag `v0.26.0`)
-- Admin `>= 2.16.0` (dummy GitHub tag `v2.20.0`). Use `access_recording_resolver`. Admin 2.18 has no `site_admin_recording_resolver`.
+- Admin `>= 2.16.0` (dummy GitHub tag `v2.20.0`). Use `access_recording_resolver`. Admin 2.20 has no `site_admin_recording_resolver`.
 - Accessible `admin_root_resolver` returns the same admin root. The plugins section's site blast radius needs it.
 - Attachable `>= 0.28.0`, `< 1.0` (dummy GitHub tag `v0.34.0`)
 - Accessible `>= 0.44.0`, `< 1.0` (dummy GitHub tag `v0.58.0`), Trashable dummy tag `v1.3.0` (`require: false`), and Root Switchable dummy tag `v0.17.0`
