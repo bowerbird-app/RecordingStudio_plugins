@@ -54,7 +54,7 @@ class PluginsDashboardTest < ActionDispatch::IntegrationTest
                   minimum: 2
     assert_select "[data-dashboard-placement=installable_plugins] a[href='https://chatgpt.com']", text: "ChatGPT"
     assert_select "[data-dashboard-placement=installable_plugins] a[href='https://grok.com']", text: "Grok Bot"
-    assert_select "[data-dashboard-placement=installable_plugins] [data-flat-pack--icon-name-value='puzzle-piece']"
+    assert_select "[data-dashboard-placement=installable_plugins] svg[aria-hidden='true'] path[d*='M14.25 6.087c0-.355']"
   end
 
   test "member cards omit workspace plugins" do

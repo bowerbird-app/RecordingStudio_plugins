@@ -69,7 +69,7 @@ class PluginsDirectoryTest < ActionDispatch::IntegrationTest
     assert_select "form[action='/dummy_plugins/linear/connect']"
     assert_select "input[name='q']", count: 0
     assert_select "a[href*='category=']", count: 0
-    assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
+    assert_select "svg[aria-hidden='true'] path[d*='M14.25 6.087c0-.355']"
     assert_includes response.body, @root.recordable.name
     assert_select "[data-controller='flat-pack--button-dropdown']"
     assert_select ".fp-page-layout[data-fp-page-layout-width=default]"

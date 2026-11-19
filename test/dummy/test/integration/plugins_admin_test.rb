@@ -89,7 +89,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_select ".fp-page-layout[data-fp-page-layout-width='default']"
     refute_select "[data-fp-page-layout-width='full']"
     assert_select "[data-controller='flat-pack--button-dropdown']"
-    assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
+    assert_select "svg[aria-hidden='true'] path[d*='M14.25 6.087c0-.355']"
     RecordingStudioPlugins.all.each do |definition|
       assert_includes response.body, RecordingStudioPlugins::Appearance.display_name(definition)
       assert_select "a[href=?]", recording_studio_plugins.admin_plugin_edit_path(definition.key), text: "Edit", count: 1
@@ -502,7 +502,7 @@ class PluginsAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "img[alt='Chat helper']", count: 0
     assert_includes response.body, "Chat helper"
-    assert_select "[data-flat-pack--icon-name-value='puzzle-piece'][aria-hidden='true']"
+    assert_select "svg[aria-hidden='true'] path[d*='M14.25 6.087c0-.355']"
   end
 
   private
